@@ -14,6 +14,7 @@ export TERM="xterm-256color"
 #ZSH_THEME="powerlevel9k/powerlevel9k"
 #ZSH_THEME="spaceship"
 ZSH_THEME="glister"
+#ZSH_THEME="pure"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -68,6 +69,8 @@ ZSH_THEME="glister"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  colored-man-pages
+  colorize
   git
   zsh-autosuggestions
 )
@@ -103,7 +106,6 @@ source ~/.alias_clockpost
 # Example aliases
 alias todos="grep -RI TODO ."
 alias typora="open -a typora"
-alias mvim="mvim --remote-tab"
 alias vim="/usr/local/bin/vim"
 alias ls="gls -lah --color --group-directories-first" # show hidden files, expanded infoand proper K/M/GB by default
 
@@ -122,7 +124,7 @@ alias megachecker="cd ~/Documents/brainlabs/MegaChecker/services/checkers/"
 
 # Other
 alias dockerip='eval $(docker-machine env default)'
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:~/.composer/vendor/bin
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/Cellar:~/.composer/vendor/bin:$PATH
 export GITHUB_TOKEN=6924b264f2567c4495c702edaf9b1da8f42d2463
 export PIPENV_VENV_IN_PROJECT=1
 export TERM=xterm
@@ -131,14 +133,7 @@ export VIMRUNTIME=/usr/local/Cellar/macvim/8.1-152/MacVim.app/Contents/Resources
 export CETA_CONFIG_PATH="/Users/sarunasnejus/Documents/brainlabs/CetaAdGroupDeviceModifiers/config.json"
 export MEGACHECKER_PRODUCTION_CREDS="/Users/sarunasnejus/Documents/cred/credentials.json"
 export MEGACHECKER_MAINTAINER_CREDS="/Users/sarunasnejus/Documents/cred/credentials.yaml"
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -f -g ""'
 
-
-# ASA-BRSB
-export HOST=0.0.0.0
-export PORT=8080
-export PSQL_HOST=postgres
-export PSQL_USER=postgres
-export PSQL_DBNAME=postgres
-export PSQL_PASS=pass
-export SSL_CERTFILE=/run/secrets/certfile
-export SSL_KEYFILE=/run/secrets/keyfile
+# added by travis gem
+[ -f /Users/sarunasnejus/.travis/travis.sh ] && source /Users/sarunasnejus/.travis/travis.sh
