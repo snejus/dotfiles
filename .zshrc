@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/sarunasnejus/.oh-my-zsh"
+export ZSH="/home/sarunas/.oh-my-zsh"
 export TERM="xterm-256color"
 
  #Set name of the theme to load --- if set to "random", it will
@@ -76,7 +76,6 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
-source ~/.alias_clockpost
 
 # User configuration
 
@@ -105,35 +104,13 @@ source ~/.alias_clockpost
 #
 # Example aliases
 alias todos="grep -RI TODO ."
-alias typora="open -a typora"
-alias vim="/usr/local/bin/vim"
-alias ls="gls -lah --color --group-directories-first" # show hidden files, expanded infoand proper K/M/GB by default
-
-# Servers
-alias workhorse2="ssh sarunas@37.59.31.66"
-alias workhorse3="ssh sarunas@37.187.155.228"
-alias workhorse4="ssh sarunas@94.23.219.100"
-alias projecty="ssh sarunas@34.214.75.198"
-alias projecty2="ssh sarunas@37.187.79.72"
-alias madscientist="ssh sarunas@ns3311209.ip-5-135-161.eu"
-alias shopping="ssh sarunas@ns352932.ip-37-187-146.eu"
-
-# Folders
-alias ceta="cd ~/Documents/brainlabs/CetaAdGroupDeviceModifiers/"
-alias megachecker="cd ~/Documents/brainlabs/MegaChecker/services/checkers/"
+alias ls="ls -lah --color --group-directories-first" # show hidden files, expanded infoand proper K/M/GB by default
 
 # Other
 alias dockerip='eval $(docker-machine env default)'
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/Cellar:~/.composer/vendor/bin:$PATH
-export GITHUB_TOKEN=6924b264f2567c4495c702edaf9b1da8f42d2463
 export PIPENV_VENV_IN_PROJECT=1
-export TERM=xterm
-export LESS="-XFN" # X: keeps output on screen, F: auto exit if short file, N: line numbers
-export VIMRUNTIME=/usr/local/Cellar/macvim/8.1-152/MacVim.app/Contents/Resources/vim/runtime
-export CETA_CONFIG_PATH="/Users/sarunasnejus/Documents/brainlabs/CetaAdGroupDeviceModifiers/config.json"
-export MEGACHECKER_PRODUCTION_CREDS="/Users/sarunasnejus/Documents/cred/credentials.json"
-export MEGACHECKER_MAINTAINER_CREDS="/Users/sarunasnejus/Documents/cred/credentials.yaml"
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -f -g ""'
 
-# added by travis gem
-[ -f /Users/sarunasnejus/.travis/travis.sh ] && source /Users/sarunasnejus/.travis/travis.sh
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+        source /etc/profile.d/vte.sh
+fi
