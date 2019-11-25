@@ -87,6 +87,7 @@ set scrolloff=999 " keep the cursor centered
 set foldmethod=indent
 set foldlevel=99
 set guioptions= " remove scrollbars
+set background=dark
 
 " Comments in italics
 highlight Comment cterm=italic gui=italic
