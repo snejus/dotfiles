@@ -1,196 +1,209 @@
-set nocompatible  " be iMproved, required
-filetype off      " required - no compatibility with the ol' vi
-syntax on         " syntax colouring
+set nocompatible " sorry vi
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
+""" Vundle and plugins
+filetype off " required for Vundle
+set rtp+=~/.vim/bundle/Vundle.vim " set the runtime path to include Vundle and initialize
 call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-" The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
-" plugin on GitHub repo
-Plugin 'tpope/vim-fugitive'
-" plugin from http://vim-scripts.org/vim/scripts.html
-" Plugin 'L9'
-" Git plugin not hosted on GitHub
-Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-" Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" Install L9 and avoid a Naming conflict if you've already installed a
-" different version somewhere else.
-" Plugin 'ascenator/L9', {'name': 'newL9'}
-
-" My plugins:
-Plugin 'https://github.com/Valloric/YouCompleteMe' " autocompletion
-Plugin 'morhetz/gruvbox' " gruvbox theme
-Plugin 'https://github.com/scrooloose/nerdtree.git' " file explorer
+Plugin 'tpope/vim-fugitive'           " git integration
+Plugin 'Valloric/YouCompleteMe'       " autocompletion
+Plugin 'morhetz/gruvbox'              " gruvbox theme
+Plugin 'preservim/nerdtree'       " file explorer
 Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plugin 'junegunn/fzf.vim' " intelligent file search
-Plugin 'itchyny/lightline.vim' " bottom info banner
-Plugin 'lifepillar/vim-cheat40' " cheatsheet: <leader>?
-Plugin 'w0rp/ale' " linter
-Plugin 'vim-python/python-syntax' " python syntax highlighting
-Plugin 'posva/vim-vue' " Vue.js syntax highlighting
-Plugin 'eugen0329/vim-esearch'
-"Plugin 'Quramy/tsuquyomi' " TypeScript autocompletion
-"Plugin 'leafgarland/typescript-vim' " TypeScript syntax highlighting
-"Plugin 'mhinz/vim-startify'
-Plugin 'jreybert/vimagit'
-Plugin 'chaoren/vim-wordmotion'
-Plugin 'vim-scripts/indentpython.vim'
-Plugin 'haya14busa/incsearch.vim'
-Plugin 'mhinz/vim-signify'
+Plugin 'junegunn/fzf.vim'             " intelligent fuzzy file search
+Plugin 'junegunn/vim-easy-align'      " align columns around a char
+Plugin 'itchyny/lightline.vim'        " bottom info banner
+Plugin 'lifepillar/vim-cheat40'       " cheatsheet: <leader>?
+Plugin 'w0rp/ale'                     " linter
+Plugin 'vim-python/python-syntax'     " python syntax highlighting
+Plugin 'mhinz/vim-startify'           " vim startup screen
+Plugin 'chaoren/vim-wordmotion'       " correctly moves across camelCase and snake_case words
+Plugin 'vim-scripts/indentpython.vim' " python indentation handled correctly
+Plugin 'haya14busa/incsearch.vim'     " highlights pattern matches incrementally
+Plugin 'mhinz/vim-signify'            " vcs signs (+, -, ~) in the gutter
+Plugin 'Rykka/riv.vim'                " .rST toolset
+Plugin 'Rykka/InstantRst'             " .rST server
+"Plugin 'posva/vim-vue'                " Vue.js syntax highlighting
+Plugin 'tpope/vim-commentary'               " Comment out lines with gcc / gc
+
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
+syntax on         " syntax colouring
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
 
-let g:python_highlight_all = 1 " python-syntax all highl features enabled
-
-set autoread " auto reload changed files
-set wildmenu " tab autocomplete in command mode
-set nowrap " don't wrap long lines
+""" Options
+set autoread              " auto reload changed files
+set wildmenu              " tab autocomplete in command mode
+set nowrap                " don't wrap long lines
 set listchars=extends:→   " Show arrow if line continues rightwards
 set listchars+=precedes:← " Show arrow if line continues leftwards
-set hlsearch " highlight search results
-set incsearch " show search results as you type
-set cursorline " highlights current line
-set modifiable " buffers are modifiable
-set autoindent " automatic identation
-set shiftwidth=4 " < and > commands tab 4 spaces
-set tabstop=4 " indent is 4 spaces
-set term=ansi " fixes some arrowkey navigation problems
+set hlsearch              " highlight search results
+set incsearch             " show search results as you type
+set cursorline            " highlights current line
+set modifiable            " buffers are modifiable
+set autoindent            " automatic identation
+set shiftwidth=4          " < and > commands tab 4 spaces
+set tabstop=4             " indent is 4 spaces
+set term=ansi             " fixes some arrowkey navigation problems
 set number relativenumber " displays hybrid line numbers
-set expandtab " tabs are converted to spaces
-set splitbelow " more intuitive adding of new splits
-set splitright " more intuitive adding of new splits
-set scrolloff=999 " keep the cursor centered
+set expandtab             " tabs are converted to spaces
+set splitbelow            " more intuitive adding of new splits
+set splitright            " more intuitive adding of new splits
+set scrolloff=999         " keep the cursor centered
 set foldmethod=indent
 set foldlevel=99
-set guioptions= " remove scrollbars
+set guioptions=           " remove scrollbars
 set background=dark
+set ttyfast
+set re=1
 
 " Comments in italics
 highlight Comment cterm=italic gui=italic
-
-" identation according to filetype
-autocmd Filetype html setlocal ts=2 sw=2 expandtab
-autocmd Filetype htmldjango setlocal ts=2 sw=2 expandtab
-autocmd Filetype javascript setlocal ts=2 sw=2 expandtab
-autocmd Filetype yml setlocal ts=2 sw=2 expandtab
-autocmd Filetype yaml setlocal ts=2 sw=2 expandtab
-" recognise typescript files
-autocmd BufNewFile,BufRead *.ts setlocal filetype=typescript
-autocmd BufNewFile,BufRead *.tsx setlocal filetype=typescript
-autocmd Filetype typescript setlocal ts=2 sw=2 expandtab
-au BufNewFile,BufRead *.vue setf vue
-autocmd Filetype vue setlocal ts=2 sw=2 expandtab
-autocmd Filetype vuejs setlocal ts=2 sw=2 expandtab
-
-" make sure vue syntax highlighting doesn't confuse itself
-autocmd Filetype vue syntax sync fromstart
-autocmd Filetype vuejs syntax sync fromstart
+"
 " visual mode selection colours sorted
 highlight Visual cterm=reverse ctermbg=NONE
 
 " solve temp file must be edited... problem with crontab
-autocmd filetype crontab setlocal nobackup nowritebackup
+au filetype crontab setlocal nobackup nowritebackup
 
 colorscheme gruvbox
 set t_Co=256 " ensure gui colorscheme works in the terminal
 
-" autocmd vimenter * NERDTree " open nerdtree automatically upon vim startup
-" autocmd vimenter * wincmd p " goes together with the above. If this line is
-" enabled and the above is not, it will break macvim god knows why
+" Speed up syntax highlighting
+aug vimrc
+  au!
+  au BufWinEnter,Syntax * syn sync minlines=100 maxlines=100
+aug END
 
-" Key remaps
+" Disable syntax highlighting for html files
+au! BufReadPost *.html set syntax=off
+" This beauty remembers where you were the last time you edited the file, and returns to the same position.
+au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
+
+" identation according to filetype
+au Filetype html setlocal ts=2 sw=2 expandtab
+au Filetype htmldjango setlocal ts=2 sw=2 expandtab
+au Filetype javascript setlocal ts=2 sw=2 expandtab
+au Filetype yml setlocal ts=2 sw=2 expandtab
+au Filetype yaml setlocal ts=2 sw=2 expandtab
+
+" recognise typescript files
+au BufNewFile,BufRead *.ts setlocal filetype=typescript
+au BufNewFile,BufRead *.tsx setlocal filetype=typescript
+au Filetype typescript setlocal ts=2 sw=2 expandtab
+"
+" recognise vue files
+au BufNewFile,BufRead *.vue setf vue
+au Filetype vue setlocal ts=2 sw=2 expandtab
+au Filetype vuejs setlocal ts=2 sw=2 expandtab
+
+" make sure vue syntax highlighting doesn't confuse itself
+au Filetype vue syntax sync fromstart
+au Filetype vuejs syntax sync fromstart
+"
+" Remove trailing whitespaces
+au BufWritePre * %s/\s\+$//e
+
+
+""" Key remaps
 " nicer navigation between splits
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
-" remap leader
 let mapleader = "\<Space>"
-" toggles nerdtree split on the left (CTRL + JK)
-nmap <C-J><C-K> :NERDTreeToggle<CR>
 
-" Nerdtree settings
+""" Plugin: python-syntax
+"let g:python_highlight_all = 1
+let g:python_highlight_builtins = 1
+let g:python_highlight_exceptions = 1
+"let g:python_highlight_func_calls = 1
+let g:python_highlight_class_vars = 1
+"let g:python_highlight_string_formatting = 1
+"let g:python_highlight_string_format = 1
+"let g:python_highlight_string_templates = 1
+"let g:python_highlight_indent_errors = 1
+"let g:python_highlight_space_errors = 1
+"let g:python_highlight_doctests = 1
+"let g:python_highlight_operators = 1
+
+
+""" Plugin: vim-easy-align
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+vmap <Enter> <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
+""" Plugin: riv
+"let g:riv_python_rst_hl=1
+
+""" Plugin: NERDTree
 let NERDTreeWinSize=40
 let NERDTreeMinimalUI=1
 let NERDTreeDirArrows=1
+" au vimenter * NERDTree " open nerdtree automatically upon vim startup
+" au vimenter * wincmd p " goes together with the above. If this line is
+" enabled and the above is not, it will break macvim god knows why
 
-" Remove trailing whitespaces
-autocmd BufWritePre * %s/\s\+$//e
+" Remap: nerdtree toggle
+nmap <C-J><C-K> :NERDTreeToggleVCS<CR>
 
-" fzf settings:
+
+""" Plugin: fzf
 " clicking ; intelligently recursively searches for files from the dir vim is
 " opened
 " clicking \ intelligently recursively searches for files across all the
 " project directories
+" Remaps:
 map ; :Files<CR>
-map \ :Files /Users/sarunasnejus/Documents/brainlabs<CR>
+map \ :Files /home/sarunas/Documents/projects<CR>
 map <Leader>; :Ag<CR>
 
 
-" ALE settings
+""" Plugin: ALE
+" Remap: navigate between errors
+nmap <silent> <C-m> <Plug>(ale_previous_wrap)
+nmap <silent> <C-n> <Plug>(ale_next_wrap)
+
 let g:ale_linters = {
 \    'php': ['phpstan', 'phpcs'],
-\    'python': ['mypy', 'flake8'],
+\    'python': ['mypy', 'flake8', 'pylint', 'pycodestyle'],
 \    'vue': ['eslint'],
 \    'javascript': ['eslint']
 \}
+
 let g:ale_fixers = {
 \    'python': ['black', 'isort'],
 \    'javascript': ['eslint'],
 \    'vue': ['eslint'],
 \    'htmldjango': ['prettier'],
 \}
+
 let g:ale_fix_on_save=1
+
 " Only run specified linters
 let g:ale_linters_explicit=1
+
 "let g:ale_python_mypy_executable=1
 
-let g:ale_php_phpstan_executable="./vendor/bin/phpstan"
-let g:ale_php_phpstan_level=7
-
-let g:ale_php_phpcs_executable="/Users/sarunasnejus/.composer/vendor/bin/phpcs"
-let g:ale_php_phpcs_standard="PSR2"
-
-" ESearch settings
-let g:esearch = {
-\ 'adapter':          'ag',
-\ 'backend':          'vimproc',
-\ 'out':              'win',
-\ 'batch_size':       1000,
-\ 'use':              ['visual', 'hlsearch', 'last'],
-\ 'default_mappings': 1,
-\}
-
-" YouCompleteMe settings
+"let g:ale_lint_on_text_changed = 'never'
+"let g:ale_lint_on_insert_leave = 0
+"let g:ale_lint_on_enter = 0
+"
+""" Plugin: YouCompleteMe
 "let g:ycm_filetype_specific_completion_to_disable = {
 "      \ 'javascript': 1,
 "      \}
-" python with virtualenv support
+
+" Python with virtualenv support
 " Point YCM to the Pipenv created virtualenv, if possible
 " At first, get the output of 'pipenv --venv' command.
 let pipenv_venv_path = system('pipenv --venv')
@@ -209,10 +222,12 @@ else
 endif
 
 let g:ycm_autoclose_preview_window_after_completion=1
+
+" Remap:
 nnoremap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 
-" Search
+""" Plugin: incsearch
 let g:incsearch#auto_nohlsearch = 1
 map /  <Plug>(incsearch-forward)
 map ?  <Plug>(incsearch-backward)
@@ -224,5 +239,28 @@ map #  <Plug>(incsearch-nohl-#)
 map g* <Plug>(incsearch-nohl-g*)
 map g# <Plug>(incsearch-nohl-g#)
 
-" vim-signify
+""" Plugin: vim-signify
 let g:signify_vcs_list=["git"]
+
+
+""" Disable plugins for troubleshooting
+"set runtimepath-=/home/sarunas/.vim/bundle/ale
+"set runtimepath-=/home/sarunas/.vim/bundle/command-t
+"set runtimepath-=/home/sarunas/.vim/bundle/fzf
+"set runtimepath-=/home/sarunas/.vim/bundle/fzf.vim
+"set runtimepath-=/home/sarunas/.vim/bundle/gruvbox
+"set runtimepath-=/home/sarunas/.vim/bundle/incsearch.vim
+"set runtimepath-=/home/sarunas/.vim/bundle/indentpython.vim
+"set runtimepath-=/home/sarunas/.vim/bundle/lightline.vim
+"set runtimepath-=/home/sarunas/.vim/bundle/nerdtree
+set runtimepath-=/home/sarunas/.vim/bundle/python-syntax " disabled due to slow rendering
+"set runtimepath-=/home/sarunas/.vim/bundle/sparkup
+"set runtimepath-=/home/sarunas/.vim/bundle/vim-fugitive
+"set runtimepath-=/home/sarunas/.vim/bundle/vim-signify
+"set runtimepath-=/home/sarunas/.vim/bundle/vim-wordmotion
+"set runtimepath-=/home/sarunas/.vim/bundle/YouCompleteMe
+
+""" Folding
+
+"""" vim:fdm=expr:fdl=0
+"""" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
