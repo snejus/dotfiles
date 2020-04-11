@@ -1,0 +1,34 @@
+alias todos="grep -RI TODO ."
+alias ls="exa -lah" # show hidden files, expanded infoand proper K/M/GB by default
+alias dockerip='eval $(docker-machine env default)'
+alias s="git status"
+alias vu="vagrant up"
+alias vs="vagrant ssh"
+alias vh="vagrant halt"
+alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+
+cache_purge() {
+    remove_file_folder f .coverage $1
+    remove_file_folder d __pycache__ $1
+    remove_file_folder d .pytest_cache $1
+    remove_file_folder d .eggs $1
+    remove_file_folder d build $1
+    remove_file_folder d dist $1
+    remove_file_folder d *.egg-info $1
+    echo Finished removing caches
+}
+remove_file_folder() {
+    count=0
+    for file in $(find . -name $2 -type $1);
+    do
+        rm -rf $file $3
+    let "count++"
+    done
+    if [ $count -gt 0 ]
+    then
+        echo "- Removed $count $2"
+    fi
+}
+rm_swp() {
+    find . -name '*.swp' -print0 | xargs -0 rm -i
+}

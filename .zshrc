@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/home/sarunas/.oh-my-zsh"
@@ -103,14 +103,17 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-alias todos="grep -RI TODO ."
-alias ls="ls -lah --color --group-directories-first" # show hidden files, expanded infoand proper K/M/GB by default
-
-# Other
-alias dockerip='eval $(docker-machine env default)'
+#alias todos="grep -RI TODO ."
+#alias ls="exa -lah" # show hidden files, expanded infoand proper K/M/GB by default
+#
+## Other
+#alias dockerip='eval $(docker-machine env default)'
+. ~/.zsh_aliases
 export PIPENV_VENV_IN_PROJECT=1
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -f -g ""'
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
         source /etc/profile.d/vte.sh
 fi
+
+eval "$(jump shell)"
