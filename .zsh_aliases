@@ -1,20 +1,51 @@
+# General
+alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+alias open="xdg-open"
+alias pbpaste="xclip -selection clipboard -o"
 alias todos="grep -RI TODO ."
-alias ls="exa -lah" # show hidden files, expanded infoand proper K/M/GB by default
+alias update="source $HOME/.zshrc"
+
+# Ag
+alias agl="ag --pager less"
+alias agf="ag --silent -g"
+
+# Docker
 alias dockerip='eval $(docker-machine env default)'
-alias s="git status"
+
+# Exa
+alias ls="exa -lah"
+
+# Edit often accessed files
+alias evimrc="vim $HOME/.vimrc"
+alias ezsh="vim $HOME/.zshrc"
+alias egit="vim $HOME/.gitconfig"
+alias eal="vim $HOME/.zsh_aliases"
+alias efzf="vim $HOME/.zsh_fzf"
+
+# Git
+alias gl='git l'
+alias gs="git status"
+
+# Tilix
+alias new="tilix -a app-new-window"
+alias down="tilix -a session-add-down"
+alias right="tilix -a session-add-right"
+
+# Vagrant
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
-alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+alias m="make"
 
+# Functions
 cache_purge() {
-    remove_file_folder f .coverage $1
+    # remove_file_folder f .coverage $1
     remove_file_folder d __pycache__ $1
     remove_file_folder d .pytest_cache $1
-    remove_file_folder d .eggs $1
-    remove_file_folder d build $1
-    remove_file_folder d dist $1
-    remove_file_folder d *.egg-info $1
+    # remove_file_folder d .eggs $1
+    # remove_file_folder d build $1
+    # remove_file_folder d dist $1
+    # remove_file_folder d *.egg-info $1
     echo Finished removing caches
 }
 remove_file_folder() {
