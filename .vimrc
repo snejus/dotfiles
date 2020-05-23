@@ -7,85 +7,77 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-""" Plugins
+""" Plugins, sorted by how much worse my life would be without it
 call plug#begin('~/.vim/bundle/')
 
-" git integration
-Plug 'tpope/vim-fugitive'
-
-" autocomplete. need to start gvim / vim from a virtualenv for best results
-Plug 'Valloric/YouCompleteMe', { 'for': 'python' }
-
-" gruvbox colorscheme. edit gruvbox / colors / gruvbox.vim to customise
-Plug 'gruvbox-community/gruvbox'
-
-" file tree on the left
-Plug 'preservim/nerdtree'
-
-" fzf <3 <3 <3
+" fzf <3
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
-" vim cheatsheet - invoked with Leader + ?
-Plug 'lifepillar/vim-cheat40'
-
-" ALE asynchronous linting / formatting engine
+" asynchronous linting / formatting engine
 Plug 'w0rp/ale' ", { 'on': 'ALEToggle' }
 
-" vim startup screen
-Plug 'mhinz/vim-startify'
+" git. Manage with :G
+Plug 'tpope/vim-fugitive'
 
 " minds camelCase and snake_case separators when moving across words
 Plug 'chaoren/vim-wordmotion'
 
+" autocomplete. Need to open vim from venv for project-specific setup
+Plug 'Valloric/YouCompleteMe', { 'for': 'python' }
+
+" Comment out lines with gcc / gc
+Plug 'tpope/vim-commentary'
+
+" tree explorer
+Plug 'preservim/nerdtree'
+
 " python indentation handled correctly
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 
-" highlights pattern matches incrementally
-Plug 'haya14busa/incsearch.vim'
+" easier handling of parentheses / curly brackets etc.
+Plug 'tpope/vim-surround'
 
 " vcs signs (+, -, ~) in the gutter
 Plug 'mhinz/vim-signify'
 
-" amazing .rST toolset
+" close buffer but leave window open
+Plug 'moll/vim-bbye'
+
+" f but 2 characters
+Plug 'justinmk/vim-sneak'
+
+" amazing .rST toolset - a bit heavy on keymaps so needs some custom patching
 Plug 'Rykka/riv.vim' " , { 'for': 'rst' } causes problems if not loaded initially
 
 " automatically updating rST server
 Plug 'Rykka/InstantRst', { 'for': 'rst' }
 
-" Comment out lines with gcc / gc
-Plug 'tpope/vim-commentary'
-
-" close buffer but leave window open
-Plug 'moll/vim-bbye'
-
-" resizing mappings
+" window resize mappings
 Plug 'talek/obvious-resize'
+
+" extra syntax highlighting
+Plug 'cespare/vim-toml'               " toml
+Plug 'raimon49/requirements.txt.vim'  " requirements.txt
+
+" ctags dashboard
+Plug 'liuchengxu/vista.vim'
 
 " statusline plugins
 Plug 'vim-airline/vim-airline'
 " Plug 'itchyny/lightline.vim'
 " Plug 'rbong/vim-crystalline'
 
-" syntax highlighting
-Plug 'cespare/vim-toml'               " toml
-Plug 'raimon49/requirements.txt.vim'  " requirements.txt
+" pattern matches highlighted incrementally
+Plug 'haya14busa/incsearch.vim'
 
-" f but 2 characters
-Plug 'justinmk/vim-sneak'
+" gruvbox colourscheme. Edit gruvbox/colors/gruvbox.vim to customise
+Plug 'gruvbox-community/gruvbox'
 
-" easier parentheses movements
-Plug 'tpope/vim-surround'
-
-" ctags dashboard
-Plug 'liuchengxu/vista.vim'
-if !has('nvim')
-    "Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
-    "set runtimepath-=/home/sarunas/.vim/bundle/semshi
-endif
+" vim cheatsheet - invoked with Leader + ?
+Plug 'lifepillar/vim-cheat40'
 
 call plug#end()
-
 
 """ Non-plugin Options
 set autoindent            " automatic identation
@@ -93,17 +85,16 @@ set autoread              " auto reload changed files
 set background=dark       " dark theme
 set belloff=all           " turn off the error bell
 set cursorline            " highlights current line
-set encoding=utf8         "
+set encoding=utf8
 set expandtab             " tabs are converted to spaces
-set foldmethod=indent     " fold by indents - it's python after all
+set foldmethod=indent     " fold by indents - that's python specific
 set foldlevel=99          " fold level of a closed fold
 set hlsearch              " highlight search results
 set incsearch             " show search results as you type
 set laststatus=2          " always show statusline
-set lazyredraw            " do not redraw screen while macros are executing
 set listchars=extends:→   " show arrow if line continues behind right window boundary
 set listchars+=precedes:← " same
-set mat=4               " how long to show the matching brackets for
+set mat=4                 " how long to show matching brackets for
 set modifiable            " buffers are modifiable
 set noequalalways         " split windows sizes always split in half
 set nowritebackup         " do not backup - git is used anyways
@@ -119,10 +110,12 @@ set shortmess+=F          " get rid of the file name displayed in the command li
 set showmatch             " show matching bracket for a bit
 set splitbelow            " m:Lore intuitive adding of new splits
 set splitright            " more intuitive adding of new splits
+set synmaxcol=100         " only syntax-highlight the first 100 characters in a line
+set t_Co=256              " the amount of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
-set ttyfast               " fast terminal boiiiii
+set termguicolors         " in reality, increases the contrast a bit
+set ttyfast               " fast terminal vrummmmmmm
 set wildmenu              " tab autocomplete in command mode
-set whichwrap+=<,>,h,l,b  " automatically move to the upper / lower line when hittint left / right
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 
 if has("gui_running")
@@ -135,39 +128,32 @@ endif
 
 let mapleader = "\<Space>"
 
+" set this if want to run vim from its own venv
 "let g:python3_host_prog='~/.local/share/dephell/venvs/.vim-pA95/bin/python3'
 
 " vim distribution plugins
 let g:loaded_matchparen = 1
 let g:loaded_matchit = 1
 
-highlight Comment cterm=italic gui=italic
 " comments in italics
+highlight Comment cterm=italic gui=italic
 
-" sorts out visual mode selection colours
-highlight Visual cterm=reverse ctermbg=NONE
-
-" solves temp file must be edited... problem with crontab
-au filetype crontab setlocal nobackup nowritebackup
-
-set t_Co=256 " ensure gui colorschemes work in the terminal
-"set termguicolors " same - some days one looks better than another
+" colourscheme - options must be set before loading it
 let g:gruvbox_contrast_dark='medium'
 let g:gruvbox_sign_column='bg0'
 let g:gruvbox_hls_highlight='blue'
 colorscheme gruvbox
 
-" speed up syntax highlighting - also fucks it up sometimes. Need to run
-" :syntax on / syn on to solve
-aug vimrc
-    au!
-    au BufWinEnter,Syntax * syn sync minlines=100 maxlines=100
-aug END
+" speed up syntax highlighting. A bit hacky but some glitches are fine with me
+" aug vimrc
+"     au!
+"     au BufWinEnter,Syntax * syn sync minlines=1 maxlines=1
+" aug END
 
-" this beauty remembers wh;re I was the last time you edited the file, and returns to the same position
+" this beauty remembers where the cursor was when file was closed and returns to the same position
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 
-" recognise files
+" filetype specific stuff
 au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
@@ -183,16 +169,15 @@ au Filetype yaml setlocal ts=2 sw=2
 " disable syntax highlighting for html files
 au! BufReadPost *.html set syntax=off
 
-" remove trailing whitespaces on save
+" remove trailing whitespace on save
 au BufWritePre * %s/\s\+$//e
 
 """ Plugin: NERDTree
+
+" au vimenter * NERDTree " open on startup
+" au vimenter * wincmd p " goes together with the above, at least in macvim
 let NERDTreeWinSize=40
 let NERDTreeMinimalUI=1
-let NERDTreeDirArrows=1
-" au vimenter * NERDTree " open nerdtree automatically on vim startup
-" au vimenter * wincmd p " goes together with the above. If this line is
-" enabled and the above is not, it will break macvim god knows why
 let g:NERDTreeDirArrowExpandable = ''
 let g:NERDTreeDirArrowCollapsible = ''
 
@@ -200,48 +185,46 @@ let g:NERDTreeDirArrowCollapsible = ''
 nmap <Leader>ng :NERDTreeToggleVCS<CR>
 nmap <Leader>nt :NERDTreeToggle<CR>
 
-
 """ Plugin: fzf
 
-
-" Remaps:
-" Search for files in project repo
+" Remap:
+" Files in project repo
 nmap <silent> <Leader>o :Files<CR>
 nmap <silent> <Leader>O :Files!<CR>
+
+" Files across all projects
+nmap <silent> \ :Files ~/Documents/projects<CR>
+
+" In-file search (project files)
+nmap <silent> <Leader>; :Ag<CR>
+
+" Commits
 nmap <silent> <Leader>cs :Commits<CR>
-nmap <silent> <Leader>b :Buffers<CR>
+
+" Tags - need to have them generated firstly though
 nmap <silent> <Leader>i :Tags<CR>
-
-" Search for files across all projects
-map \ :Files /home/sarunas/Documents/projects<CR>
-
-" Search for matches within files in the project
-map <Leader>; :Ag<CR>
-
 
 """ Plugin: ALE
 
-" call ale#linter#Define('text', {
-" \   'name': 'vale',
-" \   'executable': 'vale',
-" \   'command': 'vale
-" \       --config /home/sarunas/Documents/misc/vale/.vale.ini
-" \       --output=JSON %t',
-" \   'callback': 'ale#handlers#vale#Handle',
-" \})
-let g:ale_warn_about_trailing_whitespace=0
-let g:ale_warn_about_trailing_blank_lines=0
+" vale needs some additional external setup
+call ale#linter#Define('text', {
+\   'name': 'vale',
+\   'executable': 'vale',
+\   'command': 'vale
+\       --config ~/Documents/misc/vale/.vale.ini
+\       --output=JSON %t',
+\   'callback': 'ale#handlers#vale#Handle',
+\})
 
 let g:ale_linters = {
 \    'php': ['phpstan', 'phpcs'],
-\    'python': ['mypy', 'flake8', 'pylint'],
+\    'python': ['mypy', 'flake8', 'pylint', 'vale'],
 \    'vue': ['eslint'],
 \    'javascript': ['eslint'],
 \    'rst': ['rstcheck', 'vale'],
 \    'markdown': ['vale'],
 \    'text': ['vale'],
 \}
-
 let g:ale_fixers = {
 \    'python': ['black', 'isort'],
 \    'javascript': ['eslint'],
@@ -249,6 +232,9 @@ let g:ale_fixers = {
 \    'htmldjango': ['prettier'],
 \}
 let g:ale_linters_explicit=1
+
+let g:ale_warn_about_trailing_whitespace=0
+let g:ale_warn_about_trailing_blank_lines=0
 
 let g:ale_fix_on_save=0
 let g:ale_lint_on_text_changed = 'never'
@@ -273,25 +259,28 @@ nmap <Leader>t :ALEToggle<CR>
 nmap <Leader>rs :ALEReset<CR>
 nmap <Leader>a :ALELint<CR>
 nmap <Leader>f :ALEFix<CR>
+
 """ Plugin: YouCompleteMe
 
 let g:ycm_autoclose_preview_window_after_completion=1
-let g:ycm_min_num_of_chars_for_completion = 1
+let g:ycm_min_num_of_chars_for_completion = 2
 
 " Remap:
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 """ Plugin: incsearch
 let g:incsearch#auto_nohlsearch = 1
-map /  <Plug>(incsearch-forward)
-map ?  <Plug>(incsearch-backward)
-map g/ <Plug>(incsearch-stay)
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)
+
+" Remap:
+nmap /  <Plug>(incsearch-forward)
+nmap ?  <Plug>(incsearch-backward)
+nmap g/ <Plug>(incsearch-stay)
+nmap n  <Plug>(incsearch-nohl-n)
+nmap N  <Plug>(incsearch-nohl-N)
+nmap *  <Plug>(incsearch-nohl-*)
+nmap #  <Plug>(incsearch-nohl-#)
+nmap g* <Plug>(incsearch-nohl-g*)
+nmap g# <Plug>(incsearch-nohl-g#)
 
 """ Plugin: vim-signify
 let g:signify_vcs_list=["git"]
@@ -312,12 +301,11 @@ let g:signify_vcs_list=["git"]
 """ Plugin: obvious-resize
 let g:obvious_resize_default = 2
 
-" Remap: windows resizing
+" Remap:
 map <silent> <C-Up> :<C-U>ObviousResizeUp<CR>
 map <silent> <C-Down> :<C-U>ObviousResizeDown<CR>
 map <silent> <C-Left> :<C-U>ObviousResizeLeft<CR>
 map <silent> <C-Right> :<C-U>ObviousResizeRight<CR>
-
 
 """ Plugin: Bbye
 " Bdelete - closes, but leaves <C-O> available
@@ -330,18 +318,16 @@ let g:requirements#detect_filename_pattern = 'requirementsfrompoetry'
 
 """ Plugin: Sneak
 
+" Remap:
 map f <Plug>Sneak_s
 map F <Plug>Sneak_S
 
 """ Plugin: Vista
 
+" Remap:
 nmap <Leader>v :Vista!!<CR>
+
 let g:vista_fzf_preview = ['right:50%']
-let g:vista#renderer#enable_icon = 1
-let g:vista#renderer#icons = {
-\   "function": "\uf794",
-\   "variable": "\uf71b",
-\  }
 
 """ Key remaps
 
@@ -349,6 +335,7 @@ let g:vista#renderer#icons = {
 xmap <BS> %
 nmap <BS> %
 
+" more easier accessible search
 nmap s /
 
 " easier navigation between splits
@@ -385,7 +372,7 @@ vmap <S-h> :m'>+<CR>gv=gv
 " open directory under the current buffer
 map <Leader>cd :lcd %:p:h<CR>:pwd<CR>
 
-" new line from any position - doesn't work in terminal vim
+" new line from any position while typing - doesn't work in terminal vim
 if has("gui_running")
     imap <S-CR> <C-o>o
 endif
@@ -418,25 +405,7 @@ nmap <silent> <Leader>h
 " nmap <silent> <leader>dc :exe ":profile continue"<cr>
 " nmap <silent> <leader>dq :exe ":profile pause"<cr>:noautocmd qall!<cr>
 
-
-""" Disable plugins for troubleshooting
-"set runtimepath-=/home/sarunas/.vim/bundle/ale
-"set runtimepath-=/home/sarunas/.vim/bundle/command-t
-"set runtimepath-=/home/sarunas/.vim/bundle/fzf
-"set runtimepath-=/home/sarunas/.vim/bundle/fzf.vim
-"set runtimepath-=/home/sarunas/.vim/bundle/gruvbox
-"set runtimepath-=/home/sarunas/.vim/bundle/incsearch.vim
-"set runtimepath-=/home/sarunas/.vim/bundle/indentpython.vim
-"set runtimepath-=/home/sarunas/.vim/bundle/lightline.vim
-"set runtimepath-=/home/sarunas/.vim/bundle/nerdtree
-"set runtimepath-=/home/sarunas/.vim/bundle/sparkup
-"set runtimepath-=/home/sarunas/.vim/bundle/vim-fugitive
-"set runtimepath-=/home/sarunas/.vim/bundle/vim-signify
-"set runtimepath-=/home/sarunas/.vim/bundle/vim-wordmotion
-"set runtimepath-=/home/sarunas/.vim/bundle/YouCompleteMe
-"set runtimepath-=/usr/share/vim/vim80/syntax/rst.vim
-
-""" Folding
+""" vimrc folding setup
 
 """" vim:fdm=expr:fdl=0
 """" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
