@@ -1,26 +1,16 @@
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/.cargo/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/.pyenv/bin:$HOME/Documents/misc/vale-boilerplate:$HOME/.cargo/bin:$HOME/.local/bin:$PATH
+export ZSH=$HOME/.oh-my-zsh
+export TERM='xterm-256color'
 
-# Path to your oh-my-zsh installation.
-export ZSH="/home/sarunas/.oh-my-zsh"
-export TERM="xterm-256color"
+ZSH_THEME=glister
 
- #Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-#ZSH_THEME="simple"
-#ZSH_THEME="amuse"
-#ZSH_THEME="powerlevel9k/powerlevel9k"
-#ZSH_THEME="spaceship"
-ZSH_THEME="glister"
-#ZSH_THEME="pure"
+# caps lock is an escape
+setxkbmap -option "caps:escape"
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+fpath=(
+    $HOME/.oh-my-zsh/custom/functions
+    $fpath
+)
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -72,48 +62,29 @@ plugins=(
   colored-man-pages
   colorize
   git
+  zsh-completions
   zsh-autosuggestions
+  django
 )
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-#alias todos="grep -RI TODO ."
-#alias ls="exa -lah" # show hidden files, expanded infoand proper K/M/GB by default
-#
-## Other
-#alias dockerip='eval $(docker-machine env default)'
-. ~/.zsh_aliases
 export PIPENV_VENV_IN_PROJECT=1
-export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -f -g ""'
+export PYENV_ROOT="$HOME/.pyenv"
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
         source /etc/profile.d/vte.sh
 fi
 
-eval "$(jump shell)"
+zstyle ':completion:*' list-suffixes
+zstyle ':completion:*' expand prefix suffix
+source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
+if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init -)"; fi
+
+[ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases
+[ -f ~/.zsh_sens ] && source ~/.zsh_sens
+
+autoload -Uz compinit && compinit
