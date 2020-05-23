@@ -71,6 +71,7 @@ source $ZSH/oh-my-zsh.sh
 
 export PIPENV_VENV_IN_PROJECT=1
 export PYENV_ROOT="$HOME/.pyenv"
+export BAT_PAGER='less -R'
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
         source /etc/profile.d/vte.sh

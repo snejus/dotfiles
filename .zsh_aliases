@@ -22,6 +22,9 @@ alias egit="vim $HOME/.gitconfig"
 alias eal="vim $HOME/.zsh_aliases"
 alias efzf="vim $HOME/.zsh_fzf"
 
+# fzf
+alias fs="fzf"
+
 # Git
 alias gl='git l'
 alias gs="git status"
@@ -59,7 +62,4 @@ remove_file_folder() {
     then
         echo "- Removed $count $2"
     fi
-}
-rm_swp() {
-    find . -name '*.swp' -print0 | xargs -0 rm -i
 }
