@@ -1,22 +1,25 @@
 [user]
-    name = Sarunas Nejus
-    email = saras.nejuz@gmail.com
+    name = Šarūnas Nejus
+
 [color]
     filemode = false
     diff = auto
     status = auto
     branch = auto
     pager = true
+
 [core]
-	excludesfile = /home/sarunas/.gitignore
-    # pager = less -FRSX
-    pager = "diff-so-fancy | less --tabs=4 -RFX"
+    excludesfile = $HOME/.gitignore
+    pager = diff-so-fancy | less --tabs=4 -RFX
+    hooksPath = $HOME/.githooks
+
+[branch]
+    autoSetupRebase = always
+
 [alias]
-    lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
-    lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
-    lg = !"git lg1"
-    gst = "git status"
-    gd = "git diff"
+    l = log --graph  --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all -n 12
+    lg1 = log --graph  --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+    lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''%C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
 
     # list files which have changed since REVIEW_BASE
     # (REVIEW_BASE defaults to 'master' in my zshrc)
@@ -35,11 +38,10 @@
     # git reviewone foo.js bar.js
     reviewone = !mvim -p +\"tabdo Gdiff $REVIEW_BASE\"
 
+    wtf = !git-wtf
+
 [credential]
      helper = osxkeychain
+
 [url "git@github.com:/"]
      insteadOf = https://github.com/
-[github]
-     user = saras.nejuz@gmail.com
-[ghi]
-     token = !security find-internet-password -a saras.nejuz@gmail.com -s github.com -l 'ghi token' -w
