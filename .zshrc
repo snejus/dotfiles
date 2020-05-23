@@ -1,6 +1,9 @@
 export PATH=$HOME/.pyenv/bin:$HOME/Documents/misc/vale-boilerplate:$HOME/.cargo/bin:$HOME/.local/bin:$PATH
 export ZSH=$HOME/.oh-my-zsh
 export TERM='xterm-256color'
+export PIPENV_VENV_IN_PROJECT=1
+export PYENV_ROOT="$HOME/.pyenv"
+export BAT_PAGER='less -R'
 
 ZSH_THEME=glister
 
@@ -68,10 +71,6 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
-
-export PIPENV_VENV_IN_PROJECT=1
-export PYENV_ROOT="$HOME/.pyenv"
-export BAT_PAGER='less -R'
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
         source /etc/profile.d/vte.sh

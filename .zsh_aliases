@@ -1,5 +1,6 @@
 # General
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+alias m="make"
 alias open="xdg-open"
 alias pbpaste="xclip -selection clipboard -o"
 alias todos="grep -RI TODO ."
@@ -38,7 +39,6 @@ alias right="tilix -a session-add-right"
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
-alias m="make"
 
 # Functions
 cache_purge() {
