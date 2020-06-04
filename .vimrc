@@ -79,6 +79,11 @@ Plug 'lifepillar/vim-cheat40'
 
 Plug 'martinda/Jenkinsfile-vim-syntax'
 
+" notes
+Plug 'vimwiki/vimwiki'
+
+Plug 'majutsushi/tagbar'
+
 call plug#end()
 
 """ Non-plugin Options
@@ -114,6 +119,7 @@ set splitright            " more intuitive adding of new splits
 set synmaxcol=200         " only syntax-highlight the first 100 characters in a line
 set t_Co=256              " the amount of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
+set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
 set ttyfast               " fast terminal vrummmmmmm
 set wildmenu              " tab autocomplete in command mode
@@ -159,6 +165,7 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
+"au BufNewFile,BufRead *.wiki setf wiki
 au Filetype typescript setlocal ts=2 sw=2
 au Filetype vue setlocal ts=2 sw=2
 au Filetype vuejs setlocal ts=2 sw=2
@@ -166,6 +173,7 @@ au Filetype html setlocal ts=2 sw=2
 au Filetype javascript setlocal ts=2 sw=2
 au Filetype yml setlocal ts=2 sw=2
 au Filetype yaml setlocal ts=2 sw=2
+au Filetype vimwiki setlocal ts=2 sw=2
 
 " disable syntax highlighting for html files
 au! BufReadPost *.html set syntax=off
@@ -333,6 +341,60 @@ map F <Plug>Sneak_S
 nmap <Leader>v :Vista!!<CR>
 
 let g:vista_fzf_preview = ['right:50%']
+
+
+""" Plugin: Vimwiki
+
+hi VimwikiHeader2 guifg=#b16286 gui=bold
+hi VimwikiHeader1 guifg=#cc241d gui=bold
+hi VimwikiHeader3 guifg=#d65d0e gui=bold
+
+let g:vimwiki_key_mappings =
+\ {
+\   'all_maps': 1,
+\   'global': 0,
+\   'headers': 1,
+\   'text_objs': 1,
+\   'table_format': 1,
+\   'table_mappings': 1,
+\   'lists': 1,
+\   'links': 0,
+\   'html': 0,
+\   'mouse': 0,
+\ }
+let g:vimwiki_hl_cb_checked = 1
+
+let g:vimwiki_list = [{
+\   'auto_export': 1,
+\   'auto_toc': 1,
+\   'auto_tags': 1,
+\   'path': '$HOME/vimwiki',
+\   'template_path': '$HOME/vimwiki/templates',
+\   'template_default': 'def_template',
+\   'template_ext': '.html'}]
+
+let g:vimwiki_valid_html_tags = 'b,i,s,u,sub,sup,kbd,br,hr, pre, script'
+"let g:vimwiki_listsyms = '✗○◐●✓'
+
+" Remap:
+nmap <Leader>1 <Plug>VimwikiIndex
+nmap <Leader>2 <Plug>VimwikiTabIndex
+nmap <Leader>3 <Plug>VimwikiUISelect
+nmap <Leader>4 <Plug>VimwikiGoto
+nmap <Leader>9 <Plug>Vimwiki2HTMLBrowse
+nmap <Leader>0 <Plug>VimwikiAll2HTML
+
+""" Plugin: tagbar
+
+let g:tagbar_type_vimwiki = {
+          \   'ctagstype':'vimwiki'
+          \ , 'kinds':['h:header']
+          \ , 'sro':'&&&'
+          \ , 'kind2scope':{'h':'header'}
+          \ , 'sort':1
+          \ , 'ctagsbin':'~/vimwiki/vwtags.py'
+          \ , 'ctagsargs': 'default'
+          \ }
 
 """ Key remaps
 
