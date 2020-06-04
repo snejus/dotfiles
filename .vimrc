@@ -77,12 +77,15 @@ Plug 'gruvbox-community/gruvbox'
 " vim cheatsheet - invoked with Leader + ?
 Plug 'lifepillar/vim-cheat40'
 
+Plug 'martinda/Jenkinsfile-vim-syntax'
+
 call plug#end()
 
 """ Non-plugin Options
 set autoindent            " automatic identation
 set autoread              " auto reload changed files
 set background=dark       " dark theme
+set backspace=eol,indent,start
 set belloff=all           " turn off the error bell
 set cursorline            " highlights current line
 set encoding=utf8
@@ -94,7 +97,6 @@ set incsearch             " show search results as you type
 set laststatus=2          " always show statusline
 set listchars=extends:→   " show arrow if line continues behind right window boundary
 set listchars+=precedes:← " same
-set mat=4                 " how long to show matching brackets for
 set modifiable            " buffers are modifiable
 set noequalalways         " split windows sizes always split in half
 set nowritebackup         " do not backup - git is used anyways
@@ -107,10 +109,9 @@ set signcolumn=yes        " always show sign column
 set scrolloff=999         " keep the cursor centered
 set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
-set showmatch             " show matching bracket for a bit
 set splitbelow            " m:Lore intuitive adding of new splits
 set splitright            " more intuitive adding of new splits
-set synmaxcol=100         " only syntax-highlight the first 100 characters in a line
+set synmaxcol=200         " only syntax-highlight the first 100 characters in a line
 set t_Co=256              " the amount of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
 set termguicolors         " in reality, increases the contrast a bit
@@ -210,27 +211,28 @@ nmap <silent> <Leader>i :Tags<CR>
 call ale#linter#Define('text', {
 \   'name': 'vale',
 \   'executable': 'vale',
-\   'command': 'vale
-\       --config ~/Documents/misc/vale/.vale.ini
-\       --output=JSON %t',
+\   'command': 'vale --config ~/Documents/misc/vale/.vale.ini --output=JSON %t',
 \   'callback': 'ale#handlers#vale#Handle',
 \})
 
 let g:ale_linters = {
-\    'php': ['phpstan', 'phpcs'],
-\    'python': ['mypy', 'flake8', 'pylint', 'vale'],
-\    'vue': ['eslint'],
+\    'dockerfile': ['hadolint'],
 \    'javascript': ['eslint'],
-\    'rst': ['rstcheck', 'vale'],
-\    'markdown': ['vale'],
-\    'text': ['vale'],
+\    'markdown':   ['vale'],
+\    'php':        ['phpstan', 'phpcs'],
+\    'python':     ['flake8', 'mypy', 'pylint', 'vale', 'vulture'],
+\    'rst':        ['rstcheck', 'vale'],
+\    'text':       ['vale'],
+\    'vue':        ['eslint'],
 \}
 let g:ale_fixers = {
-\    'python': ['black', 'isort'],
-\    'javascript': ['eslint'],
-\    'vue': ['eslint'],
 \    'htmldjango': ['prettier'],
+\    'javascript': ['eslint'],
+\    'json':       ['fixjson'],
+\    'python':     ['black', 'isort'],
+\    'vue':        ['eslint'],
 \}
+
 let g:ale_linters_explicit=1
 
 let g:ale_warn_about_trailing_whitespace=0
@@ -250,6 +252,9 @@ let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
 
 let g:ale_set_loclist=0
 let g:ale_set_quickfix=0
+
+let g:ale_sign_error = 'Ϟ'
+let g:ale_sign_warning = '×'
 
 " Remap: navigate between errors
 nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
@@ -407,6 +412,6 @@ nmap <silent> <Leader>h
 
 """ vimrc folding setup
 
+set mle
 """" vim:fdm=expr:fdl=0
 """" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
-

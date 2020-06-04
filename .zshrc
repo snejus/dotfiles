@@ -1,9 +1,9 @@
-export PATH=$HOME/.pyenv/bin:$HOME/Documents/misc/vale-boilerplate:$HOME/.cargo/bin:$HOME/.local/bin:$PATH
-export ZSH=$HOME/.oh-my-zsh
+export PATH=~/.pyenv/bin:~/Documents/misc/vale-boilerplate:~/.cargo/bin:~/.local/bin:$PATH
+export ZSH=~/.oh-my-zsh
 export TERM='xterm-256color'
 export PIPENV_VENV_IN_PROJECT=1
-export PYENV_ROOT="$HOME/.pyenv"
 export BAT_PAGER='less -R'
+export PYTHONDONTWRITEBYTECODE=1
 
 ZSH_THEME=glister
 
@@ -97,7 +97,9 @@ export KEYTIMEOUT=1
 zstyle ':completion:*' list-suffixes
 zstyle ':completion:*' expand prefix suffix
 source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
-if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init -)"; fi
+#if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init -)"; fi
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 [ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
