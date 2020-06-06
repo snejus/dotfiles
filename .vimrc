@@ -343,58 +343,82 @@ nmap <Leader>v :Vista!!<CR>
 let g:vista_fzf_preview = ['right:50%']
 
 
+""" Plugin: tagbar
+
+let g:tagbar_type_vimwiki = {
+\   'ctagstype': 'vimwiki',
+\   'kinds':      ['h:header'],
+\   'sro':        '&&&',
+\   'kind2scope': {'h':'header'},
+\   'sort':       1,
+\   'ctagsbin':   '~/wikis/vwtags.py',
+\   'ctagsargs':  'default'
+\}
+
 """ Plugin: Vimwiki
 
 hi VimwikiHeader2 guifg=#b16286 gui=bold
 hi VimwikiHeader1 guifg=#cc241d gui=bold
 hi VimwikiHeader3 guifg=#d65d0e gui=bold
 
-let g:vimwiki_key_mappings =
-\ {
-\   'all_maps': 1,
-\   'global': 0,
-\   'headers': 1,
-\   'text_objs': 1,
-\   'table_format': 1,
-\   'table_mappings': 1,
-\   'lists': 1,
-\   'links': 0,
-\   'html': 0,
-\   'mouse': 0,
-\ }
-let g:vimwiki_hl_cb_checked = 1
+function! s:paths(root, name)
+    let s:wiki_root = a:root.'/'.a:name
+    return {'path': s:wiki_root.'/wiki', 'path_html': s:wiki_root.'/html'}
+endfunction
 
-let g:vimwiki_list = [{
-\   'auto_export': 1,
+let s:wikis_root = '~/wikis'
+let s:wiki_settings = {
 \   'auto_toc': 1,
 \   'auto_tags': 1,
-\   'path': '$HOME/vimwiki',
-\   'template_path': '$HOME/vimwiki/templates',
-\   'template_default': 'def_template',
-\   'template_ext': '.html'}]
-
+\   'auto_export': 1,
+\   'auto_diary_index': 1,
+\   'auto_generate_tags': 1,
+\   'auto_generate_links': 1,
+\   'template_ext': '.html',
+\   'template_default': 'default',
+\   'template_path': s:wikis_root.'/html_templates'
+\}
+let s:wiki_1 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'main'))
+let s:wiki_2 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'music'))
+let g:vimwiki_list = [s:wiki_1, s:wiki_2]
+let g:vimwiki_auto_chdir = 1
+let g:vimwiki_hl_cb_checked = 1
+let g:vimwiki_key_mappings = {
+\   'html': 0,
+\   'links': 0,
+\   'mouse': 0,
+\   'lists': 1,
+\   'global': 0,
+\   'headers': 1,
+\   'all_maps': 1,
+\   'text_objs': 1,
+\   'table_format': 1,
+\   'table_mappings': 1
+\}
 let g:vimwiki_valid_html_tags = 'b,i,s,u,sub,sup,kbd,br,hr, pre, script'
-"let g:vimwiki_listsyms = '✗○◐●✓'
 
 " Remap:
 nmap <Leader>1 <Plug>VimwikiIndex
 nmap <Leader>2 <Plug>VimwikiTabIndex
 nmap <Leader>3 <Plug>VimwikiUISelect
 nmap <Leader>4 <Plug>VimwikiGoto
-nmap <Leader>9 <Plug>Vimwiki2HTMLBrowse
-nmap <Leader>0 <Plug>VimwikiAll2HTML
+nmap <Leader>7 <Plug>Vimwiki2HTMLBrowse
+nmap <Leader>8 <Plug>Vimwiki2HTML
+nmap <Leader>9 <Plug>VimwikiAll2HTML
+nmap <C-N> <Plug>VimwikiFollowLink
+nmap <C-B> <Plug>VimwikiSplitLink
+nmap <Tab> <Plug>VimwikiNextLink
+nmap <S-Tab> <Plug>VimwikiPrevLink
+nmap + <Plug>VimwikiNormalizeLink
+vmap + <Plug>VimwikiNormalizeLinkVisual
 
-""" Plugin: tagbar
+vmap <Leader>vc <Plug>VimwikiCheckLinks
+nmap <Leader>vr <Plug>VimwikiRebuildTags
+nmap <Leader>vg <Plug>VimwikiGenerateTagLinks
+nmap <Leader>vs <Plug>VimwikiSearchTags
 
-let g:tagbar_type_vimwiki = {
-          \   'ctagstype':'vimwiki'
-          \ , 'kinds':['h:header']
-          \ , 'sro':'&&&'
-          \ , 'kind2scope':{'h':'header'}
-          \ , 'sort':1
-          \ , 'ctagsbin':'~/vimwiki/vwtags.py'
-          \ , 'ctagsargs': 'default'
-          \ }
+nmap <Leader>dd <Plug>VimwikiMakeDiaryNote
+nmap <Leader>dg <Plug>VimwikiGenerateTagLinks
 
 """ Key remaps
 
@@ -411,7 +435,7 @@ nmap <C-K> <C-W><C-K>
 nmap <C-L> <C-W><C-L>
 nmap <C-H> <C-W><C-H>
 
-" folds
+" Folds
 nmap <CR> za
 nmap <Space><CR> zMzvzt
 

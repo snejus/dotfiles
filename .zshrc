@@ -1,9 +1,9 @@
 export PATH=~/.pyenv/bin:~/Documents/misc/vale-boilerplate:~/.cargo/bin:~/.local/bin:$PATH
-export ZSH=~/.oh-my-zsh
-export TERM='xterm-256color'
 export PIPENV_VENV_IN_PROJECT=1
-export BAT_PAGER='less -R'
 export PYTHONDONTWRITEBYTECODE=1
+export TERM='xterm-256color'
+export ZSH=~/.oh-my-zsh
+
 
 ZSH_THEME=glister
 
