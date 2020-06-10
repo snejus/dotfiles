@@ -7,7 +7,7 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-""" Plugins, sorted by how much worse my life would be without it
+""" Plugins, sorted by how much worse my life would be without them
 call plug#begin('~/.vim/bundle/')
 
 " fzf <3
@@ -138,6 +138,13 @@ let mapleader = "\<Space>"
 " set this if want to run vim from its own venv
 "let g:python3_host_prog='~/.local/share/dephell/venvs/.vim-pA95/bin/python3'
 
+" Persisting undo history
+if has('persistent_undo')
+  silent !mkdir ~/.vim/backups > /dev/null 2>&1
+  set undodir=~/.vim/backups
+  set undofile
+endif
+
 " vim distribution plugins
 let g:loaded_matchparen = 1
 let g:loaded_matchit = 1
@@ -224,34 +231,37 @@ call ale#linter#Define('text', {
 \})
 
 let g:ale_linters = {
-\    'dockerfile': ['hadolint'],
-\    'javascript': ['eslint'],
-\    'markdown':   ['vale'],
-\    'php':        ['phpstan', 'phpcs'],
-\    'python':     ['flake8', 'mypy', 'pylint', 'vale', 'vulture'],
-\    'rst':        ['rstcheck', 'vale'],
-\    'text':       ['vale'],
-\    'vue':        ['eslint'],
+\   'dockerfile': ['hadolint'],
+\   'javascript': ['eslint'],
+\   'json':       ['jsonlint'],
+\   'markdown':   ['vale'],
+\   'php':        ['phpstan', 'phpcs'],
+\   'python':     ['flake8', 'mypy', 'pylint', 'vale', 'vulture'],
+\   'rst':        ['rstcheck', 'vale'],
+\   'text':       ['vale'],
+\   'vue':        ['eslint'],
 \}
 let g:ale_fixers = {
-\    'htmldjango': ['prettier'],
-\    'javascript': ['eslint'],
-\    'json':       ['fixjson'],
-\    'python':     ['black', 'isort'],
-\    'vue':        ['eslint'],
+\   'htmldjango': ['prettier'],
+\   'javascript': ['eslint'],
+\   'json':       ['fixjson', 'prettier'],
+\   'python':     ['black', 'isort'],
+\   'vue':        ['eslint'],
 \}
+let g:ale_python_flake8_options = '--jobs 8'
+let g:ale_python_pylint_options = '--jobs 8'
+
+let g:ale_sign_highlight_linenrs=1
 
 let g:ale_linters_explicit=1
-
 let g:ale_warn_about_trailing_whitespace=0
 let g:ale_warn_about_trailing_blank_lines=0
 
 let g:ale_fix_on_save=0
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_enter=0
 let g:ale_lint_on_save=0
-let g:ale_lint_on_insert_leave=0
 let g:ale_lint_on_enter=0
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave=0
 let g:ale_lint_on_filetype_changed=0
 
 let g:ale_echo_msg_error_str = 'E'
@@ -267,6 +277,8 @@ let g:ale_sign_warning = '×'
 " Remap: navigate between errors
 nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <Leader>j <Plug>(ale_next_wrap)
+nmap <Leader>y :execute "let g:ale_linters_ignore = ['pylint']"
+nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 
 nmap <Leader>t :ALEToggle<CR>
 nmap <Leader>rs :ALEReset<CR>
@@ -406,7 +418,6 @@ nmap <Leader>7 <Plug>Vimwiki2HTMLBrowse
 nmap <Leader>8 <Plug>Vimwiki2HTML
 nmap <Leader>9 <Plug>VimwikiAll2HTML
 nmap <C-N> <Plug>VimwikiFollowLink
-nmap <C-B> <Plug>VimwikiSplitLink
 nmap <Tab> <Plug>VimwikiNextLink
 nmap <S-Tab> <Plug>VimwikiPrevLink
 nmap + <Plug>VimwikiNormalizeLink
