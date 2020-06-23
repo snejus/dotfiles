@@ -84,6 +84,10 @@ Plug 'vimwiki/vimwiki'
 
 Plug 'majutsushi/tagbar'
 
+Plug 'aklt/plantuml-syntax'
+
+Plug 'scrooloose/vim-slumlord'
+
 call plug#end()
 
 """ Non-plugin Options
@@ -116,7 +120,7 @@ set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
 set splitbelow            " m:Lore intuitive adding of new splits
 set splitright            " more intuitive adding of new splits
-set synmaxcol=200         " only syntax-highlight the first 100 characters in a line
+set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
 set t_Co=256              " the amount of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
@@ -218,7 +222,7 @@ nmap <silent> <Leader>; :Ag<CR>
 nmap <silent> <Leader>cs :Commits<CR>
 
 " Tags - need to have them generated firstly though
-nmap <silent> <Leader>i :Tags<CR>
+nmap <silent> <Leader>i :Buffers<CR>
 
 """ Plugin: ALE
 
@@ -236,7 +240,7 @@ let g:ale_linters = {
 \   'json':       ['jsonlint'],
 \   'markdown':   ['vale'],
 \   'php':        ['phpstan', 'phpcs'],
-\   'python':     ['flake8', 'mypy', 'pylint', 'vale', 'vulture'],
+\   'python':     ['flake8', 'mypy', 'pylint', 'vale'],
 \   'rst':        ['rstcheck', 'vale'],
 \   'text':       ['vale'],
 \   'vue':        ['eslint'],
@@ -430,6 +434,11 @@ nmap <Leader>vs <Plug>VimwikiSearchTags
 
 nmap <Leader>dd <Plug>VimwikiMakeDiaryNote
 nmap <Leader>dg <Plug>VimwikiGenerateTagLinks
+
+""" Plugin: plantuml-syntax
+
+let g:plantuml_set_makeprg = 0
+
 
 """ Key remaps
 

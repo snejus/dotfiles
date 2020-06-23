@@ -6,8 +6,10 @@ alias m="make"
 alias notes="chro ~/wikis/main/html/index.html &"
 alias open="xdg-open"
 alias pbpaste="xclip -selection clipboard -o"
+alias printpath="echo $PATH | tr : '\n' | sort"
 alias todos="grep -RI TODO ."
 alias update="source $HOME/.zshrc"
+alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
 
 # Ag
 alias agl="ag --pager less"
@@ -15,6 +17,10 @@ alias agf="ag --silent -g"
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
+
+# Dephell
+alias dp="dephell package"
+alias dpcl="dephell package changelog"
 
 # Exa
 alias ls="exa -lah"
@@ -33,17 +39,26 @@ alias fs="fzf"
 alias gl="git l"
 alias gs="git status"
 alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=0"
+alias reposummary="gitinspector --file-types='**' --grading -T --format html > gitinspector.html"
+alias openrepo="gh repo view --web"
+
+# Jira
+alias myissues='jira list --template table --query "resolution = unresolved and assignee=currentuser() ORDER BY priority DESC, created DESC"'
+
 
 # TODO: Clean these up asap, they're shameful
 # Python
 alias flapaths="ag --nogroup --color-path '1;36' 'noqa|flake8' tests src --color | \
         tee /dev/null | sed s'/:.*//' | tee >(wc -l) >(echo -n '\n\n\n\e[1;32mTOTAL: ') | sort | uniq -c | sort -r"
 
-alias pylpaths="ag --nogroup --color-path '1;36' 'pylint' tests src --color | \
+alias pylpaths="ag --nogroup --color-path '1;36' 'pylint:' tests src --color | \
         tee /dev/null | sed s'/:.*//' | tee >(wc -l) >(echo -n '\n\n\n\e[1;32mTOTAL: ') | sort | uniq -c | sort -r"
 
-alias pyldisables="ag --nogroup --color-path '1;36' 'pylint' tests src --color | \
-        tee /dev/null | sed s'/.*disable=//' | tee >(wc -l) >(echo -n '\n\n\n\e[1;32mTOTAL: \e[1;37m') | sort | uniq -c | sort -rh"
+alias pyldisables="ag --nogroup --color-path '1;36' 'pylint:' tests src --color | \
+    tee /dev/null | sed s'/.*\(dis\|en\)able=//' | tee >(wc -l) >(echo -n '\e[1;32mTOTAL: \e[1;37m') | sort | uniq -c | sort -rh"
+
+alias restme="restview --css ~/.ref/github.css README.rst"
+alias oldbump="python3 setup.py --quiet build bdist_wheel && rm -rf build/ dist/"
 
 # Tilix
 alias new="tilix -a app-new-window"
@@ -57,13 +72,13 @@ alias vh="vagrant halt"
 
 # Functions
 cache_purge() {
-    # remove_file_folder f .coverage $1
+    remove_file_folder f .coverage $1
     remove_file_folder d __pycache__ $1
     remove_file_folder d .pytest_cache $1
-    # remove_file_folder d .eggs $1
-    # remove_file_folder d build $1
-    # remove_file_folder d dist $1
-    # remove_file_folder d *.egg-info $1
+    remove_file_folder d .eggs $1
+    remove_file_folder d build $1
+    remove_file_folder d dist $1
+    remove_file_folder d *.egg-info $1
     echo Finished removing caches
 }
 remove_file_folder() {

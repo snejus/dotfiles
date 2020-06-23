@@ -1,18 +1,32 @@
+# Terminal
 tilix
 
+# Shell
 zsh
 oh-my-zsh
 
-ag
-bat
-exa
-fzf
+# General
+ag             # faster search / grep replacement
+bat            # cat with syntax highlighting
+exa            # ls with tree support
+fzf            # makes life beautiful
 
-git
-diff-so-fancy
+# Git
+diff-so-fancy  # more readable diffs
+gh             # official github client
+gitinspector   # repo stats / https://github.com/ejwa/gitinspector
+hub            # unofficial (but better) github client
 
 docker
 vagrant
 
-pipenv
-dephell
+# Python
+dephell        # has loads of potential but currently broken in too many places. Some commands are useful regardless
+pipenv         # dead package management tool but still used in some projects
+poetry         # to-go packagement management tool
+pyenv          # python versions manager
+restview       # rst files preview
+
+jira           # JIRA client / https://github.com/go-jira/jira
+
+howdoi         # quick answers to questions
