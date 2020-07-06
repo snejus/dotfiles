@@ -1,15 +1,20 @@
 # General
 alias chro="google-chrome"
+alias brave="brave-browser"
 alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
+alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
+alias install='sudo apt update && sudo apt install'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
 alias m="make"
+alias mypy='dmypy'
 alias notes="chro ~/wikis/main/html/index.html &"
 alias open="xdg-open"
-alias pbpaste="xclip -selection clipboard -o"
+alias pbpaste="xclip -sel clipboard"
+alias peotry="poetry"
 alias printpath="echo $PATH | tr : '\n' | sort"
+alias remove='sudo apt remove'
 alias todos="grep -RI TODO ."
 alias update="source $HOME/.zshrc"
-alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
 
 # Ag
 alias agl="ag --pager less"
@@ -17,6 +22,10 @@ alias agf="ag --silent -g"
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
+
+dockerstop () {
+    docker ps --filter name=$1 | xargs -I{} docker stop {}
+}
 
 # Dephell
 alias dp="dephell package"
@@ -31,20 +40,32 @@ alias ezsh="vim $HOME/.zshrc"
 alias egit="vim $HOME/.gitconfig"
 alias eal="vim $HOME/.zsh_aliases"
 alias efzf="vim $HOME/.zsh_fzf"
+alias esens="vim $HOME/.zsh_sens"
 
 # fzf
 alias fs="fzf"
 
 # Git
+alias -g cs="--compact-summary"
 alias gl="git l"
+alias gl1="git l1"
+alias gl2="git l2"
 alias gs="git status"
 alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=0"
-alias reposummary="gitinspector --file-types='**' --grading -T --format html > gitinspector.html"
+alias gitinspection="gitinspector --file-types='**' --grading -T --format html > gitinspector.html && open gitinspector.html"
 alias openrepo="gh repo view --web"
 
 # Jira
-alias myissues='jira list --template table --query "resolution = unresolved and assignee=currentuser() ORDER BY priority DESC, created DESC"'
+alias showfields='jira fields | ag \"system\" | sed "s/.*: //" | tr -d \", | sort'
+alias issues='jira list --template table --query \
+    "resolution = unresolved and assignee=currentuser() ORDER BY status DESC, priority DESC, created DESC"'
+alias sissues='jira list --template table --query \
+    "sprint in openSprints() and resolution = unresolved and assignee=currentuser() ORDER BY status DESC, priority DESC, created DESC"'
 
+show () {
+    echo Looking for issue $1
+    jira view $1 | pygmentize -l yaml -O style=fruity
+}
 
 # TODO: Clean these up asap, they're shameful
 # Python

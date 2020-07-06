@@ -1,3 +1,4 @@
+export NVMPATH=~/.nvm
 export RUSTPATH=~/.cargo/bin
 export PYENVPATH=~/.pyenv/bin
 export GOPATH=~/.local/go/bin
@@ -31,14 +32,13 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-        source /etc/profile.d/vte.sh
+    source /etc/profile.d/vte.sh
 fi
 
 ### Some zle stuff
 bindkey -v
 bindkey '^k' up-history
 bindkey '^j' down-history
-bindkey '^h' backward-delete-char
 bindkey '^d' backward-kill-word
 
 function zle-line-init zle-keymap-select {
@@ -50,20 +50,24 @@ function zle-line-init zle-keymap-select {
 zle -N zle-line-init
 zle -N zle-keymap-select
 export KEYTIMEOUT=1
-###
 
-zstyle ':completion:*' list-suffixes
-zstyle ':completion:*' expand prefix suffix
-eval "$(jira --completion-script-bash)"
-source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
-#if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init -)"; fi
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-[ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval "$(pandoc --bash-completion)"
+eval "$(register-python-argcomplete pipx)"
+eval "$(jira --completion-script-bash)"
+source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
 
+autoload -U bashcompinit
+bashcompinit
+autoload -Uz compinit && compinit
+zstyle ':completion:*' list-suffixes
+zstyle ':completion:*' expand prefix suffix
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
 [ -f ~/.zsh_sens ] && source ~/.zsh_sens
 [ -f ~/.zsh_aliases ] && source ~/.zsh_aliases
-
-autoload -Uz compinit && compinit
+[ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
+[ -s "$NVMPATH/bash_completion" ] && \. "$NVMPATH/bash_completion"  # Load nvm bash_completion
