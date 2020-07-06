@@ -82,8 +82,6 @@ Plug 'martinda/Jenkinsfile-vim-syntax'
 " notes
 Plug 'vimwiki/vimwiki'
 
-Plug 'majutsushi/tagbar'
-
 Plug 'aklt/plantuml-syntax'
 
 Plug 'scrooloose/vim-slumlord'
@@ -96,6 +94,7 @@ set autoread              " auto reload changed files
 set background=dark       " dark theme
 set backspace=eol,indent,start
 set belloff=all           " turn off the error bell
+set clipboard=unnamedplus " use clipboard as the primary register
 set cursorline            " highlights current line
 set encoding=utf8
 set expandtab             " tabs are converted to spaces
@@ -126,6 +125,7 @@ set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
 set ttyfast               " fast terminal vrummmmmmm
+set updatetime=400        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 
@@ -135,6 +135,7 @@ if has("gui_running")
     set guioptions-=e         " remove tabpages
     set guioptions-=r         " remove righthand toolbar
     set guioptions-=L         " remove lefthand toolbar when split
+    set guioptions+=c         " console diags instead of popups
 endif
 
 let mapleader = "\<Space>"
@@ -176,15 +177,16 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
-"au BufNewFile,BufRead *.wiki setf wiki
-au Filetype typescript setlocal ts=2 sw=2
-au Filetype vue setlocal ts=2 sw=2
-au Filetype vuejs setlocal ts=2 sw=2
 au Filetype html setlocal ts=2 sw=2
 au Filetype javascript setlocal ts=2 sw=2
+au Filetype Jenkinsfile setlocal ts=2 sw=2
+au Filetype markdown setlocal ts=2 sw=2
+au Filetype typescript setlocal ts=2 sw=2
+au Filetype vimwiki setlocal ts=2 sw=2
+au Filetype vue setlocal ts=2 sw=2
+au Filetype vuejs setlocal ts=2 sw=2
 au Filetype yml setlocal ts=2 sw=2
 au Filetype yaml setlocal ts=2 sw=2
-au Filetype vimwiki setlocal ts=2 sw=2
 
 " disable syntax highlighting for html files
 au! BufReadPost *.html set syntax=off
@@ -207,22 +209,16 @@ nmap <Leader>nt :NERDTreeToggle<CR>
 
 """ Plugin: fzf
 
+let g:fzf_preview_window = ''
+
 " Remap:
-" Files in project repo
 nmap <silent> <Leader>o :Files<CR>
 nmap <silent> <Leader>O :Files!<CR>
-
-" Files across all projects
 nmap <silent> \ :Files ~/Documents/projects<CR>
-
-" In-file search (project files)
 nmap <silent> <Leader>; :Ag<CR>
-
-" Commits
 nmap <silent> <Leader>cs :Commits<CR>
-
-" Tags - need to have them generated firstly though
 nmap <silent> <Leader>i :Buffers<CR>
+nmap <silent> <Leader>u :History<CR>
 
 """ Plugin: ALE
 
@@ -291,11 +287,15 @@ nmap <Leader>f :ALEFix<CR>
 
 """ Plugin: YouCompleteMe
 
+let g:ycm_server_python_interpreter='python3'
 let g:ycm_autoclose_preview_window_after_completion=1
 let g:ycm_min_num_of_chars_for_completion = 2
+let g:ycm_auto_hover = 'CursorHold'
 
 " Remap:
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nmap <leader>ht :YcmCompleter GetType<CR>
+nmap <leader>hg <plug>(YCMHover)
 
 """ Plugin: incsearch
 let g:incsearch#auto_nohlsearch = 1
@@ -324,8 +324,9 @@ let g:signify_vcs_list=["git"]
 "      \   'gitbranch' : 'FugitiveHead',
 "      \ },
 "      \ }
-"let g:airline#extensions#whitespace#enabled = 0
-"let g:airline_highlighting_cache = 0
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline_highlighting_cache = 0
+let g:airline#extensions#fzf#enabled = 1
 
 """ Plugin: obvious-resize
 let g:obvious_resize_default = 2
@@ -359,18 +360,6 @@ nmap <Leader>v :Vista!!<CR>
 let g:vista_fzf_preview = ['right:50%']
 
 
-""" Plugin: tagbar
-
-let g:tagbar_type_vimwiki = {
-\   'ctagstype': 'vimwiki',
-\   'kinds':      ['h:header'],
-\   'sro':        '&&&',
-\   'kind2scope': {'h':'header'},
-\   'sort':       1,
-\   'ctagsbin':   '~/wikis/vwtags.py',
-\   'ctagsargs':  'default'
-\}
-
 """ Plugin: Vimwiki
 
 hi VimwikiHeader2 guifg=#b16286 gui=bold
@@ -398,6 +387,7 @@ let s:wiki_1 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'main'))
 let s:wiki_2 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'music'))
 let g:vimwiki_list = [s:wiki_1, s:wiki_2]
 let g:vimwiki_auto_chdir = 1
+let g:vimwiki_global_ext = 0
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_key_mappings = {
 \   'html': 0,
@@ -422,8 +412,6 @@ nmap <Leader>7 <Plug>Vimwiki2HTMLBrowse
 nmap <Leader>8 <Plug>Vimwiki2HTML
 nmap <Leader>9 <Plug>VimwikiAll2HTML
 nmap <C-N> <Plug>VimwikiFollowLink
-nmap <Tab> <Plug>VimwikiNextLink
-nmap <S-Tab> <Plug>VimwikiPrevLink
 nmap + <Plug>VimwikiNormalizeLink
 vmap + <Plug>VimwikiNormalizeLinkVisual
 
@@ -437,8 +425,10 @@ nmap <Leader>dg <Plug>VimwikiGenerateTagLinks
 
 """ Plugin: plantuml-syntax
 
-let g:plantuml_set_makeprg = 0
+let g:plantuml_executable_script='java -jar ~/.ref/plantuml.jar $@'
 
+" Remap:
+nnoremap <F5> :w<CR> :make<CR>
 
 """ Key remaps
 
