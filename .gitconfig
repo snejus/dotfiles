@@ -1,48 +1,40 @@
-[user]
-    name = Šarūnas Nejus
+[alias]
+    #l   = log --graph --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all -n 12
+    l  = log --graph --abbrev-commit --decorate --format=format:'%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)' --all -n 12
+    l1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)' --all
+    l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) %C(bold green)%aD%C(reset) %C(bold magenta)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''%C(bold dim white)%s%C(reset) %C(italic white)- %an%C(reset)%n' --all
 
-[color]
-    filemode = false
-    diff = auto
-    status = auto
-    branch = auto
-    pager = true
-
-[core]
-    excludesfile = .gitignore
-    pager = diff-so-fancy | less --tabs=4 -RFX
-    hooksPath = .githooks
-    editor = vim
+    wtf = !git-wtf
 
 [branch]
     autoSetupRebase = always
 
-[alias]
-    l = log --graph  --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all -n 12
-    lg1 = log --graph  --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
-    lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''%C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+[checkout]
+    defaultRemote = origin
 
-    # list files which have changed since REVIEW_BASE
-    # (REVIEW_BASE defaults to 'master' in my zshrc)
-    files = !git diff --name-only $(git merge-base HEAD \"$REVIEW_BASE\")
+[color]
+    branch = always
+    diff = auto
+    interactive = always
+    status = true
+    pager = true
+    push = always
+    transport = always
 
-    # Same as above, but with a diff stat instead of just names
-    # (better for interactive use)
-    stat = !git diff --stat $(git merge-base HEAD \"$REVIEW_BASE\")
+[core]
+    editor = vim
+    filemode = false
+    hooksPath = /home/sarunas/Documents/projects/_integrations-githooks
+    pager = diff-so-fancy | less --tabs=4 -RFX
 
-    # Open all files changed since REVIEW_BASE in Vim tabs
-    # Then, run fugitive's :Gdiff in each tab
-    review = !mvim -p $(git files) +\"tabdo Gdiff $REVIEW_BASE\"
+; [credential]
+;     helper = osxkeychain
 
-    # Same as the above, except specify names of files as arguments,
-    # instead of opening all files:
-    # git reviewone foo.js bar.js
-    reviewone = !mvim -p +\"tabdo Gdiff $REVIEW_BASE\"
-
-    wtf = !git-wtf
-
-[credential]
-     helper = osxkeychain
+[fetch]
+    writeCommitGraph = true
 
 [url "git@github.com:/"]
-     insteadOf = https://github.com/
+    insteadOf = https://github.com/
+
+[rebase]
+    abbreviateCommands = true

@@ -1,5 +1,10 @@
 #OS generated files #
 ######################
+gitinspector.html
+assets
+github.css
+
+
 .DS_Store
 .DS_Store?
 ._*
@@ -22,8 +27,6 @@ plan.txt
 .pytest_cache/
 .mypy_cache/
 test.py
-
-mypy.ini
 
 node_modules/
 static/bundles/main.js
