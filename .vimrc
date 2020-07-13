@@ -38,8 +38,8 @@ Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 " easier handling of parentheses / curly brackets etc.
 Plug 'tpope/vim-surround'
 
-" vcs signs (+, -, ~) in the gutter
-Plug 'mhinz/vim-signify'
+" proper diff / hunks management
+Plug 'airblade/vim-gitgutter'
 
 " close buffer but leave window open
 Plug 'moll/vim-bbye'
@@ -57,8 +57,10 @@ Plug 'Rykka/InstantRst', { 'for': 'rst' }
 Plug 'talek/obvious-resize'
 
 " extra syntax highlighting
-Plug 'cespare/vim-toml'               " toml
-Plug 'raimon49/requirements.txt.vim'  " requirements.txt
+Plug 'cespare/vim-toml'                " .toml
+Plug 'aklt/plantuml-syntax'            " .uml etc. - PlantUML files
+Plug 'raimon49/requirements.txt.vim'   " requirements.txt
+Plug 'martinda/Jenkinsfile-vim-syntax' " Jenkinsfile
 
 " ctags dashboard
 Plug 'liuchengxu/vista.vim'
@@ -71,20 +73,23 @@ Plug 'vim-airline/vim-airline'
 " pattern matches highlighted incrementally
 Plug 'haya14busa/incsearch.vim'
 
-" gruvbox colourscheme. Edit gruvbox/colors/gruvbox.vim to customise
-Plug 'gruvbox-community/gruvbox'
-
 " vim cheatsheet - invoked with Leader + ?
 Plug 'lifepillar/vim-cheat40'
-
-Plug 'martinda/Jenkinsfile-vim-syntax'
 
 " notes
 Plug 'vimwiki/vimwiki'
 
-Plug 'aklt/plantuml-syntax'
-
+" draw plantuml sequence diagrams with ascii art
 Plug 'scrooloose/vim-slumlord'
+
+" quick black
+Plug 'psf/black', { 'for': 'python' }
+"
+" Colourschemes
+Plug 'gruvbox-community/gruvbox'
+Plug 'ajmwagar/vim-deus'
+Plug 'rakr/vim-two-firewatch'
+
 
 call plug#end()
 
@@ -100,6 +105,7 @@ set encoding=utf8
 set expandtab             " tabs are converted to spaces
 set foldmethod=indent     " fold by indents - that's python specific
 set foldlevel=99          " fold level of a closed fold
+set history=1000
 set hlsearch              " highlight search results
 set incsearch             " show search results as you type
 set laststatus=2          " always show statusline
@@ -112,20 +118,20 @@ set noshowmode            " get rid of --INSERT-- in the bottom
 set noshowcmd             " do not display last command in the bottom
 set nowrap                " don't wrap long lines
 set noswapfile            " do not use swapfiles
-set number relativenumber " displays hybrid line numbers
-set signcolumn=yes        " always show sign column
+" set number relativenumber " displays hybrid line numbers
+" set signcolumn=no        " always show sign column
 set scrolloff=999         " keep the cursor centered
 set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
-set splitbelow            " m:Lore intuitive adding of new splits
+set splitbelow            " more intuitive adding of new splits
 set splitright            " more intuitive adding of new splits
 set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
-set t_Co=256              " the amount of colours used
+set t_Co=256              " the number of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
 set ttyfast               " fast terminal vrummmmmmm
-set updatetime=400        " update faster asynchronously
+set updatetime=100        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 
@@ -137,37 +143,39 @@ if has("gui_running")
     set guioptions-=L         " remove lefthand toolbar when split
     set guioptions+=c         " console diags instead of popups
 endif
+set guifont=IBM\ Plex\ Mono\ Medium\ 11
+" set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
+" set guifont=Roboto\ Mono\ Medium\ for\ Powerline\ 11
 
 let mapleader = "\<Space>"
 
 " set this if want to run vim from its own venv
 "let g:python3_host_prog='~/.local/share/dephell/venvs/.vim-pA95/bin/python3'
 
-" Persisting undo history
+" persistent undo history
 if has('persistent_undo')
   silent !mkdir ~/.vim/backups > /dev/null 2>&1
   set undodir=~/.vim/backups
   set undofile
 endif
 
-" vim distribution plugins
-let g:loaded_matchparen = 1
-let g:loaded_matchit = 1
-
 " comments in italics
 highlight Comment cterm=italic gui=italic
 
-" colourscheme - options must be set before loading it
-let g:gruvbox_contrast_dark='medium'
-let g:gruvbox_sign_column='bg0'
-let g:gruvbox_hls_highlight='blue'
-colorscheme gruvbox
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-" speed up syntax highlighting. A bit hacky but some glitches are fine with me
-" aug vimrc
-"     au!
-"     au BufWinEnter,Syntax * syn sync minlines=1 maxlines=1
-" aug END
+let g:deus_italic=1
+let g:deus_sign_column='bg0'
+colorscheme deus
+let g:deus_termcolors=256
+let g:airline_theme='twofirewatch'
+
+" colourscheme - options must be set before loading it
+" let g:gruvbox_contrast_dark='medium'
+" let g:gruvbox_sign_column='bg0'
+" let g:gruvbox_hls_highlight='blue'
+" colorscheme gruvbox
 
 " this beauty remembers where the cursor was when file was closed and returns to the same position
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
@@ -188,9 +196,6 @@ au Filetype vuejs setlocal ts=2 sw=2
 au Filetype yml setlocal ts=2 sw=2
 au Filetype yaml setlocal ts=2 sw=2
 
-" disable syntax highlighting for html files
-au! BufReadPost *.html set syntax=off
-
 " remove trailing whitespace on save
 au BufWritePre * %s/\s\+$//e
 
@@ -210,15 +215,18 @@ nmap <Leader>nt :NERDTreeToggle<CR>
 """ Plugin: fzf
 
 let g:fzf_preview_window = ''
+let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
 " Remap:
-nmap <silent> <Leader>o :Files<CR>
-nmap <silent> <Leader>O :Files!<CR>
-nmap <silent> \ :Files ~/Documents/projects<CR>
-nmap <silent> <Leader>; :Ag<CR>
+nmap <silent> <Leader>o  :Files<CR>
+nmap <silent> <Leader>O  :Files!<CR>
+nmap <silent> <Leader>;  :Ag<CR>
+nmap <silent> <Leader>i  :Buffers<CR>
+nmap <silent> <Leader>u  :History<CR>
 nmap <silent> <Leader>cs :Commits<CR>
-nmap <silent> <Leader>i :Buffers<CR>
-nmap <silent> <Leader>u :History<CR>
+nmap <silent> <Leader>cb :BCommits<CR>
+nmap <silent>         \  :Files ~/Documents/projects<CR>
+nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
 
 """ Plugin: ALE
 
@@ -236,7 +244,7 @@ let g:ale_linters = {
 \   'json':       ['jsonlint'],
 \   'markdown':   ['vale'],
 \   'php':        ['phpstan', 'phpcs'],
-\   'python':     ['flake8', 'mypy', 'pylint', 'vale'],
+\   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
 \   'text':       ['vale'],
 \   'vue':        ['eslint'],
@@ -245,7 +253,6 @@ let g:ale_fixers = {
 \   'htmldjango': ['prettier'],
 \   'javascript': ['eslint'],
 \   'json':       ['fixjson', 'prettier'],
-\   'python':     ['black', 'isort'],
 \   'vue':        ['eslint'],
 \}
 let g:ale_python_flake8_options = '--jobs 8'
@@ -257,19 +264,18 @@ let g:ale_linters_explicit=1
 let g:ale_warn_about_trailing_whitespace=0
 let g:ale_warn_about_trailing_blank_lines=0
 
+let g:ale_set_loclist=0
+let g:ale_set_quickfix=0
 let g:ale_fix_on_save=0
 let g:ale_lint_on_save=0
 let g:ale_lint_on_enter=0
-let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_text_changed=0
 let g:ale_lint_on_insert_leave=0
 let g:ale_lint_on_filetype_changed=0
 
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
-
-let g:ale_set_loclist=0
-let g:ale_set_quickfix=0
 
 let g:ale_sign_error = 'Ϟ'
 let g:ale_sign_warning = '×'
@@ -283,7 +289,7 @@ nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 nmap <Leader>t :ALEToggle<CR>
 nmap <Leader>rs :ALEReset<CR>
 nmap <Leader>a :ALELint<CR>
-nmap <Leader>f :ALEFix<CR>
+"nmap <Leader>f :ALEFix<CR>
 
 """ Plugin: YouCompleteMe
 
@@ -312,21 +318,16 @@ nmap g* <Plug>(incsearch-nohl-g*)
 nmap g# <Plug>(incsearch-nohl-g#)
 
 """ Plugin: vim-signify
-let g:signify_vcs_list=["git"]
+"let g:signify_vcs_list=["git"]
 
 """ Plugin: lightline / airline
-"let g:lightline = {
-"      \ 'active': {
-"      \   'left': [ [ 'mode', 'paste' ],
-"      \             [ 'gitbranch', 'readonly', 'filename', 'modified', 'commondir' ] ],
-"      \ },
-"      \ 'component_function': {
-"      \   'gitbranch' : 'FugitiveHead',
-"      \ },
-"      \ }
-let g:airline#extensions#whitespace#enabled = 0
-let g:airline_highlighting_cache = 0
+
+let g:airline_powerline_fonts = 1
+let g:airline_highlighting_cache = 1
+let g:airline_skip_empty_sections = 1
 let g:airline#extensions#fzf#enabled = 1
+let g:airline#extensions#whitespace#enabled = 1
+
 
 """ Plugin: obvious-resize
 let g:obvious_resize_default = 2
@@ -358,7 +359,6 @@ map F <Plug>Sneak_S
 nmap <Leader>v :Vista!!<CR>
 
 let g:vista_fzf_preview = ['right:50%']
-
 
 """ Plugin: Vimwiki
 
@@ -429,6 +429,21 @@ let g:plantuml_executable_script='java -jar ~/.ref/plantuml.jar $@'
 
 " Remap:
 nnoremap <F5> :w<CR> :make<CR>
+
+""" Plugin: Black
+
+let g:black_virtualenv='~/.local/pipx/venvs/black/'
+
+" Remap:
+nmap <Leader>f :Black<CR>
+
+""" Plugin: vim-gitgutter
+
+let g:gitgutter_highlight_lines=1
+let g:gitgutter_preview_win_floating=1
+let g:gitgutter_grep = 'ag --nocolor'
+let g:gitgutter_git_executable = '/usr/bin/git'
+
 
 """ Key remaps
 
