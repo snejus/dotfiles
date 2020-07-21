@@ -1,5 +1,4 @@
 [alias]
-    #l   = log --graph --abbrev-commit --decorate --format=format:'%C(bold red)%h%C(reset) %C(bold green)(%ar)%C(reset) %C(bold blue)%s%C(reset) %C(white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all -n 12
     l  = log --graph --abbrev-commit --decorate --format=format:'%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)' --all -n 12
     l1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)' --all
     l2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) %C(bold green)%aD%C(reset) %C(bold magenta)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''%C(bold dim white)%s%C(reset) %C(italic white)- %an%C(reset)%n' --all
@@ -13,28 +12,34 @@
     defaultRemote = origin
 
 [color]
-    branch = always
-    diff = auto
+    branch      = always
+    diff        = auto
     interactive = always
-    status = true
-    pager = true
-    push = always
-    transport = always
+    status      = true
+    pager       = true
+    push        = always
+    transport   = always
+    ui          = true
 
 [core]
-    editor = vim
-    filemode = false
-    hooksPath = /home/sarunas/Documents/projects/_integrations-githooks
-    pager = diff-so-fancy | less --tabs=4 -RFX
-
-; [credential]
-;     helper = osxkeychain
+    editor       = vim
+    excludesfile = /home/sarunas/.gitignore
+    filemodei    = false
+    hooksPath    = /home/sarunas/Documents/projects/_integrations-githooks
+    pager        = diff-so-fancy | less --tabs=4 -RFX
 
 [fetch]
     writeCommitGraph = true
+
+[github]
+    user = saras.nejuz@gmail.com
 
 [url "git@github.com:/"]
     insteadOf = https://github.com/
 
 [rebase]
     abbreviateCommands = true
+
+[user]
+    name = Šarūnas Nejus
+    email = saras.nejuz@gmail.com
