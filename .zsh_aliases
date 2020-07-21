@@ -1,20 +1,23 @@
 # General
-alias chro="google-chrome"
 alias brave="brave-browser"
+alias du_sort="du -h -d 1 | sort -h"
+alias env="env | pygmentize -l bash -O style=fruity"
 alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
 alias install='sudo apt update && sudo apt install'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+alias ls="exa -lah"
 alias m="make"
-alias mypy='dmypy'
-alias notes="chro ~/wikis/main/html/index.html &"
+alias notes="brave ~/wikis/main/html/index.html &"
 alias open="xdg-open"
 alias pbpaste="xclip -sel clipboard"
 alias peotry="poetry"
-alias printpath="echo $PATH | tr : '\n' | sort"
+alias printpath="echo $PATH | tr : '\n'"
 alias remove='sudo apt remove'
 alias todos="grep -RI TODO ."
-alias update="source $HOME/.zshrc"
+alias typing="vim $HOME/.ref/docs/typing.md"
+alias upd="source $HOME/.zshrc"
+
 
 # Ag
 alias agl="ag --pager less"
@@ -22,38 +25,40 @@ alias agf="ag --silent -g"
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
-
-dockerstop () {
-    docker ps --filter name=$1 | xargs -I{} docker stop {}
-}
+alias dco='docker-compose'
 
 # Dephell
 alias dp="dephell package"
-alias dpcl="dephell package changelog"
-
-# Exa
-alias ls="exa -lah"
 
 # Edit often accessed files
-alias evimrc="vim $HOME/.vimrc"
-alias ezsh="vim $HOME/.zshrc"
-alias egit="vim $HOME/.gitconfig"
 alias eal="vim $HOME/.zsh_aliases"
+alias ezsh="vim $HOME/.zshrc"
 alias efzf="vim $HOME/.zsh_fzf"
+alias egit="vim $HOME/.gitconfig"
+alias efunc="vim $HOME/.zsh_func"
 alias esens="vim $HOME/.zsh_sens"
+alias evimrc="vim $HOME/.vimrc"
 
 # fzf
 alias fs="fzf"
 
 # Git
-alias -g cs="--compact-summary"
+alias -g csu="--compact-summary"
+alias gc-="git checkout -"
+alias gcb="git checkout -b"
+alias gcom="git commit -m "
+alias gd="git diff"
+alias gf="git fetch"
 alias gl="git l"
 alias gl1="git l1"
 alias gl2="git l2"
+alias gmom="git merge origin/master"
 alias gs="git status"
-alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=0"
+alias gstl="git stash list | pygmentize -l yaml -O style=fruity"
+alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=2"
 alias gitinspection="gitinspector --file-types='**' --grading -T --format html > gitinspector.html && open gitinspector.html"
 alias openrepo="gh repo view --web"
+alias wtf="git wtf --long --all | pygmentize -l yaml -O style=fruity"
 
 # Jira
 alias showfields='jira fields | ag \"system\" | sed "s/.*: //" | tr -d \", | sort'
@@ -62,55 +67,20 @@ alias issues='jira list --template table --query \
 alias sissues='jira list --template table --query \
     "sprint in openSprints() and resolution = unresolved and assignee=currentuser() ORDER BY status DESC, priority DESC, created DESC"'
 
-show () {
-    echo Looking for issue $1
-    jira view $1 | pygmentize -l yaml -O style=fruity
-}
-
-# TODO: Clean these up asap, they're shameful
 # Python
-alias flapaths="ag --nogroup --color-path '1;36' 'noqa|flake8' tests src --color | \
-        tee /dev/null | sed s'/:.*//' | tee >(wc -l) >(echo -n '\n\n\n\e[1;32mTOTAL: ') | sort | uniq -c | sort -r"
-
-alias pylpaths="ag --nogroup --color-path '1;36' 'pylint:' tests src --color | \
-        tee /dev/null | sed s'/:.*//' | tee >(wc -l) >(echo -n '\n\n\n\e[1;32mTOTAL: ') | sort | uniq -c | sort -r"
-
-alias pyldisables="ag --nogroup --color-path '1;36' 'pylint:' tests src --color | \
-    tee /dev/null | sed s'/.*\(dis\|en\)able=//' | tee >(wc -l) >(echo -n '\e[1;32mTOTAL: \e[1;37m') | sort | uniq -c | sort -rh"
-
+alias ma="python manage.py"
 alias restme="restview --css ~/.ref/github.css README.rst"
 alias oldbump="python3 setup.py --quiet build bdist_wheel && rm -rf build/ dist/"
 
-# Tilix
-alias new="tilix -a app-new-window"
-alias down="tilix -a session-add-down"
-alias right="tilix -a session-add-right"
+# Poetry
+alias poa="poetry add"
+alias pos="poetry show"
+alias psh="poetry shell"
+alias por="poetry remove"
+alias pou="poetry update -vv"
+alias poi="poetry install -vv"
 
 # Vagrant
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
-
-# Functions
-cache_purge() {
-    remove_file_folder f .coverage $1
-    remove_file_folder d __pycache__ $1
-    remove_file_folder d .pytest_cache $1
-    remove_file_folder d .eggs $1
-    remove_file_folder d build $1
-    remove_file_folder d dist $1
-    remove_file_folder d *.egg-info $1
-    echo Finished removing caches
-}
-remove_file_folder() {
-    count=0
-    for file in $(find . -name $2 -type $1);
-    do
-        rm -rf $file $3
-    let "count++"
-    done
-    if [ $count -gt 0 ]
-    then
-        echo "- Removed $count $2"
-    fi
-}
