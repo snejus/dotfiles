@@ -84,9 +84,11 @@ Plug 'scrooloose/vim-slumlord'
 
 " quick black
 Plug 'psf/black', { 'for': 'python' }
-"
+
+Plug 'ervandew/supertab'
+
 " Colourschemes
-Plug 'gruvbox-community/gruvbox'
+" Plug 'gruvbox-community/gruvbox'
 Plug 'ajmwagar/vim-deus'
 Plug 'rakr/vim-two-firewatch'
 
@@ -103,6 +105,7 @@ set clipboard=unnamedplus " use clipboard as the primary register
 set cursorline            " highlights current line
 set encoding=utf8
 set expandtab             " tabs are converted to spaces
+set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:- " don't add fillchars
 set foldmethod=indent     " fold by indents - that's python specific
 set foldlevel=99          " fold level of a closed fold
 set history=1000
@@ -131,7 +134,7 @@ set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
 set ttyfast               " fast terminal vrummmmmmm
-set updatetime=100        " update faster asynchronously
+set updatetime=500        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 
@@ -181,6 +184,16 @@ let g:airline_theme='twofirewatch'
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 
 " filetype specific stuff
+" Remap:
+function! g:Set_format_mapping()
+    if &filetype ==# 'python'
+        nnoremap <Leader>f :Black<CR>
+    else
+        nnoremap <Leader>f :ALEFix<CR>
+    endif
+endfunction
+
+au BufEnter * call g:Set_format_mapping()
 au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
@@ -239,6 +252,7 @@ call ale#linter#Define('text', {
 \})
 
 let g:ale_linters = {
+\   'ansible':    ['ansible-lint'],
 \   'dockerfile': ['hadolint'],
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
@@ -247,6 +261,7 @@ let g:ale_linters = {
 \   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
 \   'text':       ['vale'],
+\   'yaml':       ['yamllint'],
 \   'vue':        ['eslint'],
 \}
 let g:ale_fixers = {
@@ -289,7 +304,11 @@ nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 nmap <Leader>t :ALEToggle<CR>
 nmap <Leader>rs :ALEReset<CR>
 nmap <Leader>a :ALELint<CR>
-"nmap <Leader>f :ALEFix<CR>
+
+
+""" Plugin: Black
+
+let g:black_virtualenv='~/.local/pipx/venvs/black/'
 
 """ Plugin: YouCompleteMe
 
@@ -430,20 +449,15 @@ let g:plantuml_executable_script='java -jar ~/.ref/plantuml.jar $@'
 " Remap:
 nnoremap <F5> :w<CR> :make<CR>
 
-""" Plugin: Black
-
-let g:black_virtualenv='~/.local/pipx/venvs/black/'
-
-" Remap:
-nmap <Leader>f :Black<CR>
-
 """ Plugin: vim-gitgutter
 
-let g:gitgutter_highlight_lines=1
 let g:gitgutter_preview_win_floating=1
 let g:gitgutter_grep = 'ag --nocolor'
 let g:gitgutter_git_executable = '/usr/bin/git'
 
+""" Plugin: Supertab
+
+let g:SuperTabDefaultCompletionType = "context"
 
 """ Key remaps
 
