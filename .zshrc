@@ -1,10 +1,12 @@
 export NVMPATH=~/.nvm
 export RUSTPATH=~/.cargo/bin
+export USERPATH=~/.local/bin
 export PYENVPATH=~/.pyenv/bin
 export GOPATH=~/.local/go/bin
-export -U PATH=$RUSTPATH:$GOPATH:$PYENVPATH:~/.local/bin:$PATH
+export -U PATH=$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$PATH
 
-export PIPENV_VENV_IN_PROJECT=1
+export MYPYPATH=$HOME/stubs
+
 export PYTHONDONTWRITEBYTECODE=1
 export TERM='xterm-256color'
 export ZSH=~/.oh-my-zsh
@@ -21,12 +23,14 @@ fpath=(
 )
 
 plugins=(
-  colored-man-pages
-  colorize
-  git
-  zsh-completions
-  zsh-autosuggestions
-  django
+    timer
+    extract
+    colorize
+    cheatsheet
+    colored-man-pages
+    zsh-completions
+    zsh-autosuggestions
+    zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -35,7 +39,7 @@ if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
     source /etc/profile.d/vte.sh
 fi
 
-### Some zle stuff
+### Some zle mappings
 bindkey -v
 bindkey '^k' up-history
 bindkey '^j' down-history
@@ -53,10 +57,9 @@ export KEYTIMEOUT=1
 
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
-
 eval "$(pandoc --bash-completion)"
-eval "$(register-python-argcomplete pipx)"
 eval "$(jira --completion-script-bash)"
+eval "$(register-python-argcomplete pipx)"
 source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
 
 autoload -U bashcompinit
@@ -67,6 +70,7 @@ zstyle ':completion:*' expand prefix suffix
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
+[ -f ~/.zsh_func ] && source ~/.zsh_func
 [ -f ~/.zsh_sens ] && source ~/.zsh_sens
 [ -f ~/.zsh_aliases ] && source ~/.zsh_aliases
 [ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
