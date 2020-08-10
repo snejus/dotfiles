@@ -92,6 +92,10 @@ Plug 'ervandew/supertab'
 Plug 'ajmwagar/vim-deus'
 Plug 'rakr/vim-two-firewatch'
 
+" Markdown support
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
+
 
 call plug#end()
 
@@ -228,11 +232,9 @@ nmap <Leader>nt :NERDTreeToggle<CR>
 """ Plugin: fzf
 
 let g:fzf_preview_window = ''
-let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 
 " Remap:
 nmap <silent> <Leader>o  :Files<CR>
-nmap <silent> <Leader>O  :Files!<CR>
 nmap <silent> <Leader>;  :Ag<CR>
 nmap <silent> <Leader>i  :Buffers<CR>
 nmap <silent> <Leader>u  :History<CR>
@@ -240,6 +242,7 @@ nmap <silent> <Leader>cs :Commits<CR>
 nmap <silent> <Leader>cb :BCommits<CR>
 nmap <silent>         \  :Files ~/Documents/projects<CR>
 nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
+nmap <silent> <Leader>=  :Files ~/stubs<CR>
 
 """ Plugin: ALE
 
@@ -296,14 +299,14 @@ let g:ale_sign_error = 'Ϟ'
 let g:ale_sign_warning = '×'
 
 " Remap: navigate between errors
-nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
-nmap <silent> <Leader>j <Plug>(ale_next_wrap)
+nmap <silent> <Leader>ek <Plug>(ale_previous_wrap)
+nmap <silent> <Leader>ej <Plug>(ale_next_wrap)
 nmap <Leader>y :execute "let g:ale_linters_ignore = ['pylint']"
 nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 
-nmap <Leader>t :ALEToggle<CR>
-nmap <Leader>rs :ALEReset<CR>
-nmap <Leader>a :ALELint<CR>
+nmap <Leader>at :ALEToggle<CR>
+nmap <Leader>ai :ALEInfo<CR>
+nmap <Leader>al :ALELint<CR>
 
 
 """ Plugin: Black
@@ -327,17 +330,10 @@ let g:incsearch#auto_nohlsearch = 1
 
 " Remap:
 nmap /  <Plug>(incsearch-forward)
-nmap ?  <Plug>(incsearch-backward)
-nmap g/ <Plug>(incsearch-stay)
 nmap n  <Plug>(incsearch-nohl-n)
 nmap N  <Plug>(incsearch-nohl-N)
 nmap *  <Plug>(incsearch-nohl-*)
 nmap #  <Plug>(incsearch-nohl-#)
-nmap g* <Plug>(incsearch-nohl-g*)
-nmap g# <Plug>(incsearch-nohl-g#)
-
-""" Plugin: vim-signify
-"let g:signify_vcs_list=["git"]
 
 """ Plugin: lightline / airline
 
@@ -465,7 +461,7 @@ let g:SuperTabDefaultCompletionType = "context"
 xmap <BS> %
 nmap <BS> %
 
-" more easier accessible search
+" more easily accessible search
 nmap s /
 
 " easier navigation between splits
@@ -475,7 +471,7 @@ nmap <C-L> <C-W><C-L>
 nmap <C-H> <C-W><C-H>
 
 " Folds
-nmap <CR> za
+nmap 8 za
 nmap <Space><CR> zMzvzt
 
 " line-wise movement
@@ -493,19 +489,8 @@ xmap > >gv|
 vmap <C-c> gc
 nmap <C-c> gcc
 
-" drag lines vertically and indent
-nmap <S-l> :m-2<CR>
-nmap <S-h> :m+<CR>
-vmap <S-l> :m'<-2<CR>gv=gv
-vmap <S-h> :m'>+<CR>gv=gv
-
 " open directory under the current buffer
 map <Leader>cd :lcd %:p:h<CR>:pwd<CR>
-
-" new line from any position while typing - doesn't work in terminal vim
-if has("gui_running")
-    imap <S-CR> <C-o>o
-endif
 
 " there's also <Leader>bq defined that shuts off buffer but leaves
 " window open
