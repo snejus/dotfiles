@@ -34,7 +34,7 @@ dockerstop () {
 
 deps() {
     echo Generating a dependencies graph with pydeps for $1
-    pydeps $1 --reverse
+    pydeps $1 --max-bacon 2 --include-missing --reverse -T png
 }
 
 rst2pdf() {
@@ -56,6 +56,10 @@ rst2pdf() {
 restshow() {
     echo About to open $1 in the browser
     restview --css ~/.ref/github.css $1
+}
+
+runmypy() {
+    mypy $1 --html-report reports --show-traceback --pretty
 }
 
 show() {
@@ -81,23 +85,22 @@ search_skipped() {
         sort | uniq -c | sort -r
 }
 
-skipped_flake(){
+skipped_flake() {
     search_skipped 'noqa|flake8'
 }
 
-skipped_pylint(){
-    search_skipped 'pylint:'
+skipped_pylint() {
+    search_skipped 'pylint: ?d'
 }
 
-skipped_mypy(){
+skipped_mypy() {
     search_skipped 'type: ignore'
 }
 
-skipped_pylint_by_error(){
-    ag --nogroup --color --color-path '1;36' 'pylint:' tests src | \
+skipped_pylint_by_error() {
+    ag --nogroup --color --color-path '1;36' 'pylint: ?dis' tests src | \
     tee /dev/null | \
-    sed 's/.*\(dis\|en\)able=//' | \
+    sed 's/.*able\ \?=\ \?//' | tr , '\n' | tr -d ' ' |
     tee >(wc -l) >(printf '\e[%smTOTAL: \e[%sm' $MAGENTA $GREY) | \
     sort | uniq -c | sort -rh
 }
-
