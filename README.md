@@ -13,10 +13,6 @@
 I'm still impressed at how many people aren't aware of this [power](https://github.com/junegunn/fzf).
 I'm yet to discover most of what it can do but I know that I may not have ended up using `vim` had I not discovered it.
 
-It has three main modes:
-
-*
-
 #### `zsh_fzf`
 Configures global command line flags:
 * Uses `fd` for file search since it's faster than `find`. Also, _colours_.
@@ -28,8 +24,6 @@ Configures global command line flags:
 </p>
 
 --- file preview with code highlighting. It works in `vim` too - mostly useful to check diffs from previous commits.
-
-
 
 ---
 
