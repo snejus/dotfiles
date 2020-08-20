@@ -1,13 +1,18 @@
 --[[
+    Helo helo
+    snejus
+        Based on lcpz/awesome-copycats
 
-     Awesome WM configuration template
-     github.com/lcpz
-
+    Mentions
+        gvim
+        flameshot           screenshots
+        tilix               terminal emulator
+        mpd / mpc / ncmpcpp music player
 --]]
 
 -- {{{ Required libraries
-local awesome, client, mouse, screen, tag = awesome, client, mouse, screen, tag
-local ipairs, string, os, table, tostring, tonumber, type = ipairs, string, os, table, tostring, tonumber, type
+local awesome, client, screen = awesome, client, screen
+local ipairs, string, os, tostring, type = ipairs, string, os, tostring, type
 
 local gears         = require("gears")
 local awful         = require("awful")
@@ -30,8 +35,8 @@ local dpi           = require("beautiful.xresources").apply_dpi
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
     naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
+                     title  = "Oops, there were errors during startup!",
+                     text   = awesome.startup_errors })
 end
 
 -- Handle runtime errors after startup
@@ -102,7 +107,7 @@ local browser      = os.getenv("BROWSER") or "brave-browser"
 local scrlocker    = "slock"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "CODE", "BROW", "COMM", "CHOON", "X" }
+awful.util.tagnames = { "     CODE ⌨  ", "BROWSE @", "COMMS 📫", "🎝  CHOONZ 🎜 ", "X" }
 awful.layout.layouts = {
     awful.layout.suit.floating,
     -- awful.layout.suit.tile,
@@ -262,8 +267,8 @@ globalkeys = my_table.join(
     -- Take a screenshot
     -- doesn't work for some reason
     -- https://github.com/lcpz/dots/blob/master/bin/screenshot
-    -- awful.key({ altkey }, "p", function() os.execute("screenshot") end,
-    --           {description = "take a screenshot", group = "hotkeys"}),
+    awful.key({ altkey }, "y", function() os.execute("flameshot gui") end,
+              {description = "screenshot", group = "hotkeys"}),
 
     -- X screen locker
     awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
@@ -513,7 +518,7 @@ globalkeys = my_table.join(
               {description = "show rofi", group = "launcher"}),
     -- ]]
     -- Prompt
-    awful.key({ modkey }, "r", function () awful.screen.focused().mypromptbox:run() end,
+    awful.key({ modkey }, "r", function () awful.screen.focused().prompt:run() end,
               {description = "run prompt", group = "launcher"})
 )
 
@@ -529,7 +534,7 @@ globalkeys = my_table.join(
     --           {description = "lua execute prompt", group = "awesome"})
     --]]
 
-clientkeys = my_table.join(
+local clientkeys = my_table.join(
     -- awful.key({ altkey, "Shift"   }, "m",      lain.util.magnify_client,
     --           {description = "magnify",    group = "client"}),
     awful.key({ altkey,           }, "q",      function (c) c:kill()                         end,
@@ -611,7 +616,7 @@ for i = 1, 9 do
     )
 end
 
-clientbuttons = gears.table.join(
+local clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
     end),
