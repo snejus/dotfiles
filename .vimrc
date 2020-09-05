@@ -1,5 +1,3 @@
-set nocompatible " sorry vi
-
 """ Vim-plug installation
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -32,9 +30,6 @@ Plug 'tpope/vim-commentary'
 " tree explorer
 Plug 'preservim/nerdtree'
 
-" python indentation handled correctly
-Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-
 " easier handling of parentheses / curly brackets etc.
 Plug 'tpope/vim-surround'
 
@@ -48,10 +43,7 @@ Plug 'moll/vim-bbye'
 Plug 'justinmk/vim-sneak'
 
 " amazing .rST toolset - a bit heavy on keymaps so needs some custom patching
-Plug 'Rykka/riv.vim' " , { 'for': 'rst' } causes problems if not loaded initially
-
-" automatically updating rST server
-Plug 'Rykka/InstantRst', { 'for': 'rst' }
+" Plug 'Rykka/riv.vim' " , { 'for': 'rst' } causes problems if not loaded initially
 
 " window resize mappings
 Plug 'talek/obvious-resize'
@@ -67,20 +59,15 @@ Plug 'liuchengxu/vista.vim'
 
 " statusline plugins
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 " Plug 'itchyny/lightline.vim'
 " Plug 'rbong/vim-crystalline'
 
 " pattern matches highlighted incrementally
 Plug 'haya14busa/incsearch.vim'
 
-" vim cheatsheet - invoked with Leader + ?
-Plug 'lifepillar/vim-cheat40'
-
 " notes
 Plug 'vimwiki/vimwiki'
-
-" draw plantuml sequence diagrams with ascii art
-Plug 'scrooloose/vim-slumlord'
 
 " quick black
 Plug 'psf/black', { 'for': 'python' }
@@ -88,14 +75,20 @@ Plug 'psf/black', { 'for': 'python' }
 Plug 'ervandew/supertab'
 
 " Colourschemes
-" Plug 'gruvbox-community/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 Plug 'ajmwagar/vim-deus'
-Plug 'rakr/vim-two-firewatch'
 
 " Markdown support
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 
+" Unicode explorer
+Plug 'chrisbra/unicode.vim'
+
+Plug 'tpope/vim-sleuth' " indentation
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'mzlogin/vim-markdown-toc'
 
 call plug#end()
 
@@ -116,8 +109,7 @@ set history=1000
 set hlsearch              " highlight search results
 set incsearch             " show search results as you type
 set laststatus=2          " always show statusline
-set listchars=extends:→   " show arrow if line continues behind right window boundary
-set listchars+=precedes:← " same
+set listchars=tab:>\ ,trail:-,extends:→,precedes:←,nbsp:+
 set modifiable            " buffers are modifiable
 set noequalalways         " split windows sizes always split in half
 set nowritebackup         " do not backup - git is used anyways
@@ -130,6 +122,8 @@ set noswapfile            " do not use swapfiles
 set scrolloff=999         " keep the cursor centered
 set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
+set spell
+set spelllang=en_gb
 set splitbelow            " more intuitive adding of new splits
 set splitright            " more intuitive adding of new splits
 set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
@@ -149,15 +143,17 @@ if has("gui_running")
     set guioptions-=r         " remove righthand toolbar
     set guioptions-=L         " remove lefthand toolbar when split
     set guioptions+=c         " console diags instead of popups
+    set guifont=IBM\ Plex\ Mono\ Medium\ 11
 endif
-set guifont=IBM\ Plex\ Mono\ Medium\ 11
+" set guifont=ProFont\ For\ Powerline\ 13
 " set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
 " set guifont=Roboto\ Mono\ Medium\ for\ Powerline\ 11
 
 let mapleader = "\<Space>"
 
-" set this if want to run vim from its own venv
-"let g:python3_host_prog='~/.local/share/dephell/venvs/.vim-pA95/bin/python3'
+if has('autocmd')
+  filetype plugin indent on
+endif
 
 " persistent undo history
 if has('persistent_undo')
@@ -176,7 +172,6 @@ let g:deus_italic=1
 let g:deus_sign_column='bg0'
 colorscheme deus
 let g:deus_termcolors=256
-let g:airline_theme='twofirewatch'
 
 " colourscheme - options must be set before loading it
 " let g:gruvbox_contrast_dark='medium'
@@ -195,6 +190,10 @@ function! g:Set_format_mapping()
     else
         nnoremap <Leader>f :ALEFix<CR>
     endif
+    if &filetype ==# 'markdown'
+        setfiletype 'vimwiki'
+        setfiletype 'markdown'
+    endif
 endfunction
 
 au BufEnter * call g:Set_format_mapping()
@@ -202,16 +201,7 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
-au Filetype html setlocal ts=2 sw=2
-au Filetype javascript setlocal ts=2 sw=2
-au Filetype Jenkinsfile setlocal ts=2 sw=2
-au Filetype markdown setlocal ts=2 sw=2
-au Filetype typescript setlocal ts=2 sw=2
-au Filetype vimwiki setlocal ts=2 sw=2
-au Filetype vue setlocal ts=2 sw=2
-au Filetype vuejs setlocal ts=2 sw=2
-au Filetype yml setlocal ts=2 sw=2
-au Filetype yaml setlocal ts=2 sw=2
+" au! FileType fzf set laststatus=0 noshowmode noruler | au BufLeave <buffer> set laststatus=2 showmode ruler
 
 " remove trailing whitespace on save
 au BufWritePre * %s/\s\+$//e
@@ -231,7 +221,10 @@ nmap <Leader>nt :NERDTreeToggle<CR>
 
 """ Plugin: fzf
 
+
 let g:fzf_preview_window = ''
+let g:fzf_buffers_jump = 1
+let g:fzf_commits_log_options = 'log --graph --abbrev-commit --decorate --format=format:"%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)" --all'
 
 " Remap:
 nmap <silent> <Leader>o  :Files<CR>
@@ -243,6 +236,7 @@ nmap <silent> <Leader>cb :BCommits<CR>
 nmap <silent>         \  :Files ~/Documents/projects<CR>
 nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
 nmap <silent> <Leader>=  :Files ~/stubs<CR>
+nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
 
 """ Plugin: ALE
 
@@ -257,18 +251,22 @@ call ale#linter#Define('text', {
 let g:ale_linters = {
 \   'ansible':    ['ansible-lint'],
 \   'dockerfile': ['hadolint'],
+\   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
 \   'markdown':   ['vale'],
 \   'php':        ['phpstan', 'phpcs'],
 \   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
+\   'zsh':        ['shellcheck'],
+\   'sh':         ['shellcheck'],
 \   'text':       ['vale'],
 \   'yaml':       ['yamllint'],
 \   'vue':        ['eslint'],
 \}
 let g:ale_fixers = {
 \   'htmldjango': ['prettier'],
+\   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['fixjson', 'prettier'],
 \   'vue':        ['eslint'],
@@ -294,9 +292,9 @@ let g:ale_lint_on_filetype_changed=0
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
-
-let g:ale_sign_error = 'Ϟ'
-let g:ale_sign_warning = '×'
+" Ϟ×
+let g:ale_sign_error = '༒'
+let g:ale_sign_warning = '൝ '
 
 " Remap: navigate between errors
 nmap <silent> <Leader>ek <Plug>(ale_previous_wrap)
@@ -306,7 +304,7 @@ nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 
 nmap <Leader>at :ALEToggle<CR>
 nmap <Leader>ai :ALEInfo<CR>
-nmap <Leader>al :ALELint<CR>
+nmap <Leader>aj :ALELint<CR>
 
 
 """ Plugin: Black
@@ -337,12 +335,18 @@ nmap #  <Plug>(incsearch-nohl-#)
 
 """ Plugin: lightline / airline
 
-let g:airline_powerline_fonts = 1
+if has("gui_running")
+    let g:airline_powerline_fonts = 1
+else
+    let g:airline_powerline_fonts = 0
+    let g:airline_symbols_ascii = 1
+endif
+
+let g:airline_theme='deus'
+let g:airline_symbols_ascii = 1
 let g:airline_highlighting_cache = 1
 let g:airline_skip_empty_sections = 1
 let g:airline#extensions#fzf#enabled = 1
-let g:airline#extensions#whitespace#enabled = 1
-
 
 """ Plugin: obvious-resize
 let g:obvious_resize_default = 2
@@ -377,9 +381,9 @@ let g:vista_fzf_preview = ['right:50%']
 
 """ Plugin: Vimwiki
 
-hi VimwikiHeader2 guifg=#b16286 gui=bold
-hi VimwikiHeader1 guifg=#cc241d gui=bold
-hi VimwikiHeader3 guifg=#d65d0e gui=bold
+" hi VimwikiHeader2 guifg=#b16286 gui=bold
+" hi VimwikiHeader1 guifg=#cc241d gui=bold
+" hi VimwikiHeader3 guifg=#d65d0e gui=bold
 
 function! s:paths(root, name)
     let s:wiki_root = a:root.'/'.a:name
@@ -426,7 +430,7 @@ nmap <Leader>4 <Plug>VimwikiGoto
 nmap <Leader>7 <Plug>Vimwiki2HTMLBrowse
 nmap <Leader>8 <Plug>Vimwiki2HTML
 nmap <Leader>9 <Plug>VimwikiAll2HTML
-nmap <C-N> <Plug>VimwikiFollowLink
+" nmap <C-N> <Plug>VimwikiFollowLink
 nmap + <Plug>VimwikiNormalizeLink
 vmap + <Plug>VimwikiNormalizeLinkVisual
 
@@ -440,7 +444,7 @@ nmap <Leader>dg <Plug>VimwikiGenerateTagLinks
 
 """ Plugin: plantuml-syntax
 
-let g:plantuml_executable_script='java -jar ~/.ref/plantuml.jar $@'
+let g:plantuml_executable_script='java -jar ~/.ref/puml/plantuml.jar $@'
 
 " Remap:
 nnoremap <F5> :w<CR> :make<CR>
@@ -455,8 +459,30 @@ let g:gitgutter_git_executable = '/usr/bin/git'
 
 let g:SuperTabDefaultCompletionType = "context"
 
-""" Key remaps
 
+""" Plugin: Tabular
+
+inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+
+function! s:align()
+  let p = '^\s*|\s.*\s|\s*$'
+  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+    Tabularize/|/l1
+    normal! 0
+    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
+
+
+""" Plugin: Ultisnips
+let g:UltiSnipsExpandTrigger="<C-U>"
+let g:UltiSnipsJumpForwardTrigger="<C-Y>"
+let g:UltiSnipsJumpBackwardTrigger="<C-N>"
+let g:UltiSnipsSnippetDirectories=["~/.vim/bundle/vim-snippets/UltiSnips"]
+
+""" Key remaps
 " match parens with backspace
 xmap <BS> %
 nmap <BS> %
@@ -471,7 +497,7 @@ nmap <C-L> <C-W><C-L>
 nmap <C-H> <C-W><C-H>
 
 " Folds
-nmap 8 za
+nmap <CR> za
 nmap <Space><CR> zMzvzt
 
 " line-wise movement
@@ -511,9 +537,9 @@ vmap <Leader>y "+y
 
 " show highlighting group for a word under cursor
 nmap <silent> <Leader>h
-	\ :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
-	\ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
-	\ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
+  \ :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
+  \ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
+  \ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
 
 " nmap <silent> <leader>dd :exe ":profile start profile.log"<cr>:exe ":profile func *"<cr>:exe ":profile file *"<cr>
 " nmap <silent> <leader>dp :exe ":profile pause"<cr>
