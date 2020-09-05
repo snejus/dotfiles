@@ -220,11 +220,8 @@ nmap <Leader>ng :NERDTreeToggleVCS<CR>
 nmap <Leader>nt :NERDTreeToggle<CR>
 
 """ Plugin: fzf
-
-
 let g:fzf_preview_window = ''
 let g:fzf_buffers_jump = 1
-let g:fzf_commits_log_options = 'log --graph --abbrev-commit --decorate --format=format:"%C(bold italic black)(%ar)%C(reset) %C(italic white)%an%C(reset) %C(bold yellow)%h%C(reset) %C(bold blue)%s%C(reset)%C(bold red)%d%C(reset)" --all'
 
 " Remap:
 nmap <silent> <Leader>o  :Files<CR>
@@ -254,6 +251,7 @@ let g:ale_linters = {
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
+\   'lua':        ['luacheck'],
 \   'markdown':   ['vale'],
 \   'php':        ['phpstan', 'phpcs'],
 \   'python':     ['flake8', 'mypy', 'pylint'],
