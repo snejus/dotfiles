@@ -3,14 +3,16 @@ export NVMPATH=$HOME/.nvm
 export RUSTPATH=$HOME/.cargo/bin
 export USERPATH=$HOME/.local/bin
 export PYENVPATH=$HOME/.pyenv/bin
-export GOPATH=$HOME/.local/go/bin
-export -U PATH=$POETRYPATH:$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$PATH
+export GOPATH=$HOME/.local/go/bin/bin
+export LUAROCKSPATH=$HOME/.luarocks/bin
+export -U PATH=$POETRYPATH:$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$LUAROCKSPATH:$PATH
 
 export MYPYPATH=$HOME/stubs
 
 export PYTHONDONTWRITEBYTECODE=1
 export TERM='xterm-256color'
 export ZSH=$HOME/.oh-my-zsh
+export BAT_STYLE=plain
 
 set -o vi
 export EDITOR=vim
@@ -36,6 +38,8 @@ plugins=(
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs  # initialise cdr
 
 source $ZSH/oh-my-zsh.sh
 
@@ -66,15 +70,12 @@ eval "$(jira --completion-script-bash)"
 eval "$(register-python-argcomplete pipx)"
 source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f ~/.zsh_fzf ] && source ~/.zsh_fzf
-[ -f ~/.zsh_func ] && source ~/.zsh_func
-[ -f ~/.zsh_sens ] && source ~/.zsh_sens
-[ -f ~/.zsh_aliases ] && source ~/.zsh_aliases
-[ -f ~/.completions/git-extras-completion.zsh ] && source ~/.completions/git-extras-completion.zsh
-
-[ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
-[ -s "$NVMPATH/bash_completion" ] && \. "$NVMPATH/bash_completion"  # Load nvm bash_completion
+[ -f $HOME/.fzf.zsh ] && source $HOME/.fzf.zsh
+[ -f $HOME/.zsh_fzf ] && source $HOME/.zsh_fzf
+[ -f $HOME/.zsh_func ] && source $HOME/.zsh_func
+[ -f $HOME/.zsh_sens ] && source $HOME/.zsh_sens
+[ -f $HOME/.zsh_aliases ] && source $HOME/.zsh_aliases
+[ -f $HOME/.completions/git-extras-completion.zsh ] && source $HOME/.completions/git-extras-completion.zsh
 
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
@@ -92,3 +93,6 @@ autoload -U bashcompinit
 bashcompinit
 autoload -Uz compinit
 compinit
+
+# heroku autocomplete setup
+HEROKU_AC_ZSH_SETUP_PATH=/home/sarunas/.cache/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
