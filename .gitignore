@@ -1,9 +1,11 @@
 #OS generated files #
 ######################
 gitinspector.html
-assets
 github.css
+assets
+.python-version
 .env
+notes/
 
 
 .DS_Store

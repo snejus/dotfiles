@@ -25,14 +25,10 @@
     editor       = vim
     excludesfile = /home/sarunas/.gitignore
     filemode     = false
-    hooksPath    = /home/sarunas/Documents/projects/_integrations-githooks
     pager        = diff-so-fancy | less --tabs=4 -RFX
 
 [fetch]
     writeCommitGraph = true
-
-[github]
-    user = saras.nejuz@gmail.com
 
 [url "git@github.com:/"]
     insteadOf = https://github.com/
@@ -40,6 +36,5 @@
 [rebase]
     abbreviateCommands = true
 
-[user]
-    name  = Šarūnas Nejus
-    email = saras.nejuz@gmail.com
+[tig]
+    line-graphics = yes

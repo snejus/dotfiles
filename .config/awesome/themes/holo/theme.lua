@@ -24,17 +24,21 @@ local COLOURS = {
     BLACK           = "#000000",
     WHITE           = "#FFFFFF",
     ORANGE          = "#FF9933",
+    -- ORANGE          = "#9D0006",
     BEAUTYBLUE      = "#80CCE6",
+    -- BEAUTYPINK      = "#FFACE6",
+    -- BEAUTYPURPLY    = "#FFACE6",
     LIGHT_PINK      = "#CC9393",
     LIGHT_BLUE      = "#006B8E",
     LIGHTER_BLUE    = "#0099CC",
     DARK_GREY       = "#242424",
     DARKER_GREY     = "#202020",
 }
-local theme                                     = {}
+local theme         = {}
 theme.default_dir  = require("awful.util").get_themes_dir() .. "default"
 theme.icon_dir     = os.getenv("HOME") .. "/.config/awesome/themes/holo/icons"
-theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/holo/dino.jpg"
+-- theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/holo/rave.jpg"
+theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/holo/dino.png"
 
 -------------------------
 --- DIMENSIONS / MISC ---
@@ -69,9 +73,10 @@ theme.border_focus        = COLOURS.ORANGE
 theme.border_normal       = COLOURS.DARK_GREY
 
 theme.taglist_fg_focus    = COLOURS.BEAUTYBLUE
+theme.taglist_bg_urgent   = COLOURS.BLACK
 theme.taglist_fg_empty    = COLOURS.ORANGE
 theme.taglist_fg_occupied = COLOURS.ORANGE
-theme.taglist_spacing     = dpi(100)
+theme.taglist_spacing     = dpi(1)
 
 theme.tasklist_fg_focus  = COLOURS.ORANGE
 theme.tasklist_bg_normal = COLOURS.BLACK
@@ -82,8 +87,8 @@ theme.tasklist_bg_normal = COLOURS.BLACK
 theme.awesome_icon                               = theme.icon_dir .. "/awesome_icon_white.png"
 theme.awesome_icon_launcher                      = theme.icon_dir .. "/awesome_icon.png"
 
-theme.taglist_squares_unsel                      = theme.icon_dir .. "/square_unsel.png"
-theme.taglist_squares_sel                        = theme.icon_dir .. "/square_sel.png"
+-- theme.taglist_squares_unsel                      = theme.icon_dir .. "/square_unsel.png"
+-- theme.taglist_squares_sel                        = theme.icon_dir .. "/square_sel.png"
 
 theme.spr_bottom_right                           = theme.icon_dir .. "/spr_bottom_right.png"
 theme.spr_very_small                             = theme.icon_dir .. "/spr_very_small.png"
