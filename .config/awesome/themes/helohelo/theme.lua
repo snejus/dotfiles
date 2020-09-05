@@ -15,7 +15,7 @@ local awful         = require("awful")
 local wibox         = require("wibox")
 -- local net_widgets   = require("net_widgets")
 
-local string, os = string, os
+local math, string, os = math, string, os
 local markup = lain.util.markup
 -- local net_interface_to_monitor = "wlp2s0"  -- network interface monitored by the widget
 
@@ -24,10 +24,8 @@ local COLOURS = {
     BLACK           = "#000000",
     WHITE           = "#FFFFFF",
     ORANGE          = "#FF9933",
-    -- ORANGE          = "#9D0006",
     BEAUTYBLUE      = "#80CCE6",
-    -- BEAUTYPINK      = "#FFACE6",
-    -- BEAUTYPURPLY    = "#FFACE6",
+    BEAUTYPINK      = "#FFACE6",
     LIGHT_PINK      = "#CC9393",
     LIGHT_BLUE      = "#006B8E",
     LIGHTER_BLUE    = "#0099CC",
@@ -36,9 +34,9 @@ local COLOURS = {
 }
 local theme         = {}
 theme.default_dir  = require("awful.util").get_themes_dir() .. "default"
-theme.icon_dir     = os.getenv("HOME") .. "/.config/awesome/themes/holo/icons"
+theme.icon_dir     = os.getenv("HOME") .. "/.config/awesome/themes/helohelo/icons"
 -- theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/holo/rave.jpg"
-theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/holo/dino.png"
+theme.wallpaper    = os.getenv("HOME") .. "/.config/awesome/themes/helohelo/dino.png"
 
 -------------------------
 --- DIMENSIONS / MISC ---
@@ -102,9 +100,9 @@ theme.prev                                       = theme.icon_dir .. "/prev.png"
 theme.stop                                       = theme.icon_dir .. "/stop.png"
 theme.play                                       = theme.icon_dir .. "/play.png"
 theme.pause                                      = theme.icon_dir .. "/pause.png"
-theme.mpd_on                                     = theme.icon_dir .. "/mpd_on.png"
 theme.cpu                                        = theme.icon_dir .. "/cpu_arc.svg"
 theme.mpd                                        = theme.icon_dir .. "/mpd_arc.png"
+theme.mpd_on                                     = theme.icon_dir .. "/mpd_on.png"
 theme.bottom_bar                                 = theme.icon_dir .. "/bottom_bar.png"
 theme.system_time                                = theme.icon_dir .. "/system_time_arc.svg"
 theme.calendar                                   = theme.icon_dir .. "/calendar_arc.svg"
@@ -200,46 +198,50 @@ theme.cal = lain.widget.cal({
     }
 })
 
--- Mail IMAP check
---[[ commented because it needs to be set before use
-theme.mail = lain.widget.imap({
-    timeout  = 180,
-    server   = "server",
-    mail     = "mail",
-    password = "keyring get mail",
-    settings = function()
-        mail_notification_preset.fg = "#FFFFFF"
-        mail  = ""
-        count = ""
-
-        if mailcount > 0 then
-            mail = "Mail "
-            count = mailcount .. " "
-        end
-
-        widget:set_markup(markup.font(theme.font, markup(blue, mail) .. markup("#FFFFFF", count)))
-    end
-})
---]]
-
 -- MPD
 local mpd_icon = margins_widget(0, 0, 2, 2)(awful.widget.launcher({ image = theme.mpd, command = theme.musicplr }))
 theme.mpd = lain.widget.mpd({
+    music_dir="~/music",
     settings = function ()
         local widget, mpd_now = widget, mpd_now
         if mpd_now.state == "play" then
             mpd_now.artist = mpd_now.artist:upper():gsub("&.-;", string.lower)
             mpd_now.title = mpd_now.title:upper():gsub("&.-;", string.lower)
-            widget:set_markup(blue_markup(mpd_now.artist .. " - " ..  mpd_now.title .. "  "))
+
+            local MAXLENGTH = 100
+            local SPACE = " "
+            local text = mpd_now.artist .. " - " ..  mpd_now.title
+            text = text:sub(0, MAXLENGTH - 2)
+            local length = text:len()
+            local extraspaces = SPACE:rep(math.floor((MAXLENGTH - length) / 2))
+            local progress = mpd_now.elapsed / mpd_now.time
+            local index = math.floor(length * progress)
+            local orangetext = extraspaces .. text:sub(0, index)
+            local bluetext = text:sub(index + 1, length) .. extraspaces
+            widget:set_markup(orange_markup(orangetext) .. blue_markup(bluetext))
 
         elseif mpd_now.state == "pause" then
-            widget:set_markup(markup.font(theme.smallfont, " MPD PAUSED "))
+            widget:set_markup(orange_markup(" MPD PAUSED "))
         else
             widget:set_markup("")
         end
     end
 })
 local musicwidget = topdown_margins_widget(theme.mpd.widget)
+
+-- ALSA volume bar
+theme.volume = lain.widget.alsabar({
+    notification_preset = { font = theme.font},
+    width = dpi(200), height = dpi(10), border_width = dpi(0),
+    colors = {
+        background = COLOURS.BLACK,
+        unmute     = COLOURS.BEAUTYBLUE,
+        mute       = COLOURS.LIGHT_PINK
+    },
+})
+theme.volume.bar.paddings = dpi(0)
+theme.volume.bar.margins = dpi(5)
+local volumewidget = topdown_margins_widget(theme.volume.bar)
 
 
 -- Network
@@ -252,21 +254,6 @@ local musicwidget = topdown_margins_widget(theme.mpd.widget)
 theme.fs = lain.widget.fs({
     notification_preset = { bg = theme.bg_normal, font = theme.font},
 })
-
--- ALSA volume bar
-theme.volume = lain.widget.alsabar({
-    notification_preset = { font = theme.font},
-    width = dpi(150), height = dpi(10), border_width = dpi(0),
-    colors = {
-        background = COLOURS.BLACK,
-        unmute     = COLOURS.BEAUTYBLUE,
-        mute       = COLOURS.LIGHT_PINK
-    },
-})
-theme.volume.bar.paddings = dpi(0)
-theme.volume.bar.margins = dpi(5)
-local volumewidget = topdown_margins_widget(theme.volume.bar)
-
 
 -- CPU
 local cpu_icon = icon_widget(theme.cpu)
@@ -347,7 +334,6 @@ function theme.at_screen_connect(s)
         { -- Right
             layout = wibox.layout.fixed.horizontal,
             -- wibox.widget.systray(),
-            -- theme.mail.widget,
             -- bat.widget,
             musicwidget,
             volumewidget,
