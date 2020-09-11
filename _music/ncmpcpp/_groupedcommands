@@ -1,0 +1,134 @@
+
+##### PLAYBACK CONTROL #####
+
+  stop              s
+  next              . > tab right
+  pause             p
+  shuffle           Z
+  previous          , < shift-tab left
+  replay_song       backspace ctrl-h
+  seek_forward      f
+  seek_backward     b
+  toggle_repeat     r
+  toggle_random     z
+  set_crossfade     X
+  toggle_crossfade  x
+
+##### PLAYLISTS #####
+
+  save_playlist          S
+  sort_playlist          ctrl-s
+  crop_playlist          C
+  clear_playlist         c
+  reverse_playlist       ctrl-r
+  crop_main_playlist     C
+  clear_main_playlist    c
+  add_item_to_playlist   space
+  delete_playlist_items  delete
+  delete_stored_playlist delete
+
+##### ITEMS #####
+
+  add
+  play_item                   enter
+  select_item                 insert shift-down shift-up
+  show_lyrics                 l  # lambda
+  refetch_lyrics              `
+  show_song_info              i  # isort
+  show_artist_info            I  # Isaac
+  add_random_items            `
+  add_selected_items          a
+  fetch_lyrics_in_background  F
+
+##### EDIT #####
+
+  edit_song             e
+  edit_lyrics           e
+  edit_library_tag      e
+  edit_playlist_name    e
+  edit_library_album    e
+  edit_directory_name   e
+
+##### DELETE #####
+
+  delete_browser_items  delete
+
+##### SEARCH #####
+
+  find
+  apply_filter          ctrl-f
+  select_range          ctrl-v
+  start_searching       y
+  next_found_item       .
+  reverse_selection     v
+  find_item_forward     /
+  find_item_backward    ?
+  select_found_items    ctrl-_
+  reset_search_engine   3
+  previous_found_item   ,
+
+##### DISPLAY #####
+
+  show_help fetch_lyrics_in_background1
+  show_clock            =
+  show_outputs          7
+  show_browser          2
+  show_playlist         1
+  show_tag_editor       6
+  show_visualizer       8
+  show_server_info      @
+  show_search_engine    3
+  show_media_library    4
+  show_playlist_editor  5
+
+##### NAVIGATION #####
+
+  scroll_up                 shift-up k
+  scroll_down               shift-down j
+  next_column               right
+  next_screen               tab
+  select_album              B
+  slave_screen              right (right screen)
+  master_screen             left (left screen)
+  enter_directory           enter
+  previous_column           left
+  previous_screen           shift-tab
+  jump_to_browser           G
+  jump_to_tag_editor        E
+  jump_to_playing_song      o
+  jump_to_media_library     ~
+  jump_to_playlist_editor   G
+  jump_to_position_in_song  g
+  jump_to_parent_directory  backspace ctrl-h
+
+##### TOGGLEY DIISPLAY #####
+
+  toggle_mouse                          |
+  toggle_output                         enter
+  toggle_single                         y
+  toggle_consume                        R
+  toggle_add_mode                       T
+  toggle_interface                      \
+  toggle_find_mode                      hw
+  toggle_screen_lock                    ctrl-l
+  toggle_display_mode                   P
+  toggle_lyrics_fetcher                 L
+  toggle_library_tag_type               `
+  toggle_replay_gain_mode               Y
+  toggle_browser_sort_mode              ctrl-s
+  toggle_bitrate_visibility
+  toggle_visualization_type             space
+  toggle_playing_song_centering             VU
+  toggle_media_library_sort_mode        ctrl-s
+  toggle_separators_between_albums      !
+  toggle_media_library_columns_mode     4
+  toggle_fetching_lyrics_in_background  alt-l
+
+##### MISC #####
+
+  run_action            enter
+  execute_command       :
+  update_database       u
+  change_browse_mode    2
+
+  quit q
