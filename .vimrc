@@ -33,6 +33,8 @@ Plug 'preservim/nerdtree'
 " easier handling of parentheses / curly brackets etc.
 Plug 'tpope/vim-surround'
 
+Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
+
 " proper diff / hunks management
 Plug 'airblade/vim-gitgutter'
 
@@ -85,7 +87,8 @@ Plug 'plasticboy/vim-markdown'
 " Unicode explorer
 Plug 'chrisbra/unicode.vim'
 
-Plug 'tpope/vim-sleuth' " indentation
+" Plug 'tpope/vim-sleuth' " indentation
+Plug 'ciaranm/detectindent'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'mzlogin/vim-markdown-toc'
@@ -120,7 +123,7 @@ set noswapfile            " do not use swapfiles
 " set number relativenumber " displays hybrid line numbers
 " set signcolumn=no        " always show sign column
 set scrolloff=999         " keep the cursor centered
-set shiftwidth=4          " < and > commands tab 4 spaces
+" set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
 set spell
 set spelllang=en_gb
@@ -164,9 +167,6 @@ endif
 
 " comments in italics
 highlight Comment cterm=italic gui=italic
-
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 let g:deus_italic=1
 let g:deus_sign_column='bg0'
@@ -237,14 +237,6 @@ nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
 
 """ Plugin: ALE
 
-" vale needs some additional external setup
-call ale#linter#Define('text', {
-\   'name': 'vale',
-\   'executable': 'vale',
-\   'command': 'vale --config ~/Documents/misc/vale/.vale.ini --output=JSON %t',
-\   'callback': 'ale#handlers#vale#Handle',
-\})
-
 let g:ale_linters = {
 \   'ansible':    ['ansible-lint'],
 \   'dockerfile': ['hadolint'],
@@ -271,6 +263,7 @@ let g:ale_fixers = {
 \}
 let g:ale_python_flake8_options = '--jobs 8'
 let g:ale_python_pylint_options = '--jobs 8'
+let g:ale_javascript_prettier_options = '--tab-width 4'
 
 let g:ale_sign_highlight_linenrs=1
 

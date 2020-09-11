@@ -10,6 +10,10 @@ WHITE='1;37'
 # BLUE='1;38' same blue
 GREY='1;39'
 
+unalias ls
+ls() { exa -lah $1 -snew }
+findconf() { locate $1 | sed '/\.conf$/!d' }
+
 clrred() { printf '\e[%sm%s\e[0m' $RED $1 }
 clrgreen() { printf '\e[%sm%s\e[0m' $GREEN $1 }
 clryellow() { printf '\e[%sm%s\e[0m' $YELLOW $1 }
@@ -26,6 +30,16 @@ $1$2$2$2$1$2$2$2$1$2$2$2$1$2$2$2$1
 $1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
 $1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
 $1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1"
+}
+dadjoke4sam() {
+   echo "\
+$1$1$1$1$1$1$1$1$1$1$1$1$1
+$1$1$1$2$1$2$1$1$2$1$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$2$2$2$1$2$2$2$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$1$1$1$1$1$1$1$1$1$1"
 }
 
 
@@ -60,11 +74,11 @@ depopen() {
 
 deps() {
     echo Generating pydeps dependencies graph for $1
-    pydeps $1 --max-bacon 2 --include-missing --reverse -T png
+    pydeps $1 --reverse -T png
 }
 
 restshow() { restview --css ~/.ref/github.css $1 }
-runmypy() { mypy $1 --html-report reports --show-traceback --pretty }
+runmypy() { mypy $1 --html-report mypy --show-traceback --pretty }
 
 search_skipped() {
     ag --nogroup --color --color-path $AQUA $1 tests src | \
@@ -92,7 +106,19 @@ check() {
 }
 
 changelog() {
+   typeset -A CHANGELOGS
+   local CHANGELOGS=(
+      poetry "https://python-poetry.org/history/"
+      isort "https://pycqa.github.io/isort/CHANGELOG"
+      attrs "https://www.attrs.org/en/stable/changelog.html"
+      psycopg2 "https://www.psycopg.org/docs/news.html#current-release"
+   )
    local package=$1
+   if [ $CHANGELOGS[$package] ]; then
+      echo "$(clrgreen 'Found it in the pre-defined changelogs list.')"
+      w3m $CHANGELOGS[$package]
+      return 0
+   fi
 
    check "Please 'export GITHUB_TOKEN=<your-github-token>'" $GITHUB_TOKEN || return 1
    check "Please provide a package name: changelog <package-name>" $package || return 1
@@ -145,7 +171,6 @@ dockerstop () {
 
 docker_noname_image_ids() { docker image ls | sed -n '/<none>/p' | tr -s ' ' | cut -d ' ' -f3 }
 docker_delete_noname_images() { docker_noname_image_ids | xargs docker image rm }
-docker_disk_usage() { sudo du -hd 1 /var/lib/docker/ | sort -h }
 
 
 ##### GENERAL TEXT PROCESSING #####
@@ -189,6 +214,7 @@ beautify() {
         sed 's/Bug/\\\\e[1;31m&\\\\e[0m/' |
         sed 's/Incident/\\\\e[1;33m&\\\\e[0m/' |
         sed 's/Epic/\\\\e[1;38;5;99m&\\\\e[0m/' |
+                                             # hello
         sed 's/High\ /\\\\e[1;31m&\\\\e[0m/' |
         sed 's/Highest/\\\\e[5;38;5;124m&\\\\e[0m/' |
         sed 's/Medium/\\\\e[1;38;5;208m&\\\\e[0m/' |
@@ -258,7 +284,35 @@ pandoc2pdf() {
         --toc \
         --toc-depth 2 \
         --pdf-engine=xelatex \
-        --highlight-style=$HOME/.ref/sarastango.theme
+        --highlight-style=$HOME/.ref/sarastango.theme \
+        --variable=fontsize:10pt
 }
 rst2pdf() { pandoc2pdf $1 rst }
-md2pdf() { pandoc2pdf $1 gfm }
+md2pdf() {
+   local tmp=_$1
+   cat $1 | sed '/vim-markdown/,/vim-markdown/d' | # swap toc and remove dropdowns
+      sed '/details\|summary/d' > $tmp
+   pandoc2pdf $tmp gfm
+   rm $tmp
+}
+
+confluencify() {
+   local uploadfile="_Confluence$1"
+   cat $1 | sed '/vim-markdown/,/vim-markdown/c:toc:' | # swap toc and remove dropdowns
+      sed '/details\|summary/d' > $uploadfile
+   echo $uploadfile
+}
+
+upload2confluence() {
+   local uploadfile=$(confluencify $1)
+   local htmlfile="$uploadfile:r.html"
+   mark -f $uploadfile
+   rm $uploadfile
+}
+
+testupload2confluence() {
+   local uploadfile=$(confluencify $1)
+   local htmlfile="$uploadfile:r.html"
+   mark -f $uploadfile --dry-run > $htmlfile
+   echo "$htmlfile has been generated"
+}

@@ -1,3 +1,8 @@
+# MIME
+alias -s md="glow -p"
+alias -s rst=bat
+alias -s png="feh -F"
+
 # General
 alias brave="brave-browser"
 alias ci="xclip -selection clipboard"
@@ -9,20 +14,18 @@ alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
 alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
 alias grip="grip -b"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
-alias install='sudo apt update && sudo apt install'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
 alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
-alias ls="exa -lah"
 alias m="make"
+alias ms="make shell"
 alias ncm="ncmpcpp"
 alias notes="brave ~/wikis/main/html/index.html &"
 alias open="xdg-open"
-alias p2="/usr/bin/python2.7"
 alias pgvim="poetry run gvim"
 alias peotry="poetry"
-alias printpath="echo $PATH | tr : '\n'"
-alias remove='sudo apt remove'
+alias printpath='echo $PATH | tr : "\n"'
 alias screenshot="flameshot gui"
+alias she="poetry shell && source .expenv"
 alias typing="vim $HOME/.ref/docs/typing.md"
 alias upd="source $HOME/.zshrc"
 
@@ -30,9 +33,15 @@ alias upd="source $HOME/.zshrc"
 alias agl="ag --pager less --color"
 alias agf="ag --silent -g"
 
+# Apt
+alias install="sudo apt update && sudo apt install"
+alias purge="sudo apt purge"
+alias remove="sudo apt remove"
+
 # Docker
 alias dockerip='eval $(docker-machine env default)'
-alias dco='docker-compose'
+alias dco="docker-compose"
+alias docker_usage="docker system df"
 
 # Dephell
 alias dp="dephell package"
@@ -47,7 +56,7 @@ alias efunc="vim $HOME/.zsh_func"
 alias esens="vim $HOME/.zsh_sens"
 alias evimrc="vim $HOME/.vimrc"
 alias eaw="vim $HOME/.config/awesome/rc.lua"
-alias eawt="vim $HOME/.config/awesome/themes/holo/theme.lua"
+alias eawt="vim $HOME/.config/awesome/themes/helohelo/theme.lua"
 alias etm="vim $HOME/.tmux.conf"
 # and source some of them
 alias sal="source $HOME/.zsh_aliases"
@@ -62,10 +71,13 @@ alias fs="fzf"
 # Git
 alias -g csu="--compact-summary"
 alias ga="git add"
+alias gc="git checkout"
 alias gc-="git checkout -"
 alias gcb="git checkout -b"
 alias gcm="git checkout master"
+alias gct="git checkout -t"
 alias gcom="gg cn"
+alias gdm="git diff master"
 alias gre="git checkout --"
 alias gd="git diff"
 alias gfe="git fetch"
@@ -73,8 +85,11 @@ alias gl="git l"
 alias gl1="git l1"
 alias gl2="git l2"
 alias glse="git l2 -S"
+alias gm="git merge"
 alias gmom="git merge origin/master"
 alias gp="git pull"
+alias gpou="git push origin -u"
+alias grb="git rebase"
 alias grh="git reset --hard HEAD"
 alias gs="git status"
 alias gst="git stash"
@@ -82,6 +97,7 @@ alias gstp="git stash pop"
 alias gstl="git stash list | pygmentize -l yaml -O style=fruity"
 alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=2"
 alias gitinspection="gitinspector --file-types='**' --grading -T --format html > gitinspector.html && open gitinspector.html"
+alias openpr="gh pr view --web"
 alias openrepo="gh repo view --web"
 alias wtf="git wtf --long --all | pygmentize -l yaml -O style=fruity"
 

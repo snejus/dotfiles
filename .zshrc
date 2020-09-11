@@ -3,14 +3,15 @@ export NVMPATH=$HOME/.nvm
 export RUSTPATH=$HOME/.cargo/bin
 export USERPATH=$HOME/.local/bin
 export PYENVPATH=$HOME/.pyenv/bin
-export GOPATH=$HOME/.local/go/bin/bin
+export GOPATH=$HOME/.local/go/bin
 export LUAROCKSPATH=$HOME/.luarocks/bin
-export -U PATH=$POETRYPATH:$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$LUAROCKSPATH:$PATH
+local markpath=$GOPATH/bin
+export -U PATH=$markpath:$POETRYPATH:$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$LUAROCKSPATH:$PATH
 
 export MYPYPATH=$HOME/stubs
 
 export PYTHONDONTWRITEBYTECODE=1
-export TERM='xterm-256color'
+export TERM=xterm-256color
 export ZSH=$HOME/.oh-my-zsh
 export BAT_STYLE=plain
 
@@ -38,8 +39,12 @@ plugins=(
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
+autoload -U promptinit
+promptinit
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
-add-zsh-hook chpwd chpwd_recent_dirs  # initialise cdr
+add-zsh-hook chpwd chpwd_recent_dirs # initialise cdr
+autoload -U zsh-mime-setup
+zsh-mime-setup
 
 source $ZSH/oh-my-zsh.sh
 
@@ -61,7 +66,6 @@ function zle-line-init zle-keymap-select {
 
 zle -N zle-line-init
 zle -N zle-keymap-select
-export KEYTIMEOUT=1
 
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
@@ -76,12 +80,15 @@ source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
 [ -f $HOME/.zsh_sens ] && source $HOME/.zsh_sens
 [ -f $HOME/.zsh_aliases ] && source $HOME/.zsh_aliases
 [ -f $HOME/.completions/git-extras-completion.zsh ] && source $HOME/.completions/git-extras-completion.zsh
+[ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
+# [ -s "$NVMPATH/bash_completion" ] && \. "$NVMPATH/bash_completion"  # Load nvm bash_completion
 
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
 # fi
 
-# zstyle ':completion:*' expand prefix suffix
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' expand prefix suffix
 zstyle ':completion:*' completer _expand _complete _ignored _correct
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
