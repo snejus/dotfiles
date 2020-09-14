@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# In order to maintain an authenticated session with logind and to prevent bypassing the screen locker by switching terminals,
+# Xorg has to be started on the same virtual terminal where the login occurred.
+exec /usr/bin/Xorg -nolisten tcp "$@" vt$XDG_VTNR
