@@ -2,13 +2,15 @@
 alias -s md="glow -p"
 alias -s rst=bat
 alias -s png="feh -F"
+alias -s jpg="feh -F"
+
+export CONFIGS="$HOME/.configs"
 
 # General
 alias brave="brave-browser"
 alias ci="xclip -selection clipboard"
 alias co="xclip -selection clipboard -o"
 alias disablenativescreen="xrandr --output eDP-1 --off"
-alias du_sort="du -h -d 1 | sort -h"
 alias env="env | sort | pygmentize -l bash -O style=fruity"
 alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
 alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
@@ -16,6 +18,8 @@ alias grip="grip -b"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
 alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
+alias ls="exa -lah"
+alias lsn="exa -lah -snew"
 alias m="make"
 alias ms="make shell"
 alias ncm="ncmpcpp"
@@ -27,10 +31,13 @@ alias printpath='echo $PATH | tr : "\n"'
 alias screenshot="flameshot gui"
 alias she="poetry shell && source .expenv"
 alias typing="vim $HOME/.ref/docs/typing.md"
-alias upd="source $HOME/.zshrc"
+alias td="td --color"
+alias upd="source $CONFIGS/.zshrc"
+alias xterm="xterm &"
 
 # Ag
-alias agl="ag --pager less --color"
+alias ag="ag --silent"
+alias agl="ag --silent --pager less --color"
 alias agf="ag --silent -g"
 
 # Apt
@@ -47,23 +54,26 @@ alias docker_usage="docker system df"
 alias dp="dephell package"
 
 # Edit often accessed files
-alias eal="vim $HOME/.zsh_aliases"
-alias ezsh="vim $HOME/.zshrc"
-alias efzf="vim $HOME/.zsh_fzf"
+alias eal="vim $CONFIGS/.zsh_aliases"
+alias ezsh="vim $CONFIGS/.zshrc"
+alias efzf="vim $CONFIGS/.zsh_fzf"
 alias egg="vim /usr/local/bin/gg"
-alias egit="vim $HOME/.gitconfig"
-alias efunc="vim $HOME/.zsh_func"
-alias esens="vim $HOME/.zsh_sens"
-alias evimrc="vim $HOME/.vimrc"
-alias eaw="vim $HOME/.config/awesome/rc.lua"
-alias eawt="vim $HOME/.config/awesome/themes/helohelo/theme.lua"
-alias etm="vim $HOME/.tmux.conf"
+alias egit="vim $CONFIGS/.gitconfig"
+alias efunc="vim $CONFIGS/.zsh_func"
+alias esens="vim $CONFIGS/.zsh_sens"
+alias evimrc="vim $CONFIGS/.vimrc"
+alias eaw="vim $CONFIGS/.config/awesome/rc.lua"
+alias eawt="vim $CONFIGS/.config/awesome/themes/helohelo/theme.lua"
+alias etm="vim $CONFIGS/.tmux.conf"
 # and source some of them
-alias sal="source $HOME/.zsh_aliases"
-alias szsh="source $HOME/.zshrc"
-alias sfzf="source $HOME/.zsh_fzf"
-alias sfunc="source $HOME/.zsh_func"
-alias ssens="source $HOME/.zsh_sens"
+alias sal="source $CONFIGS/.zsh_aliases"
+alias szsh="source $CONFIGS/.zshrc"
+alias sfzf="source $CONFIGS/.zsh_fzf"
+alias sfunc="source $CONFIGS/.zsh_func"
+alias ssens="source $CONFIGS/.zsh_sens"
+
+# custom scripts
+alias ecl="vim $HOME/.ref/gists/changelog/changelog"
 
 # fzf
 alias fs="fzf"
@@ -90,7 +100,9 @@ alias gmom="git merge origin/master"
 alias gp="git pull"
 alias gpou="git push origin -u"
 alias grb="git rebase"
+alias gre='git restore `gf`'
 alias grh="git reset --hard HEAD"
+alias groot='$(git rev-parse --show-cdup)'
 alias gs="git status"
 alias gst="git stash"
 alias gstp="git stash pop"

@@ -1,51 +1,50 @@
-export POETRYPATH=$HOME/.poetry/bin
-export NVMPATH=$HOME/.nvm
-export RUSTPATH=$HOME/.cargo/bin
-export USERPATH=$HOME/.local/bin
-export PYENVPATH=$HOME/.pyenv/bin
-export GOPATH=$HOME/.local/go/bin
-export LUAROCKSPATH=$HOME/.luarocks/bin
-local markpath=$GOPATH/bin
-export -U PATH=$markpath:$POETRYPATH:$RUSTPATH:$GOPATH:$USERPATH:$PYENVPATH:$LUAROCKSPATH:$PATH
-
+path=(
+    $HOME/.nvm
+    $HOME/.cargo/bin
+    $HOME/.local/bin
+    $HOME/.pyenv/bin
+    $HOME/.local/go/bin
+    $HOME/.luarocks/bin
+    $PATH
+)
+export PATH=$PATH
 export MYPYPATH=$HOME/stubs
+export ZSH=$HOME/.oh-my-zsh
 
 export PYTHONDONTWRITEBYTECODE=1
 export TERM=xterm-256color
-export ZSH=$HOME/.oh-my-zsh
+
 export BAT_STYLE=plain
 
 set -o vi
-export EDITOR=vim
 export VISUAL=vim
 
+unset READNULLCMD
 ZSH_THEME=glister
+HISTSIZE=50000
+HISTFILE=$HOME/.zsh/.zsh_history
 
-# caps lock is an escape
-setxkbmap -option caps:escape
 
 fpath=(
-    $HOME/.oh-my-zsh/custom/functions
+    $ZSH/custom/functions
     $fpath
 )
 
 plugins=(
     timer
     extract
-    colorize
     cheatsheet
     zsh-completions
     colored-man-pages
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
-autoload -U promptinit
-promptinit
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs # initialise cdr
 autoload -U zsh-mime-setup
 zsh-mime-setup
 
+DISABLE_LS_COLORS=true
 source $ZSH/oh-my-zsh.sh
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
@@ -72,13 +71,14 @@ eval "$(pyenv virtualenv-init -)"
 eval "$(pandoc --bash-completion)"
 eval "$(jira --completion-script-bash)"
 eval "$(register-python-argcomplete pipx)"
-source $HOME/.local/share/dephell/_dephell_zsh_autocomplete
+source "$HOME/.local/share/dephell/_dephell_zsh_autocomplete"
+# PROG=td source "$GOPATH/src/github.com/urfave/cli/autocomplete/zsh_autocomplete"
 
-[ -f $HOME/.fzf.zsh ] && source $HOME/.fzf.zsh
-[ -f $HOME/.zsh_fzf ] && source $HOME/.zsh_fzf
-[ -f $HOME/.zsh_func ] && source $HOME/.zsh_func
-[ -f $HOME/.zsh_sens ] && source $HOME/.zsh_sens
-[ -f $HOME/.zsh_aliases ] && source $HOME/.zsh_aliases
+[ -f $ZDOTDIR/.fzf.zsh ] && source $ZDOTDIR/.fzf.zsh
+[ -f $ZDOTDIR/.zsh_fzf ] && source $ZDOTDIR/.zsh_fzf
+[ -f $ZDOTDIR/.zsh_func ] && source $ZDOTDIR/.zsh_func
+[ -f $ZDOTDIR/.zsh_sens ] && source $ZDOTDIR/.zsh_sens
+[ -f $ZDOTDIR/.zsh_aliases ] && source $ZDOTDIR/.zsh_aliases
 [ -f $HOME/.completions/git-extras-completion.zsh ] && source $HOME/.completions/git-extras-completion.zsh
 [ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
 # [ -s "$NVMPATH/bash_completion" ] && \. "$NVMPATH/bash_completion"  # Load nvm bash_completion
@@ -91,15 +91,15 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' expand prefix suffix
 zstyle ':completion:*' completer _expand _complete _ignored _correct
 zstyle ':completion:*' group-name ''
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-suffixes
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more
 zstyle :compinstall filename "$HOME/.zshrc"
 
 autoload -U bashcompinit
 bashcompinit
-autoload -Uz compinit
-compinit
+# autoload -Uz compinit
+# compinit
 
 # heroku autocomplete setup
 HEROKU_AC_ZSH_SETUP_PATH=/home/sarunas/.cache/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;

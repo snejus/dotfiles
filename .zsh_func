@@ -10,9 +10,10 @@ WHITE='1;37'
 # BLUE='1;38' same blue
 GREY='1;39'
 
-unalias ls
-ls() { exa -lah $1 -snew }
-findconf() { locate $1 | sed '/\.conf$/!d' }
+du_sort() { du -hd 1 $1 | sort -h }
+whichl() { ls "$(which $1)" }
+
+locateconf() { locate $1 | sed '/\.conf$/!d' }
 
 clrred() { printf '\e[%sm%s\e[0m' $RED $1 }
 clrgreen() { printf '\e[%sm%s\e[0m' $GREEN $1 }
@@ -77,6 +78,11 @@ deps() {
     pydeps $1 --reverse -T png
 }
 
+cdeps() {
+    echo Looking for circular dependencies for $1
+    pydeps $1 --show-cycles
+}
+
 restshow() { restview --css ~/.ref/github.css $1 }
 runmypy() { mypy $1 --html-report mypy --show-traceback --pretty }
 
@@ -103,63 +109,6 @@ skipped_pylint_by_error() {
 check() {
    [ -z $2 ] && echo "$(clrred ERROR: ) $1" && return 1
    return 0
-}
-
-changelog() {
-   typeset -A CHANGELOGS
-   local CHANGELOGS=(
-      poetry "https://python-poetry.org/history/"
-      isort "https://pycqa.github.io/isort/CHANGELOG"
-      attrs "https://www.attrs.org/en/stable/changelog.html"
-      psycopg2 "https://www.psycopg.org/docs/news.html#current-release"
-   )
-   local package=$1
-   if [ $CHANGELOGS[$package] ]; then
-      echo "$(clrgreen 'Found it in the pre-defined changelogs list.')"
-      w3m $CHANGELOGS[$package]
-      return 0
-   fi
-
-   check "Please 'export GITHUB_TOKEN=<your-github-token>'" $GITHUB_TOKEN || return 1
-   check "Please provide a package name: changelog <package-name>" $package || return 1
-
-   echo "Looking for a package $(clrgreen $1) changelog"
-
-   pip show $package &> /dev/null
-   if [ ! $? -eq 0 ]; then
-      echo "$(clrred ERROR: ) Pip didn't find the package" && return 1
-   fi
-
-   # sed patterns
-   local pat_homepage='s/Home-page: //p'
-   local pat_projectname='s/^.*hub\.com\/\(.*\/\?\$\?\)/\1/pI'
-   local pat_changelogurl='s/download_url.*\(https.*change.*\),/\1/pI'
-   local pat_downloadurl='s/download_url.*\(https.*\),/\1/pI'
-
-   local homepage=$(pip show $package | sed -n $pat_homepage)
-   echo "$(clrgreen Home-page:) $homepage"
-
-   local projectname=$(echo $homepage | sed -n $pat_projectname)
-   check "Could not find its github repository. Check out its home page instead." $projectname || return 1
-   echo "$(clrgreen 'Github project:') $projectname"
-
-   pip show pygments &> /dev/null
-   if [ $? -eq 0 ]; then
-      local beautify=(pygmentize -l md -O style=monokai)
-   else
-      local beautify=(cat)
-   fi
-
-   local get=(curl -s -u username:$GITHUB_TOKEN)
-   local changelogurl=$($get https://api.github.com/repos/$projectname/contents | sed -n $pat_changelogurl)
-   check "Failed to find a changelog in the repository root. Looking for a readme instead." $changelogurl &&
-      echo "$(clrgreen 'Found the changelog')" &&
-      echo $changelogurl | xargs $get | $beautify && return 0
-
-   local readmeurl=$($get https://api.github.com/repos/$projectname/readme | sed -n $pat_downloadurl)
-   check "❓ $package doesn't have a readme❓" $readmeurl || return 1
-   echo "$(clrgreen 'Found the readme')"
-   echo $readmeurl | xargs $get | $beautify
 }
 
 ##### DOCKER #####

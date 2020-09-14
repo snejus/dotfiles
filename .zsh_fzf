@@ -39,9 +39,7 @@ f() {
 }
 
 # Will return non-zero status if the current directory is not managed by git
-is_in_git_repo() {
-  git rev-parse HEAD > /dev/null 2>&1
-}
+is_in_git_repo() { git rev-parse HEAD > /dev/null 2>&1 }
 
 gt() {
   # "Nothing to see here, move along"
@@ -64,7 +62,11 @@ join-lines() {
 }
 
 fzf-down() {
-  fzf --height 50% "$@" --border
+    fzf --height 50% "$@" --border
+}
+
+is_in_git_repo() {
+    git rev-parse HEAD > /dev/null 2>&1
 }
 
 gf() {
