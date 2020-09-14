@@ -24,6 +24,7 @@ local COLOURS = {
     BLACK           = "#000000",
     WHITE           = "#FFFFFF",
     ORANGE          = "#FF9933",
+    GOLDEN          = "#EDB879",
     BEAUTYBLUE      = "#80CCE6",
     BEAUTYPINK      = "#FFACE6",
     LIGHT_PINK      = "#CC9393",
@@ -159,6 +160,8 @@ local function coloured_markup(font, colour)
 end
 local orange_markup = coloured_markup(theme.font, COLOURS.ORANGE)
 local blue_markup = coloured_markup(theme.font, COLOURS.BEAUTYBLUE)
+local golden_markup = coloured_markup(theme.largefont, COLOURS.GOLDEN)
+local pink_markup = coloured_markup(theme.largefont, COLOURS.BEAUTYPINK)
 
 -- Also be able to pre-define widget parameters
 local function paramd_widget(widget)
@@ -182,11 +185,11 @@ local function icon_widget(image)
 end
 
 -- Clock
-local clock_widget = margins_widget(0, 0, 3, 3)(wibox.widget.textclock(orange_markup("%H:%M")))
+local clock_widget = margins_widget(0, 0, 3, 3)(wibox.widget.textclock(golden_markup("%H:%M")))
 local clock_icon = icon_widget(theme.system_time)
 
 -- Calendar
-local calendar_widget = margins_widget(0, 5, 5, 5)(wibox.widget.textclock(orange_markup("%d %b")))
+local calendar_widget = margins_widget(0, 5, 5, 5)(wibox.widget.textclock(golden_markup("%d %b")))
 local calendar_icon = margins_widget(0, 5, 8, 0)(noresize_imagebox(theme.calendar))
 theme.cal = lain.widget.cal({
     attach_to = { clock_widget, clock_icon, calendar_widget, calendar_icon },
@@ -318,18 +321,18 @@ function theme.at_screen_connect(s)
         },
         { -- Center
             layout = wibox.layout.fixed.horizontal,
-            cpu_icon,
-            cpuwidget,
-            calendar_icon,
+            -- cpu_icon,
+            -- cpuwidget,
+            -- calendar_icon,
             calendar_widget,
             clock_widget,
-            clock_icon,
+            -- clock_icon,
             -- net_wireless,
             -- net_internet,
-            netdown_icon,
-            netdownwidget,
-            netup_icon,
-            netupwidget,
+            -- netdown_icon,
+            -- netdownwidget,
+            -- netup_icon,
+            -- netupwidget,
         },
         { -- Right
             layout = wibox.layout.fixed.horizontal,

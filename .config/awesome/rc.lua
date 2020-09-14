@@ -82,7 +82,7 @@ local editor       = os.getenv("EDITOR") or "vim"
 local cycle_prev   = false -- cycle trough all previous client or just the first
                            -- https://github.com/lcpz/awesome-copycats/issues/274
                            --
-local theme            = "holo"
+local theme            = "helohelo"
 local path_to_theme    = string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), theme)
 local enable_titlebars = false
 local local_table      = awful.util.table or gears.table -- 4.{0,1} compatibility
