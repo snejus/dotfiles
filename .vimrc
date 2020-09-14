@@ -87,15 +87,13 @@ Plug 'plasticboy/vim-markdown'
 " Unicode explorer
 Plug 'chrisbra/unicode.vim'
 
-" Plug 'tpope/vim-sleuth' " indentation
-Plug 'ciaranm/detectindent'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'mzlogin/vim-markdown-toc'
 
 call plug#end()
 
-""" Non-plugin Options
+""" `set` options
 set autoindent            " automatic identation
 set autoread              " auto reload changed files
 set background=dark       " dark theme
@@ -123,7 +121,7 @@ set noswapfile            " do not use swapfiles
 " set number relativenumber " displays hybrid line numbers
 " set signcolumn=no        " always show sign column
 set scrolloff=999         " keep the cursor centered
-" set shiftwidth=4          " < and > commands tab 4 spaces
+set shiftwidth=4          " < and > commands tab 4 spaces
 set shortmess+=F          " get rid of the file name displayed in the command line bar
 set spell
 set spelllang=en_gb
@@ -151,6 +149,8 @@ endif
 " set guifont=ProFont\ For\ Powerline\ 13
 " set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
 " set guifont=Roboto\ Mono\ Medium\ for\ Powerline\ 11
+
+""" The rest of non-plugin options
 
 let mapleader = "\<Space>"
 
@@ -185,15 +185,11 @@ au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|
 " filetype specific stuff
 " Remap:
 function! g:Set_format_mapping()
-    if &filetype ==# 'python'
-        nnoremap <Leader>f :Black<CR>
-    else
-        nnoremap <Leader>f :ALEFix<CR>
-    endif
-    if &filetype ==# 'markdown'
-        setfiletype 'vimwiki'
-        setfiletype 'markdown'
-    endif
+  if &filetype ==# 'python'
+    nnoremap <Leader>f :Black<CR>
+  else
+    nnoremap <Leader>f :ALEFix<CR>
+  endif
 endfunction
 
 au BufEnter * call g:Set_format_mapping()
@@ -201,7 +197,17 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
-" au! FileType fzf set laststatus=0 noshowmode noruler | au BufLeave <buffer> set laststatus=2 showmode ruler
+au Filetype html setlocal ts=2 sw=2
+au Filetype javascript setlocal ts=2 sw=2
+au Filetype Jenkinsfile setlocal ts=2 sw=2
+au Filetype markdown setlocal ts=2 sw=2
+au Filetype typescript setlocal ts=2 sw=2
+au Filetype vimwiki setlocal ts=2 sw=2
+au Filetype vue setlocal ts=2 sw=2
+au Filetype vuejs setlocal ts=2 sw=2
+au Filetype yml setlocal ts=2 sw=2
+au Filetype yaml setlocal ts=2 sw=2
+au FileType xdefaults setlocal commentstring=!%s
 
 " remove trailing whitespace on save
 au BufWritePre * %s/\s\+$//e
@@ -248,11 +254,11 @@ let g:ale_linters = {
 \   'php':        ['phpstan', 'phpcs'],
 \   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
-\   'zsh':        ['shellcheck'],
 \   'sh':         ['shellcheck'],
 \   'text':       ['vale'],
 \   'yaml':       ['yamllint'],
 \   'vue':        ['eslint'],
+\   'zsh':        ['shellcheck'],
 \}
 let g:ale_fixers = {
 \   'htmldjango': ['prettier'],
