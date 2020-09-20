@@ -27,7 +27,7 @@ local misc="--no-mouse --height 60% -1 --reverse --multi --inline-info"
 
 local FD_OPTIONS="--follow --hidden --exclude \*.html --exclude .git --exclude node_modules"
 
-export FZF_COMPLETION_TRIGGER="8"
+export FZF_COMPLETION_TRIGGER="?"
 export FZF_DEFAULT_OPTS="$misc --preview=`preview_arg` --preview-window=`preview_window_arg` --bind=`mappings_arg`"
 export FZF_DEFAULT_COMMAND="git ls-files --cached --others --exclude-standard | fd --type f --type l $FD_OPTIONS"
 export FZF_CTRL_T_COMMAND="fd $FD_OPTIONS"

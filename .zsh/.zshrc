@@ -1,23 +1,31 @@
 path=(
     $HOME/.nvm
     $HOME/.cargo/bin
-    $HOME/.local/bin
     $HOME/.pyenv/bin
+    $HOME/.pyenv/versions/3.6.12/bin
     $HOME/.local/go/bin
     $HOME/.luarocks/bin
+    $HOME/.nvm/versions/node/v14.4.0/bin/
+    $HOME/.gem/ruby/2.7.0/bin
     $PATH
+    $HOME/.fzf/bin
 )
-export PATH=$PATH
+export -U PATH=$PATH
+neofetch
 export MYPYPATH=$HOME/stubs
 export ZSH=$HOME/.oh-my-zsh
+export WAKATIME_HOME=$HOME/.wakatime
 
 export PYTHONDONTWRITEBYTECODE=1
-export TERM=xterm-256color
+export TERM=xterm
 
 export BAT_STYLE=plain
 
 set -o vi
 export VISUAL=vim
+
+setxkbmap -option caps:escape  # caps lock is an escape
+xset r rate 180 30             # keyboard press delays
 
 unset READNULLCMD
 ZSH_THEME=glister
@@ -74,32 +82,39 @@ eval "$(register-python-argcomplete pipx)"
 source "$HOME/.local/share/dephell/_dephell_zsh_autocomplete"
 # PROG=td source "$GOPATH/src/github.com/urfave/cli/autocomplete/zsh_autocomplete"
 
-[ -f $ZDOTDIR/.fzf.zsh ] && source $ZDOTDIR/.fzf.zsh
-[ -f $ZDOTDIR/.zsh_fzf ] && source $ZDOTDIR/.zsh_fzf
-[ -f $ZDOTDIR/.zsh_func ] && source $ZDOTDIR/.zsh_func
-[ -f $ZDOTDIR/.zsh_sens ] && source $ZDOTDIR/.zsh_sens
-[ -f $ZDOTDIR/.zsh_aliases ] && source $ZDOTDIR/.zsh_aliases
-[ -f $HOME/.completions/git-extras-completion.zsh ] && source $HOME/.completions/git-extras-completion.zsh
-[ -s "$NVMPATH/nvm.sh" ] && \. "$NVMPATH/nvm.sh"  # Load nvm
-# [ -s "$NVMPATH/bash_completion" ] && \. "$NVMPATH/bash_completion"  # Load nvm bash_completion
+export PATH=$HOME/.local/bin:$PATH
+
+to_source=(
+    fzf
+    functions
+    sens
+    aliases
+    .completions/git-extras-completion.zsh
+    ../.fzf/shell/completion.zsh
+    ../.fzf/shell/key-bindings.zsh
+    # ../.nvm/nvm.sh
+    # ../.nvm/bash_completion
+)
+
+for name in $to_source; do [ -f $ZDOTDIR/$name ] && source $ZDOTDIR/$name; done
 
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
 # fi
 
-zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' expand prefix suffix
-zstyle ':completion:*' completer _expand _complete _ignored _correct
-zstyle ':completion:*' group-name ''
+# zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
+# zstyle ':completion:*' expand prefix suffix
+# zstyle ':completion:*' completer _expand _complete _ignored _correct
+# zstyle ':completion:*' group-name ''
 # zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' list-suffixes
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more
-zstyle :compinstall filename "$HOME/.zshrc"
+# zstyle ':completion:*' list-suffixes
+# zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more
+# zstyle :compinstall filename "$HOME/.zsh/.zshrc"
 
-autoload -U bashcompinit
-bashcompinit
+# autoload -U bashcompinit
+# bashcompinit
 # autoload -Uz compinit
 # compinit
 
 # heroku autocomplete setup
-HEROKU_AC_ZSH_SETUP_PATH=/home/sarunas/.cache/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
+# HEROKU_AC_ZSH_SETUP_PATH=/home/sarunas/.cache/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;

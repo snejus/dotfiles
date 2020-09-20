@@ -1,0 +1,132 @@
+source $ZDOTDIR/git_aliases
+
+local DF=$HOME/.d
+
+# MIME
+alias -s md="glow -p -w 80"
+alias -s rst=bat
+alias -s png="feh -F"
+alias -s jpg="feh -F"
+alias -s json="bat"
+alias -s service="bat -l ini"
+alias -s socket="bat -l ini"
+alias -s desktop="bat"
+alias -s target="bat -l ini"
+alias -s conf="bat"
+
+# General
+alias brave="brave-browser"
+alias c="cdr"
+alias ci="xclip -selection clipboard"
+alias co="xclip -selection clipboard -o"
+alias disablenativescreen="xrandr --output eDP-1 --off"
+alias env="env | sort | pygmentize -l bash -O style=fruity"
+alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
+alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
+alias grip="grip -b"
+alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
+alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+alias listeners="sudo lsof -i -P -n | grep LISTEN"
+alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
+alias ls="exa -lah"
+alias lsn="exa -lah -snew"
+alias m="make"
+alias ms="make shell"
+alias ncm="ncmpcpp"
+alias notes="brave ~/wikis/main/html/index.html &"
+alias open="xdg-open"
+alias peotry="poetry"
+alias printpath='echo $PATH | tr : "\n"'
+alias screenshot="flameshot gui"
+alias she="poetry shell && source .expenv"
+alias sys="systemctl"
+alias sysu="systemctl --user"
+alias typing="vim $HOME/.ref/docs/typing.md"
+
+alias xterm="xterm &"
+alias wakastats="open https://wakatime.com/dashboard"
+
+# Ag
+alias ag="ag --silent"
+alias agl="ag --silent --pager less --color"
+alias agf="ag --silent -g"
+
+# Apt
+local sa="sudo aptitude"
+alias apt="aptitude"
+alias install="$sa install"
+alias purge="$sa purge"
+alias remove="$sa remove"
+alias update="$sa update"
+
+# Docker
+alias dockerip='eval $(docker-machine env default)'
+alias dco="docker-compose"
+alias docker_usage="docker system df"
+
+# Dephell
+alias dp="dephell package"
+
+# Edit often accessed files
+
+alias eaw="vim $DF/.config/awesome/rc.lua"
+alias ecl="vim $HOME/.ref/gists/changelog/changelog"
+alias eawt="vim $DF/.config/awesome/themes/helohelo/theme.lua"
+alias eenv="vim $HOME/.zshenv"
+alias egg="vim /usr/local/bin/gg"
+alias egit="vim $DF/.gitconfig"
+alias empd="vim $DF/_music/mpd/mpd.conf"
+alias encmc="vim $DF/_music/ncmpcpp/config"
+alias encmb="vim $DF/_music/ncmpcpp/bindings"
+alias etm="vim $DF/.tmux.conf"
+alias evimrc="vim $DF/.vimrc"
+
+alias eal="vim $ZDOTDIR/aliases"
+alias efunc="vim $ZDOTDIR/functions"
+alias efzf="vim $ZDOTDIR/fzf"
+alias egal="vim $ZDOTDIR/git_aliases"
+alias esens="vim $ZDOTDIR/sens"
+alias ezsh="vim $ZDOTDIR/.zshrc"
+
+# and be able to source some of them on demand
+alias sal="source $ZDOTDIR/aliases"
+alias sfunc="source $ZDOTDIR/functions"
+alias sfzf="source $ZDOTDIR/fzf"
+alias ssens="source $ZDOTDIR/sens"
+alias upd="source $ZDOTDIR/.zshrc"
+
+# Jira
+alias showfields='jira fields | ag \"system\" | sed "s/.*: //" | tr -d \", | sort'
+
+# Journal
+alias j="journalctl"
+alias jf="journalctl -f &;"
+alias js='journalctl --since=$(date -d "a week ago" -I) --no-pager | ag'
+alias jwk='journalctl --since=$(date -d "a week ago" -I)'
+alias jt="journalctl --since=yesterday"
+
+# Python
+alias ma="python manage.py"
+alias restme="restview --css ~/.ref/github.css README.rst"
+
+# Poetry
+alias poa="poetry add"
+alias pos="poetry show"
+alias psh="poetry shell"
+alias por="poetry remove"
+alias pou="poetry update -vv"
+alias poi="poetry install -vv"
+
+# Todoist
+alias td="td --color"
+# alias tdl="td --color
+# alias tdl='td l --color | tee >(echo "Total: $(wc -l)")'
+
+alias tdl='function f(){ td l $1 | tee >(echo "Total: $(wc -l)"); }; f'
+
+# Vagrant
+alias vu="vagrant up"
+alias vs="vagrant ssh"
+alias vh="vagrant halt"
+
+# vim:ft=zsh

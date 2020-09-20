@@ -13,7 +13,7 @@
 # -> /etc/zsh/zlogout
 # -> $ZDOTDIR/.zlogout
 
-ZDOTDIR=$HOME/.zsh
-
-setxkbmap -option caps:escape  # caps lock is an escape
-xset r rate 180 30             # keyboard press delays
+skip_global_compinit=1
+export XDG_CONFIG_HOME=$HOME/.config
+export WAKATIME_HOME=$HOME/.wakatime
+export ZDOTDIR=$HOME/.zsh
