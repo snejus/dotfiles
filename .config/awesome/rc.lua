@@ -207,23 +207,18 @@ local function describe_group(group)
    end
 end
 
-local function partial(f, arg)
-    return function(...)
-        return f(arg, ...)
-    end
-end
 local describe = describe_group(KB_GROUPS.LAUNCHER)
 local globalkeys = local_table.join(
     -- awful.key({ "Alt_L"           }, "Space", function () mykeyboardlayout.next_layout(); end),
     --- LAUNCHER ---
     awful.key({ modkey }, "s", hotkeys_popup.show_help, describe("show key bindings")),
-    awful.key({ altkey }, "y", partial(os.execute, "flameshot gui"), describe("screenshot")),
-    awful.key({ modkey }, "Return", partial(awful.spawn, terminal), describe("open terminal")),
+    awful.key({ modkey }, "Return", function () awful.spawn(terminal) end, describe("open terminal")),
     awful.key({ modkey }, "w", function () awful.util.mymainmenu:show() end, describe("show main menu")),
-    awful.key({ modkey }, "r", function () awful.screen.focused().prompt:run() end, describe("run prompt")),
-    awful.key({ modkey }, "x", partial(os.execute, "rofi -show combi"), describe("show rofi")),
+    awful.key({ modkey }, "r", function () awful.screen.focused().mypromptbox:run() end, describe("run prompt")),
+    awful.key({ modkey }, "x", function () os.execute("rofi -show combi") end, describe("show rofi")),
     awful.key({ modkey }, "z", function () awful.screen.focused().quake:toggle() end, describe("dropdown application")),
-    awful.key({ altkey, "Control" }, "l", partial(os.execute, scrlocker), describe("lock screen")),
+    awful.key({ altkey }, "y", function () os.execute("flameshot gui") end, describe("screenshot")),
+    awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end, describe("lock screen")),
     awful.key({ modkey, "Control" }, "r", awesome.restart, describe("reload awesome")),
     awful.key({ modkey, "Control" }, "q", awesome.quit, describe("quit awesome")),
     awful.key({ modkey }, "b", function ()
@@ -273,10 +268,8 @@ local globalkeys = local_table.join(
         end, {description = "restore minimized",                    group = KB_GROUPS.CLIENT}),
 
     --- TAG ---
-    awful.key({ altkey, "Control" }, "-", function () lain.util.useless_gaps_resize(1) end,
-              {description = "increment useless gaps", group = KB_GROUPS.TAG}),
-    awful.key({ altkey, "Control" }, "=", function () lain.util.useless_gaps_resize(-1) end,
-              {description = "decrement useless gaps", group = KB_GROUPS.TAG}),
+    awful.key({ modkey, "Shift" }, "p", function () awful.tag.togglemfpol() end,
+              {description = "toggle size fill policy", group = KB_GROUPS.TAG}),
     awful.key({ modkey, "Shift" }, "n", function () lain.util.add_tag() end,
               {description = "add new tag",            group = KB_GROUPS.TAG}),
     awful.key({ modkey, "Shift" }, "r", function () lain.util.rename_tag() end,
@@ -289,6 +282,14 @@ local globalkeys = local_table.join(
               {description = "delete tag",             group = KB_GROUPS.TAG}),
 
     --- LAYOUT ---
+    awful.key({ modkey, "Control" }, "space",   awful.client.floating.toggle,
+              {description = "toggle floating",       group = KB_GROUPS.LAYOUT}),
+    awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
+              {description = "move client to master", group = KB_GROUPS.LAYOUT}),
+    awful.key({ altkey, "Control" }, "-", function () lain.util.useless_gaps_resize(1) end,
+              {description = "increment useless gaps", group = KB_GROUPS.LAYOUT}),
+    awful.key({ altkey, "Control" }, "=", function () lain.util.useless_gaps_resize(-1) end,
+              {description = "decrement useless gaps", group = KB_GROUPS.LAYOUT}),
     awful.key({ altkey, "Shift" }, "l",     function () awful.tag.incmwfact( 0.05)          end,
               {description = "increase master width factor",          group = KB_GROUPS.LAYOUT}),
     awful.key({ altkey, "Shift" }, "h",     function () awful.tag.incmwfact(-0.05)          end,
@@ -308,7 +309,8 @@ local globalkeys = local_table.join(
     awful.key({ altkey, }, "h", function () if beautiful.fs      then beautiful.fs.show(7)      end end,
               {description = "show filesystem", group = KB_GROUPS.WIDGET}),
     awful.key({ altkey, }, "w", function () if beautiful.weather then beautiful.weather.show(7) end end,
-              {description = "show weather",    group = KB_GROUPS.WIDGET}),
+              {description = "show weather",    group = KB_GROUPS.WIDGET})
+)
 
     -- -- Brightness
     -- awful.key({ }, "XF86MonBrightnessUp", function () os.execute("xbacklight -inc 10") end,
@@ -336,46 +338,39 @@ local globalkeys = local_table.join(
     --     end,
     --     {description = "volume 0%", group = "hotkeys"}),
 
-    -- Music and sound. (F5 | F6 | F7 | F8) - (prev | vol- | vol+ | next) and F9 for play / pause
-    awful.key({ modkey }, "F5", function ()
-        os.execute(string.format("amixer -q set %s 3%%-", beautiful.volume.channel))
-        beautiful.volume.update()
-    end, {description = "volume down",              group = KB_GROUPS.SOUND}),
+-- Music and sound.
+-- F5           previous track
+-- F6           volume down
+-- F7           volume up
+-- F8           next track
+-- F9           play / pause
+-- F10          replay track
+-- Shift + F9   repeat
 
-    awful.key({ modkey }, "F6", function () os.execute("mpc prev") beautiful.mpd.update() end,
-         {description = "mpc prev",                  group = KB_GROUPS.SOUND}),
-
-    awful.key({ modkey }, "F7", function () os.execute("mpc next") beautiful.mpd.update() end,
-         {description = "mpc next",                  group = KB_GROUPS.SOUND}),
-
-    awful.key({ modkey }, "F8", function ()
-        os.execute(string.format("amixer -q set %s 3%%+", beautiful.volume.channel)); beautiful.volume.update()
-    end, {description = "volume up",                group = KB_GROUPS.SOUND}),
-
-    awful.key({ modkey }, "F9", function () os.execute("mpc toggle") beautiful.mpd.update() end,
-         {description = "mpc toggle: play / pause", group = KB_GROUPS.SOUND}),
-
-    awful.key({ modkey, "Shift" }, "F9", function () os.execute(terminal .. " -e ncmpcpp") end,
-         {description = "open ncmpcpp", group = KB_GROUPS.SOUND})
+local vol = beautiful.volume
+local mpd = beautiful.mpd
+local function update(component, command)
+   return function() os.execute(command) component.update() end
+end
+local desc = describe_group(KB_GROUPS.SOUND)
+globalkeys = local_table.join(globalkeys,
+    awful.key({ modkey }, "F5", update(vol, string.format("amixer -q set %s 3%%-", vol.channel)), desc("volume down")),
+    awful.key({ modkey }, "F6", update(mpd, "mpc prev"), desc("mpc prev")),
+    awful.key({ modkey }, "F7", update(mpd, "mpc next"), desc("mpc next")),
+    awful.key({ modkey }, "F8", update(vol, string.format("amixer -q set %s 3%%+", vol.channel)), desc("volume up")),
+    awful.key({ modkey }, "F9", update(mpd, "mpc toggle"), desc("mpc toggle: play / pause")),
+    awful.key({ modkey }, "F10", update(mpd, "mpc seek 0:00"), desc("mpc replay")),
+    awful.key({ modkey, "Shift" }, "F9", function () os.execute(terminal .. " -e ncmpcpp") end, desc("open ncmpcpp"))
 )
 
+descr = describe_group(KB_GROUPS.CLIENT)
 local clientkeys = local_table.join(
-    awful.key({ altkey }, "q",      function (c) c:kill()                         end,
-              {description = "close",                 group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey }, "f", function (c) c.fullscreen = not c.fullscreen c:raise() end,
-              {description = "toggle fullscreen",     group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey }, "o",      function (c) c:move_to_screen()               end,
-              {description = "move to screen",        group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey }, "t",      function (c) c.ontop = not c.ontop            end,
-              {description = "toggle keep on top",    group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey }, "n", function (c) c.minimized = true end,
-        {description = "minimize",                    group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey }, "m", function (c) c.maximized = not c.maximized c:raise() end ,
-        {description = "maximize",                    group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey, "Control" }, "space",   awful.client.floating.toggle,
-              {description = "toggle floating",       group = KB_GROUPS.CLIENT}),
-    awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
-              {description = "move client to master", group = KB_GROUPS.CLIENT})
+    awful.key({ altkey }, "q", function (c) c:kill() end, descr("close")),
+    awful.key({ modkey }, "f", function (c) c.fullscreen = not c.fullscreen c:raise() end, descr("fullscreen")),
+    awful.key({ modkey }, "o", function (c) c:move_to_screen() end, descr("move screen")),
+    awful.key({ modkey }, "t", function (c) c.ontop = not c.ontop end, descr("keep on top")),
+    awful.key({ modkey }, "n", function (c) c.minimized = true end, descr("minimize")),
+    awful.key({ modkey }, "m", function (c) c.maximized = not c.maximized c:raise() end, descr("maximize"))
 )
 
 -- Bind all key numbers to tags.

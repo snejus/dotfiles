@@ -13,6 +13,7 @@ local lain          = require("lain")
 local gears         = require("gears")
 local awful         = require("awful")
 local wibox         = require("wibox")
+local keyboard_layout = require("keyboard_layout")
 -- local net_widgets   = require("net_widgets")
 
 local math, string, os = math, string, os
@@ -277,6 +278,20 @@ theme.weather = lain.widget.weather({
     notification_preset = { font = theme.largefont, position = "bottom_right" },
 })
 
+-- Language
+local kbdcfg = keyboard_layout.kbdcfg({type = "tui"})
+
+kbdcfg.add_primary_layout("English", "US", "us")
+
+kbdcfg.add_additional_layout("Lietuvių", "LT", "lt")
+kbdcfg.add_additional_layout("Deutsch",  "DE", "de")
+kbdcfg.bind()
+
+kbdcfg.widget:buttons(
+    awful.util.table.join(awful.button({ }, 1, function () kbdcfg.switch_next() end),
+                          awful.button({ }, 3, function () kbdcfg.menu:toggle() end))
+)
+
 function theme.at_screen_connect(s)
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
@@ -296,7 +311,7 @@ function theme.at_screen_connect(s)
     s.mytag = margins_widget(2, 2, 5, 5)(s.mytaglist)
 
     -- Prompt
-    s.prompt = awful.widget.prompt()
+    s.mypromptbox = awful.widget.prompt()
 
     -----------------
     --- TOP WIBOX ---
@@ -317,7 +332,7 @@ function theme.at_screen_connect(s)
         { -- Left
             layout = wibox.layout.fixed.horizontal,
             s.mytag,
-            s.prompt
+            s.mypromptbox
         },
         { -- Center
             layout = wibox.layout.fixed.horizontal,
@@ -336,6 +351,7 @@ function theme.at_screen_connect(s)
         },
         { -- Right
             layout = wibox.layout.fixed.horizontal,
+            kbdcfg.widget,
             -- wibox.widget.systray(),
             -- bat.widget,
             musicwidget,
