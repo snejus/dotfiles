@@ -26,7 +26,6 @@
 
 [core]
     editor       = vim
-    excludesfile = /home/sarunas/.gitignore
     filemode     = false
     pager        = diff-so-fancy | less --tabs=4 -RFX
 
@@ -47,17 +46,14 @@
 %C(bold "#80CCE6")%><(12,trunc)%ar \
 %C(bold "#EDB879")%h \
 %C(bold "#000000")%><(14,mtrunc)%an \
-%C(bold "#EDB879")%><(50,mtrunc)%s \
+%C(bold "#EDB879")%><|(100,mtrunc)%s \
 %C(bold "#80CCE6")%><(44,mtrunc)%d%C(reset)
 
 [rebase]
     abbreviateCommands = true
 
-[tag]
-    gpgSign = true
-
 [tig]
     line-graphics = yes
 
-[url "git@github.com:/"]
+[url "git@github.com:"]
     insteadOf = https://github.com/
