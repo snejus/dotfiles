@@ -1,7 +1,8 @@
+set nocompatible
+
 """ Vim-plug installation
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+if empty(glob("~/.vim/autoload/plug.vim"))
+  silent !curl -fLo "~/.vim/autoload/plug.vim" --create-dirs "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
@@ -51,13 +52,13 @@ Plug 'justinmk/vim-sneak'
 Plug 'talek/obvious-resize'
 
 " extra syntax highlighting
-Plug 'cespare/vim-toml'                " .toml
-Plug 'aklt/plantuml-syntax'            " .uml etc. - PlantUML files
-Plug 'raimon49/requirements.txt.vim'   " requirements.txt
-Plug 'martinda/Jenkinsfile-vim-syntax' " Jenkinsfile
+Plug 'cespare/vim-toml', { 'for': 'toml' }
+Plug 'aklt/plantuml-syntax', { 'for': 'plantuml' }
+Plug 'raimon49/requirements.txt.vim', { 'for': 'requirements' }
+Plug 'martinda/Jenkinsfile-vim-syntax', { 'for': 'Jenkinsfile' }
 
 " ctags dashboard
-Plug 'liuchengxu/vista.vim'
+" Plug 'liuchengxu/vista.vim'
 
 " statusline plugins
 Plug 'vim-airline/vim-airline'
@@ -69,7 +70,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'haya14busa/incsearch.vim'
 
 " notes
-Plug 'vimwiki/vimwiki'
+" Plug 'vimwiki/vimwiki'
 
 " quick black
 Plug 'psf/black', { 'for': 'python' }
@@ -77,23 +78,52 @@ Plug 'psf/black', { 'for': 'python' }
 Plug 'ervandew/supertab'
 
 " Colourschemes
-Plug 'gruvbox-community/gruvbox'
+" Plug 'gruvbox-community/gruvbox'
 Plug 'ajmwagar/vim-deus'
 
 " Markdown support
-Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
+Plug 'godlygeek/tabular', { 'for': 'markdown' }
+Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
+Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
 
 " Unicode explorer
 Plug 'chrisbra/unicode.vim'
 
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
-Plug 'mzlogin/vim-markdown-toc'
+
+" Stats
+Plug 'wakatime/vim-wakatime'
 
 call plug#end()
 
-""" `set` options
+""" Options: if has
+if has('gui_running')
+  set guioptions-=m         " remove menu
+  set guioptions-=M         " remove menu
+  set guioptions-=g         " remove menu
+  set guioptions-=t         " remove menu
+  set guioptions-=T         " remove toolbar
+  set guioptions-=e         " remove tabpages
+  set guioptions-=r         " remove righthand toolbar
+  set guioptions-=L         " remove lefthand toolbar when split
+  set guioptions+=c         " console diags instead of popups
+  set guifont=IBM\ Plex\ Mono\ Medium\ 11
+  " set guifont=ProFont\ For\ Powerline\ 13
+  " set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
+endif
+
+if has('persistent_undo')
+  silent ! [[ -d ~/.vim/backups ]] || mkdir ~/.vim/backups
+  set undodir=~/.vim/backups
+  set undofile
+endif
+
+if has('autocmd')
+  filetype plugin indent on
+endif
+
+""" Options: 'set' defaults
 set autoindent            " automatic identation
 set autoread              " auto reload changed files
 set background=dark       " dark theme
@@ -121,12 +151,12 @@ set noswapfile            " do not use swapfiles
 " set number relativenumber " displays hybrid line numbers
 " set signcolumn=no        " always show sign column
 set scrolloff=999         " keep the cursor centered
-set shiftwidth=4          " < and > commands tab 4 spaces
+set shiftwidth=4          " use 'tabstop' value for this
 set shortmess+=F          " get rid of the file name displayed in the command line bar
-set spell
+set sidescroll=1          " in nowrap mode, scroll by horizontally by 1 char, not half of the screen
 set spelllang=en_gb
-set splitbelow            " more intuitive adding of new splits
-set splitright            " more intuitive adding of new splits
+set splitbelow            " consistent :sp
+set splitright            " consistent :vs
 set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
 set t_Co=256              " the number of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
@@ -137,39 +167,15 @@ set updatetime=500        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 
-if has("gui_running")
-    set guioptions-=m         " remove menu
-    set guioptions-=T         " remove toolbar
-    set guioptions-=e         " remove tabpages
-    set guioptions-=r         " remove righthand toolbar
-    set guioptions-=L         " remove lefthand toolbar when split
-    set guioptions+=c         " console diags instead of popups
-    set guifont=IBM\ Plex\ Mono\ Medium\ 11
-endif
-" set guifont=ProFont\ For\ Powerline\ 13
-" set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
-" set guifont=Roboto\ Mono\ Medium\ for\ Powerline\ 11
-
-""" The rest of non-plugin options
+""" Options: misc
 
 let mapleader = "\<Space>"
-
-if has('autocmd')
-  filetype plugin indent on
-endif
-
-" persistent undo history
-if has('persistent_undo')
-  silent !mkdir ~/.vim/backups > /dev/null 2>&1
-  set undodir=~/.vim/backups
-  set undofile
-endif
 
 " comments in italics
 highlight Comment cterm=italic gui=italic
 
 let g:deus_italic=1
-let g:deus_sign_column='bg0'
+let g:deus_sign_column='bg0'  " same colour as the primary bg - potentially move to the theme
 colorscheme deus
 let g:deus_termcolors=256
 
@@ -182,7 +188,7 @@ let g:deus_termcolors=256
 " this beauty remembers where the cursor was when file was closed and returns to the same position
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 
-" filetype specific stuff
+""" Options: filetype-specific
 " Remap:
 function! g:Set_format_mapping()
   if &filetype ==# 'python'
@@ -197,16 +203,18 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
-au Filetype html setlocal ts=2 sw=2
-au Filetype javascript setlocal ts=2 sw=2
-au Filetype Jenkinsfile setlocal ts=2 sw=2
-au Filetype markdown setlocal ts=2 sw=2
-au Filetype typescript setlocal ts=2 sw=2
-au Filetype vimwiki setlocal ts=2 sw=2
-au Filetype vue setlocal ts=2 sw=2
-au Filetype vuejs setlocal ts=2 sw=2
-au Filetype yml setlocal ts=2 sw=2
-au Filetype yaml setlocal ts=2 sw=2
+au Filetype html setlocal ts=2
+au Filetype javascript setlocal ts=2
+au Filetype Jenkinsfile setlocal ts=2
+au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80
+" au Filetype markdown setlocal wrap et lbr sw
+au Filetype typescript setlocal ts=2
+au Filetype vimwiki setlocal ts=2
+au Filetype vue setlocal ts=2
+au Filetype vim setlocal ts=2
+au Filetype vuejs setlocal ts=2
+au Filetype yml setlocal ts=2
+au Filetype yaml setlocal ts=2
 au FileType xdefaults setlocal commentstring=!%s
 
 " remove trailing whitespace on save
@@ -250,7 +258,7 @@ let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
 \   'lua':        ['luacheck'],
-\   'markdown':   ['vale'],
+\   'markdown':   ['mdl'],
 \   'php':        ['phpstan', 'phpcs'],
 \   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
@@ -389,15 +397,15 @@ endfunction
 
 let s:wikis_root = '~/wikis'
 let s:wiki_settings = {
-\   'auto_toc': 1,
-\   'auto_tags': 1,
-\   'auto_export': 1,
-\   'auto_diary_index': 1,
-\   'auto_generate_tags': 1,
-\   'auto_generate_links': 1,
-\   'template_ext': '.html',
-\   'template_default': 'default',
-\   'template_path': s:wikis_root.'/html_templates'
+\ 'auto_toc': 1,
+\ 'auto_tags': 1,
+\ 'auto_export': 1,
+\ 'auto_diary_index': 1,
+\ 'auto_generate_tags': 1,
+\ 'auto_generate_links': 1,
+\ 'template_ext': '.html',
+\ 'template_default': 'default',
+\ 'template_path': s:wikis_root.'/html_templates'
 \}
 let s:wiki_1 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'main'))
 let s:wiki_2 = extend(deepcopy(s:wiki_settings), s:paths(s:wikis_root, 'music'))
@@ -406,16 +414,16 @@ let g:vimwiki_auto_chdir = 1
 let g:vimwiki_global_ext = 0
 let g:vimwiki_hl_cb_checked = 1
 let g:vimwiki_key_mappings = {
-\   'html': 0,
-\   'links': 0,
-\   'mouse': 0,
-\   'lists': 1,
-\   'global': 0,
-\   'headers': 1,
-\   'all_maps': 1,
-\   'text_objs': 1,
-\   'table_format': 1,
-\   'table_mappings': 1
+\ 'html': 0,
+\ 'links': 0,
+\ 'mouse': 0,
+\ 'lists': 1,
+\ 'global': 0,
+\ 'headers': 1,
+\ 'all_maps': 1,
+\ 'text_objs': 1,
+\ 'table_format': 1,
+\ 'table_mappings': 1
 \}
 let g:vimwiki_valid_html_tags = 'b,i,s,u,sub,sup,kbd,br,hr, pre, script'
 
@@ -457,7 +465,7 @@ let g:gitgutter_git_executable = '/usr/bin/git'
 let g:SuperTabDefaultCompletionType = "context"
 
 
-""" Plugin: Tabular
+""" Plugin: Tabular and vim-markdown
 
 inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 
@@ -471,6 +479,9 @@ function! s:align()
     call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
   endif
 endfunction
+
+let g:vim_markdown_folding_style_pythonic = 1
+let g:vim_markdown_strikethrough = 1
 
 
 """ Plugin: Ultisnips
@@ -538,10 +549,10 @@ nmap <silent> <Leader>h
   \ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
   \ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
 
-" nmap <silent> <leader>dd :exe ":profile start profile.log"<cr>:exe ":profile func *"<cr>:exe ":profile file *"<cr>
-" nmap <silent> <leader>dp :exe ":profile pause"<cr>
-" nmap <silent> <leader>dc :exe ":profile continue"<cr>
-" nmap <silent> <leader>dq :exe ":profile pause"<cr>:noautocmd qall!<cr>
+" nmap <silent> <leader>dd :exe \":profile start profile.log"<cr>:exe \":profile func *"<cr>:exe \":profile file *"<cr>
+" nmap <silent> <leader>dp :exe \":profile pause"<cr>
+" nmap <silent> <leader>dc :exe \":profile continue"<cr>
+" nmap <silent> <leader>dq :exe \":profile pause"<cr>:noautocmd qall!<cr>
 
 """ vimrc folding setup
 
