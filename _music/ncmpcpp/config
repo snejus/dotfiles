@@ -55,7 +55,7 @@ playlist_shorten_total_times = yes
 ## }
 ##
 #
-visualizer_fifo_path = /tmp/mpd.fifo
+# visualizer_fifo_path = /tmp/user/1000/mpd.fifo
 #
 ##
 ## Note: Below parameter is needed for ncmpcpp to determine which output
@@ -63,12 +63,12 @@ visualizer_fifo_path = /tmp/mpd.fifo
 ## sound as currently there are some problems with it.
 ##
 #
-visualizer_output_name = my_fifo
+# visualizer_output_name = my_fifo
 #
 ##
 ## If you set format to 44100:16:2, make it 'yes'.
 ##
-visualizer_in_stereo = yes
+# visualizer_in_stereo = yes
 #
 ##
 ## Note: Below parameter defines how often ncmpcpp has to "synchronize"
@@ -77,7 +77,7 @@ visualizer_in_stereo = yes
 ## that sane values start with >=10.
 ##
 #
-visualizer_sync_interval = 70
+# visualizer_sync_interval = 70
 #
 ##
 ## Note: To enable spectrum frequency visualization you need to compile ncmpcpp
@@ -86,19 +86,19 @@ visualizer_sync_interval = 70
 #
 ## Available values: spectrum, wave, wave_filled, ellipse.
 ##
-visualizer_type = spectrum
+# visualizer_type = spectrum
 # visualizer_look = +|
 
 #visualizer_type = wave
 # visualizer_look = ●▮
 # visualizer_look = ×Ϟ
 #
-visualizer_look = ൝༒
+# visualizer_look = ൝༒
 #visualizer_color = blue, cyan, green, yellow, magenta, red
 #
 ## Alternative subset of 256 colors for terminals that support it.
 ##
-visualizer_color = 41, 83, 119, 155, 185, 215, 209, 203, 197, 161
+# visualizer_color = 41, 83, 119, 155, 185, 215, 209, 203, 197, 161
 #
 ##### system encoding #####
 ## ncmpcpp should detect your charset encoding but if it failed to do so, you
