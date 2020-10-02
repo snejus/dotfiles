@@ -104,7 +104,7 @@ theme.play                                       = theme.icon_dir .. "/play.png"
 theme.pause                                      = theme.icon_dir .. "/pause.png"
 theme.cpu                                        = theme.icon_dir .. "/cpu_arc.svg"
 theme.mpd                                        = theme.icon_dir .. "/mpd_arc.png"
-theme.mpd_on                                     = theme.icon_dir .. "/mpd_on.png"
+-- theme.mpd_on                                     = theme.icon_dir .. "/mpd_on.png"
 theme.bottom_bar                                 = theme.icon_dir .. "/bottom_bar.png"
 theme.system_time                                = theme.icon_dir .. "/system_time_arc.svg"
 theme.calendar                                   = theme.icon_dir .. "/calendar_arc.svg"
@@ -203,35 +203,36 @@ theme.cal = lain.widget.cal({
 })
 
 -- MPD
-local mpd_icon = margins_widget(0, 0, 2, 2)(awful.widget.launcher({ image = theme.mpd, command = theme.musicplr }))
-theme.mpd = lain.widget.mpd({
-    music_dir="~/music",
-    settings = function ()
-        local widget, mpd_now = widget, mpd_now
-        if mpd_now.state == "play" then
-            mpd_now.artist = mpd_now.artist:upper():gsub("&.-;", string.lower)
-            mpd_now.title = mpd_now.title:upper():gsub("&.-;", string.lower)
+-- local mpd_icon = margins_widget(0, 0, 2, 2)(awful.widget.launcher({ image = theme.mpd, command = theme.musicplr }))
+-- theme.mpd = lain.widget.mpd({
+--     host="/run/user/1000/mpd/socket",
+--     music_dir="~/music",
+--     settings = function ()
+--         local widget, mpd_now = widget, mpd_now
+--         if mpd_now.state == "play" then
+--             mpd_now.artist = mpd_now.artist:upper():gsub("&.-;", string.lower)
+--             mpd_now.title = mpd_now.title:upper():gsub("&.-;", string.lower)
 
-            local MAXLENGTH = 100
-            local SPACE = " "
-            local text = mpd_now.artist .. " - " ..  mpd_now.title
-            text = text:sub(0, MAXLENGTH - 2)
-            local length = text:len()
-            local extraspaces = SPACE:rep(math.floor((MAXLENGTH - length) / 2))
-            local progress = mpd_now.elapsed / mpd_now.time
-            local index = math.floor(length * progress)
-            local orangetext = extraspaces .. text:sub(0, index)
-            local bluetext = text:sub(index + 1, length) .. extraspaces
-            widget:set_markup(orange_markup(orangetext) .. blue_markup(bluetext))
+--             local MAXLENGTH = 100
+--             local SPACE = " "
+--             local text = mpd_now.artist .. " - " ..  mpd_now.title
+--             text = text:sub(0, MAXLENGTH - 2)
+--             local length = text:len()
+--             local extraspaces = SPACE:rep(math.floor((MAXLENGTH - length) / 2))
+--             local progress = mpd_now.elapsed / mpd_now.time
+--             local index = math.floor(length * progress)
+--             local orangetext = extraspaces .. text:sub(0, index)
+--             local bluetext = text:sub(index + 1, length) .. extraspaces
+--             widget:set_markup(orange_markup(orangetext) .. blue_markup(bluetext))
 
-        elseif mpd_now.state == "pause" then
-            widget:set_markup(orange_markup(" MPD PAUSED "))
-        else
-            widget:set_markup("")
-        end
-    end
-})
-local musicwidget = topdown_margins_widget(theme.mpd.widget)
+--         elseif mpd_now.state == "pause" then
+--             widget:set_markup(orange_markup(" MPD PAUSED "))
+--         else
+--             widget:set_markup("")
+--         end
+--     end
+-- })
+-- local musicwidget = topdown_margins_widget(theme.mpd.widget)
 
 -- ALSA volume bar
 theme.volume = lain.widget.alsabar({
@@ -354,9 +355,9 @@ function theme.at_screen_connect(s)
             kbdcfg.widget,
             -- wibox.widget.systray(),
             -- bat.widget,
-            musicwidget,
+            -- musicwidget,
             volumewidget,
-            mpd_icon,
+            -- mpd_icon,
         },
     }
 end
