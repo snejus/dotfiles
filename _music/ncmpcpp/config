@@ -22,7 +22,7 @@
 #
 ##### connection settings #####
 #
-#mpd_host = localhost
+mpd_host = /run/user/1000/mpd/socket
 #
 #mpd_port = 6600
 #
@@ -111,7 +111,7 @@ playlist_shorten_total_times = yes
 ## if your encoding is different.
 ##
 #
-#system_encoding = ""
+system_encoding = "UTF-8"
 #
 ##### delays #####
 #
