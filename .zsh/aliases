@@ -13,6 +13,7 @@ alias -s socket="bat -l ini"
 alias -s desktop="bat"
 alias -s target="bat -l ini"
 alias -s conf="bat"
+alias -s vim="bat"
 
 # General
 alias brave="brave-browser"
@@ -22,6 +23,7 @@ alias co="xclip -selection clipboard -o"
 alias disablenativescreen="xrandr --output eDP-1 --off"
 alias env="env | sort | pygmentize -l bash -O style=fruity"
 alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
+alias fixalsa="alsactl init"
 alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
 alias grip="grip -b"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
@@ -42,6 +44,7 @@ alias she="poetry shell && source .expenv"
 alias sys="systemctl"
 alias sysu="systemctl --user"
 alias typing="vim $HOME/.ref/docs/typing.md"
+alias ytdl='youtube-dl -x --audio-format flac -o "%(title)s.%(ext)s" --postprocessor-args "-codec flac"'
 
 alias xterm="xterm &"
 alias wakastats="open https://wakatime.com/dashboard"
@@ -52,12 +55,17 @@ alias agl="ag --silent --pager less --color"
 alias agf="ag --silent -g"
 
 # Apt
+alias aptinst="\apt list --installed | ag"
 local sa="sudo aptitude"
 alias apt="aptitude"
 alias install="$sa install"
 alias purge="$sa purge"
 alias remove="$sa remove"
 alias update="$sa update"
+
+# bitwarden
+alias genpass='bw generate -uln --length 30 | ci'
+alias getpass='function gtp() {bw get password $1 | ci}; gtp'
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
@@ -97,15 +105,17 @@ alias upd="source $ZDOTDIR/.zshrc"
 
 # Jira
 alias showfields='jira fields | ag \"system\" | sed "s/.*: //" | tr -d \", | sort'
+alias jibro='jira browse'
 
 # Journal
 alias j="journalctl"
-alias jf="journalctl -f &;"
+alias jf="journalctl -f"
 alias js='journalctl --since=$(date -d "a week ago" -I) --no-pager | ag'
 alias jwk='journalctl --since=$(date -d "a week ago" -I)'
 alias jt="journalctl --since=yesterday"
 
 # Python
+alias clog="changelog -p"
 alias ma="python manage.py"
 alias restme="restview --css ~/.ref/github.css README.rst"
 

@@ -41,7 +41,7 @@ f() {
 # Will return non-zero status if the current directory is not managed by git
 is_in_git_repo() { git rev-parse HEAD > /dev/null 2>&1 }
 
-gt() {
+gt() {  # tags
   # "Nothing to see here, move along"
   is_in_git_repo || return
 
@@ -69,7 +69,7 @@ is_in_git_repo() {
     git rev-parse HEAD > /dev/null 2>&1
 }
 
-gf() {
+gf() {  # files
   is_in_git_repo || return
   git -c color.status=always status --short |
   fzf-down -m --ansi --nth 2..,.. \
@@ -77,7 +77,7 @@ gf() {
   cut -c4- | sed 's/.* -> //'
 }
 
-gb() {  # print branch
+gb() {  # branches
     is_in_git_repo || return
     git checkout `git branch -a --color=always | grep -v '/HEAD\s' | sort |
         fzf-down --ansi --multi --tac --preview-window right:70% \
@@ -86,7 +86,7 @@ gb() {  # print branch
         sed 's#^remotes/##'`
 }
 
-glo() {
+glo() {  # git log
   is_in_git_repo || return
   git log --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" --graph --color=always |
   fzf-down --ansi --no-sort --reverse --multi --bind 'ctrl-s:toggle-sort' \
@@ -95,7 +95,7 @@ glo() {
   grep -o "[a-f0-9]\{7,\}"
 }
 
-gr() {
+gr() {  # remotes
   is_in_git_repo || return
   git remote -v | awk '{print $1 "\t" $2}' | uniq |
   fzf-down --tac \
@@ -110,3 +110,6 @@ bindkey '^g^t' fzf-gt-widget
 unfunction preview_arg
 unfunction preview_window_arg
 unfunction mappings_arg
+
+
+# vim: ft=zsh

@@ -1,6 +1,7 @@
 path=(
     $HOME/.nvm
     $HOME/.cargo/bin
+    $HOME/.poetry/bin
     $HOME/.pyenv/bin
     $HOME/.pyenv/versions/3.6.12/bin
     $HOME/.local/go/bin
@@ -17,15 +18,12 @@ export ZSH=$HOME/.oh-my-zsh
 export WAKATIME_HOME=$HOME/.wakatime
 
 export PYTHONDONTWRITEBYTECODE=1
-export TERM=xterm
+export TERM=xterm-256color
 
 export BAT_STYLE=plain
 
 set -o vi
 export VISUAL=vim
-
-setxkbmap -option caps:escape  # caps lock is an escape
-xset r rate 180 30             # keyboard press delays
 
 unset READNULLCMD
 ZSH_THEME=glister
@@ -75,10 +73,10 @@ zle -N zle-line-init
 zle -N zle-keymap-select
 
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# eval "$(pyenv virtualenv-init -)"
 eval "$(pandoc --bash-completion)"
 eval "$(jira --completion-script-bash)"
-eval "$(register-python-argcomplete pipx)"
+# eval "$(register-python-argcomplete pipx)"
 source "$HOME/.local/share/dephell/_dephell_zsh_autocomplete"
 # PROG=td source "$GOPATH/src/github.com/urfave/cli/autocomplete/zsh_autocomplete"
 
