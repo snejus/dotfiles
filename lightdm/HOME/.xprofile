@@ -1,2 +1,5 @@
 #!/bin/sh
-[[ -f ~/.bashrc ]] && source ~/.bashrc
+setxkbmap -option caps:escape  # caps lock is an escape
+xset r rate 180 30             # keyboard press delays
+
+[[ -f ~/.zshenv ]] && source ~/.zshenv

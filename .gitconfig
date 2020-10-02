@@ -46,7 +46,7 @@
 %C(bold "#80CCE6")%><(12,trunc)%ar \
 %C(bold "#EDB879")%h \
 %C(bold "#000000")%><(14,mtrunc)%an \
-%C(bold "#EDB879")%><|(100,mtrunc)%s \
+%C(bold "#EDB879")%><|(80,mtrunc)%s \
 %C(bold "#80CCE6")%><(44,mtrunc)%d%C(reset)
 
 [rebase]

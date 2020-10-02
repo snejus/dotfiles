@@ -16,8 +16,10 @@ Plug 'junegunn/fzf.vim'
 " asynchronous linting / formatting engine
 Plug 'w0rp/ale' ", { 'on': 'ALEToggle' }
 
-" git. Manage with :G
+" git
 Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
+
 
 " minds camelCase and snake_case separators when moving across words
 Plug 'chaoren/vim-wordmotion'
@@ -35,9 +37,6 @@ Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
 
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-
-" proper diff / hunks management
-Plug 'airblade/vim-gitgutter'
 
 " close buffer but leave window open
 Plug 'moll/vim-bbye'
@@ -143,11 +142,11 @@ set laststatus=2          " always show statusline
 set listchars=tab:>\ ,trail:-,extends:→,precedes:←,nbsp:+
 set modifiable            " buffers are modifiable
 set noequalalways         " split windows sizes always split in half
-set nowritebackup         " do not backup - git is used anyways
 set noshowmode            " get rid of --INSERT-- in the bottom
 set noshowcmd             " do not display last command in the bottom
-set nowrap                " don't wrap long lines
 set noswapfile            " do not use swapfiles
+set nowrap                " don't wrap long lines
+set nowritebackup         " do not backup - git is used anyways
 " set number relativenumber " displays hybrid line numbers
 " set signcolumn=no        " always show sign column
 set scrolloff=999         " keep the cursor centered
@@ -216,6 +215,9 @@ au Filetype vuejs setlocal ts=2
 au Filetype yml setlocal ts=2
 au Filetype yaml setlocal ts=2
 au FileType xdefaults setlocal commentstring=!%s
+au FileType requirements setlocal commentstring=#\ %s
+
+au FileChangedRO * setlocal buftype=acwrite noreadonly
 
 " remove trailing whitespace on save
 au BufWritePre * %s/\s\+$//e
@@ -480,7 +482,7 @@ function! s:align()
   endif
 endfunction
 
-let g:vim_markdown_folding_style_pythonic = 1
+" let g:vim_markdown_folding_style_pythonic = 1
 let g:vim_markdown_strikethrough = 1
 
 
@@ -529,6 +531,7 @@ map <Leader>cd :lcd %:p:h<CR>:pwd<CR>
 " there's also <Leader>bq defined that shuts off buffer but leaves
 " window open
 nmap <Leader>w :write<CR>
+nmap <Leader>fw :w! !sudo tee %<CR>
 nmap <Leader>q :quit<CR>
 
 " put command output into new buffer
@@ -548,6 +551,9 @@ nmap <silent> <Leader>h
   \ :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
   \ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
   \ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
+
+nmap <Leader>ne :cn<CR>
+nmap <Leader>np :cp<CR>
 
 " nmap <silent> <leader>dd :exe \":profile start profile.log"<cr>:exe \":profile func *"<cr>:exe \":profile file *"<cr>
 " nmap <silent> <leader>dp :exe \":profile pause"<cr>
