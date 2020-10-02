@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+[[ -z $DF ]] && echo "ERROR: export DF=<dotfiles directory>" && exit 1
+
+ln -is "$DF/.zshenv" ~/
+
+link_zsh=(
+    .zshrc
+    git_aliases
+    functions
+    aliases
+    sens
+    fzf
+)
+
+
+for name in "${link_zsh[@]}"; do
+    ln -is "$DF/.zsh/$name" ~/.zsh
+done
+
+# vim:ft=bash
