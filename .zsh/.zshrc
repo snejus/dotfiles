@@ -3,13 +3,15 @@ path=(
     $HOME/.cargo/bin
     $HOME/.poetry/bin
     $HOME/.pyenv/bin
+    $HOME/.local/go/bin/bin
     $HOME/.pyenv/versions/3.6.12/bin
     $HOME/.local/go/bin
     $HOME/.luarocks/bin
     $HOME/.nvm/versions/node/v14.4.0/bin/
     $HOME/.gem/ruby/2.7.0/bin
-    $PATH
     $HOME/.fzf/bin
+    $HOME/.linuxbrew/bin
+    $PATH
 )
 export -U PATH=$PATH
 neofetch
@@ -40,6 +42,7 @@ plugins=(
     timer
     extract
     cheatsheet
+    # globalias
     zsh-completions
     colored-man-pages
     zsh-autosuggestions
@@ -74,10 +77,8 @@ zle -N zle-keymap-select
 
 eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"
-eval "$(pandoc --bash-completion)"
-eval "$(jira --completion-script-bash)"
-# eval "$(register-python-argcomplete pipx)"
-source "$HOME/.local/share/dephell/_dephell_zsh_autocomplete"
+# eval "$(pandoc --bash-completion)"
+eval "$(register-python-argcomplete3 pipx)"
 # PROG=td source "$GOPATH/src/github.com/urfave/cli/autocomplete/zsh_autocomplete"
 
 export PATH=$HOME/.local/bin:$PATH
@@ -96,6 +97,8 @@ to_source=(
 
 for name in $to_source; do [ -f $ZDOTDIR/$name ] && source $ZDOTDIR/$name; done
 
+setxkbmap -option caps:escape  # caps lock is an escape
+xset r rate 180 30             # keyboard press delays
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
 # fi

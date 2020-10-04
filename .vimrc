@@ -492,6 +492,15 @@ let g:UltiSnipsJumpForwardTrigger="<C-Y>"
 let g:UltiSnipsJumpBackwardTrigger="<C-N>"
 let g:UltiSnipsSnippetDirectories=["~/.vim/bundle/vim-snippets/UltiSnips"]
 
+""" Syntax: rst
+
+let g:rst_syntax_code_list = {
+\ 'vim': ['vim'],
+\ 'python': ['python'],
+\ 'bash': ['bash'],
+\ 'sh': ['sh', 'shell'],
+\ 'xhtml': ['xhtml'],
+\ }
 """ Key remaps
 " match parens with backspace
 xmap <BS> %

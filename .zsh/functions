@@ -10,6 +10,23 @@ WHITE='1;37'
 # BLUE='1;38' same blue
 GREY='1;39'
 
+bw_create () {
+    bw create $1 $(echo "$2" | bw encode)
+}
+
+bw_create_secret () {
+    bw_create item "$(bw get template item | jq \
+       ".folderId = $(bw get folder Secrets | jq .id) | \
+        .name = \"$1\" | \
+        .notes = \"$(base64 -w 0 $2)\" | \
+        .login = \"\"")"
+}
+
+bw_get_secret () {
+    base64 --decode <(bw get item $1 | jq '.notes' | tr -d \")
+}
+
+
 du_sort() { du -hd 1 $1 | sort -h }
 whichl() { exa -lah "$(which $1)" }
 locatel() { locate $@ | xargs exa -lah }
@@ -260,3 +277,5 @@ testupload2confluence() {
    mark -f $uploadfile --dry-run > $htmlfile
    echo "$htmlfile has been generated"
 }
+
+# vim:ft=zsh

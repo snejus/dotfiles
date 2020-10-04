@@ -6,6 +6,7 @@ assets
 .python-version
 .env
 notes/
+.zsh/sens
 
 
 .DS_Store
