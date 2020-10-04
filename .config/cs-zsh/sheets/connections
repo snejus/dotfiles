@@ -1,0 +1,68 @@
+# Some guidance, but not absolutely necessary:
+#
+#   * Keep columns 8 tabs apart.
+#   * Provide a space after each section.
+#   * Underlines are the width of the word.
+#   * Try to keep descriptions within a single line.
+#
+# The cheatsheet will be displayed exactly as you see it here - as a flat text file.
+# Comments are ignored, but only if they occupy the entire line on their own -
+#  trailing comments are not ignored.
+#
+#
+#
+#
+#
+======  iwlist  ======
+ipconfig but for wireless networks
+
+wlp2s0    IEEE 802.11  ESSID:"VM3263501"
+          Mode:Managed  Frequency:2.422 GHz  Access Point: B0:BE:76:12:47:50
+          Bit Rate=130 Mb/s   Tx-Power=22 dBm
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+          Link Quality=40/70  Signal level=-70 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:2   Missed beacon:0
+
+
+======  iwlist  ======
+extra info about interfaces
+
+Usage: iwlist [interface] ap      [essid NNN] [last]
+              [interface] auth
+              [interface] keys
+              [interface] rate
+              [interface] event
+              [interface] genie
+              [interface] peers
+              [interface] power
+              [interface] retry
+              [interface] bitrate
+              [interface] channel
+              [interface] wpakeys
+              [interface] txpower
+              [interface] scanning
+              [interface] frequency
+              [interface] encryption
+              [interface] modulation
+              [interface] accesspoints
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

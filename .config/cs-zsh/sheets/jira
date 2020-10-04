@@ -1,0 +1,587 @@
+# Some guidance, but not absolutely necessary:
+#
+#   * Keep columns 8 tabs apart.
+#   * Provide a space after each section.
+#   * Underlines are the width of the word.
+#   * Try to keep descriptions within a single line.
+#
+# The cheatsheet will be displayed exactly as you see it here - as a flat text file.
+# Comments are ignored, but only if they occupy the entire line on their own -
+#  trailing comments are not ignored.
+#
+SECTION
+-------
+<description>                   : <command>
+<description>                   : <command>
+
+E.G. NAVIGATION
+---------------
+<description>                   : <key bind>
+<description>                   : <command>
+
+Advanced field editing - JSON
+The More options additional fields should only be used if a field cannot be edited using Choose fields to set. This may be necessary for custom fields provided by other applications.
+
+The following automation actions provide additional fields for advanced field editing:
+
+Clone issue
+
+Create issue
+
+Create Service Desk request
+
+Edit issue
+
+Transition issue
+
+To access these fields, select More options when configuring the action. These additional fields require you to specify a valid JSON object using the format specified by the Jira REST API.
+
+Format of the JSON
+The JSON object can contain the attributes update or fields, for example:
+
+
+
+    "update": {
+        "description": {
+            "set": "a new description"
+        },
+        "labels": [{
+                "add": "test-label"
+        }]
+    },
+    "fields": {
+        "summary": "woohoo! a new summary"
+    }
+}
+What's the difference between update and fields?
+fields is a shortcut for calling update with the set operation.  In the example above, calling set for the description field is the equivalent to including the description in the fields section like this: {"fields": {"description":"a new description"}}.
+
+update can be useful for fields with multiple values, where you want to add and/or remove from the existing set. For example, when adding labels to an issue, using the set operation would overwrite all existing labels, while using update would add the label without removing any existing labels.
+
+
+
+The same field should never appear in both update and fields sections in the JSON at the same time.
+
+Referencing issue fields
+You can reference custom fields by name rather than ID. In the example below, the same field is referenced by its ID and its name:
+
+
+
+{
+    "fields": {
+        "customfield_10003": "the value I want to set",
+        "My Text Customfield": "this is the same field as above and using both causes an error"
+    }
+}
+
+
+When referencing by name, fields are case insensitive and you can replace spaces with underscores.
+
+If there are custom fields with the same name, or a custom field has the same name as a system field, you will need to use the custom field ID.
+
+Supported fields & operations
+If you’re creating or editing issues, you can query a project’s createmeta or an issue’s editmeta information to view supported fields and operations.
+
+You can retrieve the metadata for both operations by visiting:
+
+GET /rest/api/3/issue/createmeta?projectKeys=<string>&expand=projects.issuetypes.fields
+
+GET /rest/api/3/issue/{issueIdOrKey}/editmeta
+
+This JSON returns all fields that can be used in the Additional fields, including their possible operations and values.
+
+Consider the following response for createmeta:
+
+
+
+{
+  "expand": "projects",
+  "projects": [
+    {
+      "expand": "issuetypes",
+      "self": "https://jira.atlassian.com/rest/api/2/project/10240",
+      "id": "10240",
+      "key": "JRA",
+      "name": "Jira (including Jira Core)",
+      "avatarUrls": {
+        "48x48": "https://jira.atlassian.com/secure/projectavatar?pid=10240&avatarId=17294",
+        "24x24": "https://jira.atlassian.com/secure/projectavatar?size=small&pid=10240&avatarId=17294",
+        "16x16": "https://jira.atlassian.com/secure/projectavatar?size=xsmall&pid=10240&avatarId=17294",
+        "32x32": "https://jira.atlassian.com/secure/projectavatar?size=medium&pid=10240&avatarId=17294"
+      },
+      "issuetypes": [
+        {
+          "self": "https://jira.atlassian.com/rest/api/2/issuetype/10000",
+          "id": "10000",
+          "description": "",
+          "iconUrl": "https://jira.atlassian.com/secure/viewavatar?size=xsmall&avatarId=51505&avatarType=issuetype",
+          "name": "Suggestion",
+          "subtask": false,
+          "expand": "fields",
+          "fields": {
+            "summary": {
+              "required": true,
+              "schema": {
+                "type": "string",
+                "system": "summary"
+              },
+              "name": "Summary",
+              "hasDefaultValue": false,
+              "operations": [
+                "set"
+              ]
+            },
+            // other fields removed for brevity...
+            "components": {
+              "required": false,
+              "schema": {
+                "type": "array",
+                "items": "component",
+                "system": "components"
+              },
+              "name": "Component/s",
+              "hasDefaultValue": false,
+              "operations": [
+                "add",
+                "set",
+                "remove"
+              ],
+              "allowedValues": [
+                {
+                  "self": "https://jira.atlassian.com/rest/api/2/component/36920",
+                  "id": "36920",
+                  "name": "System Administration - Support Tools"
+                },
+                {
+                  "self": "https://jira.atlassian.com/rest/api/2/component/43995",
+                  "id": "43995",
+                  "name": "User Management - Delete User"
+                }
+              ]
+            }
+            // other fields removed for brevity...
+          }
+        }
+      ]
+    }
+  ]
+}
+
+
+The editmeta object allows you to search for the Single Select custom field and find its operations and values – only set and red, blue, green.
+
+For example, to set the Single Select field to green during an edit, you can use the following JSON:
+
+
+
+{
+    "update": {
+        "Single Select": [
+            {
+                "set": {"value": "green"}
+            }
+        ]
+    }
+}
+
+
+You can also use the meta information to look up the custom field ID for a particular custom field.
+
+Why is my field not editable?
+If you've retrieved the createmeta or editmeta for your project or issue, the field you're trying to edit may not show up in the resulting JSON. This means when a rule attempts to edit or create the issue, it will fail with an error in the audit log.
+
+This will most likely be due to the field missing on the appropriate edit or create screen in your project. To address this, go to Jira settings > Issues > Screens and ensure the field you’re trying to update is on the appropriate edit or create screen.
+
+Additionally, ensure that the automation rule actor has the right permissions to edit or create issues on your project.
+
+Using smart-values
+
+
+Due to recent GDPR changes, referencing user fields (such as reporter, assignee) now require the property id to be set with a user's account ID rather than using name.
+
+
+Advanced field values also support smart values. Learn more about the JSON functions available as smart values.
+
+For example, to change the current assignee to the user who initiated the event:
+
+
+
+{
+    "fields": {
+        "assignee": { "id": "{{initiator.accountId}}" }
+    },
+}
+
+
+To make the referencing of other fields easier, the above can be written as:
+
+
+
+{
+    "fields": {
+        "assignee": {{initiator.accountId.asJsonObject("id")}}
+    },
+}
+
+
+This not only creates the JSON in the right format, but also encodes the text correctly. To encode text by itself:
+
+
+
+{
+    "fields": {
+        "assignee": { "id": {{initiator.accountId.asJsonString}} }
+    },
+}
+
+
+To transform the value into JSON object with a key:
+
+
+
+{
+    "fields": {
+        "assignee": {{initiator.name.asJsonObject("key")}}
+    }
+}
+
+
+This will produce:
+
+
+
+{
+    "fields": {
+        "assignee": { "key": "username" }
+    }
+}
+
+
+For fields that take arrays of text:
+
+
+
+{
+    "fields": {
+        "labels": {{issue.parent.labels.asJsonStringArray}}
+    },
+}
+
+
+For fields that take an array of single field object:
+
+
+
+{
+    "fields": {
+        "Multi User Customfield": {{issue.parent.Multi User Customfield.accountId.asJsonObjectArray("id")}}
+    },
+}
+Field syntax examples
+For more examples, view the Jira Cloud platform REST API documentation.
+
+Summary
+A system field that is a single line of text.
+
+
+
+"summary": "A summary is one line of text"
+Description
+A system field that is multiple lines of text.
+
+
+
+"description": "A description is many lines of text\n separated by\n line feeds"
+Time tracking and logging work
+If you’re using time tracking, you can use automation to update associated field. Because time tracking represents multiple values, originalEstimate and remainingEstimate are parts of the parent field.
+
+You can log work against an issue:
+
+
+
+{
+  "update": {
+    "worklog" : [
+      {
+        "add": {
+          "timeSpent" : "6m"
+        }
+      }
+    ]
+  }
+}
+
+
+Or log work and set the remaining estimate at the same time:
+
+
+
+{
+"update": {
+    "worklog" : [
+      {
+        "add": {
+          "timeSpent" : "6m"
+        }
+      }
+    ]
+  },
+    "fields": {
+        "timetracking": {
+              "originalEstimate": "10",
+              "remainingEstimate": "5"
+        }
+    }
+}
+
+
+You can combine this with smart values to log work using a calculated value:
+
+
+
+{
+  "update": {
+    "worklog" : [
+      {
+        "add": {
+          "timeSpent" : "{{now.diff(issue.created).businessDays}}d"
+        }
+      }
+    ]
+  }
+}
+
+
+To copy the time tracking fields from another issue:
+
+
+
+{
+    "fields": {
+        "timetracking": {
+              "originalEstimate": "{{issue.timetracking.originalEstimate}}",
+              "remainingEstimate": "{{issue.timetracking.remainingEstimate}}"
+        }
+    }
+}
+Components
+A system field that is multiple values addressed by name.
+
+
+
+"components" : [ { "name": "Active Directory"} , { "name": "Network Switch" } ]
+Affects Versions
+A system field that is multiple values addressed by name.
+
+
+
+"versions" : [ { "name": "Version 1.0"} , { "Version": "1.1" } ]
+Fix Versions
+A system field that is multiple values addressed by name.
+
+
+
+"fixVersions" : [ { "name": "2.0"} , { "name": "Network Switch" } ]
+Due date
+A system field that is a date in 'YYYY-MM-DD' format.
+
+
+
+"duedate" : "2015-11-18"
+Labels
+A system field that is an array of text values.
+
+
+
+"labels" : ["examplelabelnumber1", "examplelabelnumber2"]
+Adding labels
+Adding a label to the set of existing labels:
+
+
+
+{
+    "update": {
+        "labels": [
+            {
+                "add": "my-new-label"
+            }
+        ]
+    }
+}
+
+
+You can also use remove or set as the operation instead of add.
+
+Setting the security level of an issue
+
+
+{
+    "update": {
+        "security": [
+            {
+                "set": {"name": "Public"}
+            }
+        ]
+    }
+}
+
+
+In this case, Public is the name of the security level. Substitute this with a valid security level in your project.
+
+Linking issues
+You can also create issue links. For example, create a new issue as a result of editing an existing issue, then create a link back to the edited issue:
+
+
+
+{"update": {
+        "issuelinks": [
+            {
+                "add": {
+                    "type": {
+                        "name": "Relates"
+                    },
+                    "outwardIssue": {
+                        "key": "{{issue.key}}"
+                    }
+                }
+            }
+        ]
+    }
+}
+
+
+To lookup the link type name (Relates in the above example), you can consult <yoursite>/secure/admin/ViewLinkTypes!default.jspa on your site. The {{issue.key}} smart value replaces the key of the trigger issue.
+
+Request participants
+The request participants field for Jira Service Desk must be in a certain structure. For example, to add the last commenter of the issue to participants:
+
+
+
+{
+  "update": {
+    "Request participants" : [
+      {
+        "add": {
+          "id":"{{issue.comments.last.author.accountId}}"
+        }
+      }
+    ]
+  }
+}
+Checkbox custom field
+Select multiple values from a defined list of values. You can address them by value or id.
+
+
+
+"customfield_11440" : [{ "value" : "option1"}, {"value" : "option2"}]
+
+or
+
+"customfield_11440" : [{ "id" : 10112}, {"id" : 10115}]
+Date picker custom field
+A date in 'YYYY-MM-DD' format.
+
+
+
+"customfield_11441" : "2015-11-18"
+Date time picker custom field
+A date time in ISO 8601 'YYYY-MM-DDThh:mm:ss.sTZD' format.
+
+
+
+"customfield_11442" : "2015-11-18T14:39:00.000+1100"
+Labels custom field
+An array of text.
+
+
+
+"customfield_11443" : [ "rest_label1", "rest_label2" ]
+Number custom field
+Contains a number.
+
+
+
+"customfield_11444" : 664
+Radio button custom field
+Select a single value from a defined list of values. You can address them by value or id.
+
+
+
+"customfield_11445" : { "value": "option2" }
+
+or
+
+"customfield_11445" : { "id": 10112 }
+Cascading select custom field
+Select a single parent value, and a related child value. You can address them by value or id.
+
+
+
+"customfield_11447" : { "value": "parent_option1", "child": { "value" : "p1_child1"} }
+
+or
+
+"customfield_11447" : { "id": 10112, "child": { "id" : 10115 } }
+Multi-select custom field
+Select multiple values from a defined list of values. You can address them by value or id.
+
+
+
+"customfield_11448" : [ { "value": "option1" }, { "value": "option2" } ]
+
+or
+
+"customfield_11448" : [ { "id": 10112 }, { "id": 10115 } ]
+Single-select custom field
+Select a single value from a defined list of values. You can address them by value or id.
+
+
+
+"customfield_11449" : { "value": "option3" }
+
+or
+
+"customfield_11449" : { "id": 10112 }
+Multi-line text custom field
+Multiple lines of text.
+
+
+
+"customfield_11450": "Multiples lines of text\n separated by\n line feeds"
+Text custom field
+A single line of text.
+
+
+
+"customfield_11450": "a single line of text"
+URL custom field
+Takes a URL.
+
+
+
+"customfield_11452" : "http://www.atlassian.com",
+Single-user picker custom field
+A single user can be selected.
+
+
+
+"customfield_11453" : { "id":"2s1863211f0z284c45269423" },
+Multi-user picker custom field
+Multiple users can be selected.
+
+
+
+"customfield_11458" : [ { "id":"2s1863211f0z284c45269423" }, { "id":"332212e13z52142111269423" }]
+Elements Connect (formerly nFeed) custom field
+An array of string identifiers.
+
+
+
+"customfield_10700" :  [ "10300", "10400" ]
+
+
+For example, copying the value of an Elements Connect field:
+
+
+
+"customfield_10700" :  {{ issue.customfield_10700.asJsonStringArray }}

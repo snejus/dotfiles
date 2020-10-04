@@ -1,0 +1,49 @@
+# Some guidance, but not absolutely necessary:
+#
+#   * Keep columns 8 tabs apart.
+#   * Provide a space after each section.
+#   * Underlines are the width of the word.
+#   * Try to keep descriptions within a single line.
+#
+# The cheatsheet will be displayed exactly as you see it here - as a flat text file.
+# Comments are ignored, but only if they occupy the entire line on their own -
+#  trailing comments are not ignored.
+#
+SECTION
+-------
+<description>                   : <command>
+<description>                   : <command>
+
+E.G. NAVIGATION
+---------------
+<description>                   : <key bind>
+<description>                   : <command>
+
+docker history <image name>
+(interaction-fileprocessing-vfeg9Sk1-py3.6) ➜  fileprocessing IN-3567 ✗ docker history service-equifax-insights:1.9.0
+
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+14ceec3eceb4        2 days ago          /bin/sh -c poetry build -f wheel --ansi && p…   8.63MB
+87e5a7924f9a        2 days ago          /bin/sh -c #(nop) COPY dir:88b52d04320c3770a…   3.88MB
+37d90ad6aa3e        2 days ago          /bin/sh -c poetry export --dev --without-has…   143MB
+6dd5e10d5fd2        2 days ago          /bin/sh -c #(nop) COPY multi:31eb64757406d99…   54.5kB
+cabb6d015631        3 weeks ago         /bin/sh -c pip install pip --upgrade            9.65MB
+f4eec1f7784f        3 weeks ago         /bin/sh -c python -m venv /venv                 11.2MB
+896585401c66        3 weeks ago         /bin/sh -c pip install poetry==1.0.8            27MB
+7ada255f32e1        3 weeks ago         /bin/sh -c #(nop)  ENV PATH=/venv/bin:/usr/l…   0B
+f0830e95fa70        3 weeks ago         /bin/sh -c #(nop)  ENV PYTHONUNBUFFERED=1       0B
+1cb21608cf2d        3 weeks ago         /bin/sh -c #(nop)  ENV PYTHONDONTWRITEBYTECO…   0B
+738b39685ec4        3 weeks ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0B
+07370d12ce3b        3 weeks ago         /bin/sh -c #(nop) WORKDIR /app                  0B
+f39b8b8e7f07        2 years ago         /bin/sh -c #(nop)  CMD ["python3"]              0B
+<missing>           2 years ago         /bin/sh -c set -ex;   apt-get update;  apt-g…   6.51MB
+<missing>           2 years ago         /bin/sh -c #(nop)  ENV PYTHON_PIP_VERSION=9.…   0B
+<missing>           2 years ago         /bin/sh -c cd /usr/local/bin  && ln -s idle3…   32B
+<missing>           2 years ago         /bin/sh -c set -ex  && buildDeps="   dpkg-de…   67.5MB
+<missing>           2 years ago         /bin/sh -c #(nop)  ENV PYTHON_VERSION=3.6.2     0B
+<missing>           2 years ago         /bin/sh -c #(nop)  ENV GPG_KEY=0D96DF4D4110E…   0B
+<missing>           2 years ago         /bin/sh -c apt-get update && apt-get install…   8.11MB
+<missing>           2 years ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0B
+<missing>           2 years ago         /bin/sh -c #(nop)  ENV PATH=/usr/local/bin:/…   0B
+<missing>           2 years ago         /bin/sh -c #(nop)  CMD ["bash"]                 0B
+<missing>           2 years ago         /bin/sh -c #(nop) ADD file:d7333b3e0bc6479d2…   123MB

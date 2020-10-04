@@ -1,0 +1,30 @@
+# Some guidance, but not absolutely necessary:
+#
+#   * Keep columns 8 tabs apart.
+#   * Provide a space after each section.
+#   * Underlines are the width of the word.
+#   * Try to keep descriptions within a single line.
+#
+# The cheatsheet will be displayed exactly as you see it here - as a flat text file.
+# Comments are ignored, but only if they occupy the entire line on their own -
+#  trailing comments are not ignored.
+#
+dpkg
+----
+sudo dpkg --configure -a        : soft
+sudo dpkg -l | grep ^..r        : list packages that are marked as 'required'
+sudo dpkg --remove --force-remove --reinstreq
+                                : don't forget to `apt clean` and `apt update` after
+sudo rm /var/lib/apt/list/lock  : if you et an error 'another application is already ... '
+
+apt
+---
+sudo apt update --fix-missing   : ensure there aren't newer versions of the required packages
+sudo apt install -f             : correct missing deps and install them
+
+
+
+Lock files are found in
+
+* /var/lib/apt/lists/lock       : actually empty
+* /var/cache/apt/archives/lock  : has downloaded .deb packages in the same folder
