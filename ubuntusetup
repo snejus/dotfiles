@@ -2,7 +2,8 @@
 
 [[ -z $DF ]] && echo "ERROR: export DF=<dotfiles directory>" && exit 1
 
-ln -is "$DF/.zshenv" ~/
+ln -is "$DF/.zshenv" ~
+ln -is "$DF/.tmux.conf" ~
 
 link_zsh=(
     .zshrc
@@ -17,5 +18,18 @@ link_zsh=(
 for name in "${link_zsh[@]}"; do
     ln -is "$DF/.zsh/$name" ~/.zsh
 done
+
+# apt
+apt update
+apt install tmux
+
+# linuxbrew
+git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew
+mkdir ~/.linuxbrew/bin
+ln -s ~/.linuxbrew/Homebrew/bin/brew ~/.linuxbrew/bin
+eval $(~/.linuxbrew/bin/brew shellenv)
+
+brew install bitwarden-cli gh
+
 
 # vim:ft=bash
