@@ -1,0 +1,66 @@
+# linuxbrew
+pacman -Syu
+
+function install_linuxbrew () {
+    sudo pacman -S openssh which
+    git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew
+    mkdir -p ~/.linuxbrew/bin
+    ln -is ~/.linuxbrew/Homebrew/bin/brew ~/.linuxbrew/bin
+    eval $(~/.linuxbrew/bin/brew shellenv)
+}
+
+function pre_setup () {
+    sudo pacman install jq
+    brew install bitwarden-cli
+}
+
+
+
+function link_configs () {
+    [[ -z $DF ]] && echo "ERROR: export DF=<dotfiles directory>" && exit 1
+
+    ln -is "$DF/.tmux.conf" ~
+    ln -is "$DF/.gitconfig" ~
+    ln -is "$DF/.gitignore" ~
+    ln -is "$DF/.zshenv" ~
+    ln -is "$DF/.vimrc" ~
+
+    mkdir $HOME/.zsh/.completions
+    link_zsh=(
+        .zshrc
+        git_aliases
+        functions
+        aliases
+        sens
+        fzf
+        .completions/git-extras-completion.zsh
+        .completions/zsh-completion.zsh
+    )
+
+    [[ ! -d ~/.zsh ]] && mkdir ~/.zsh
+    for name in "${link_zsh[@]}"; do
+        ln -is "$DF/.zsh/$name" ~/.zsh
+    done
+}
+
+sudo pacman -S tmux fzf fd the_silver_searcher lsof
+sudo pacman -S diff-so-fancy python-pygments w3m
+
+mkdir $HOME/.wakatime  # vim
+
+sudo pacman -S pyenv
+pyenv install 3.6.11
+pyenv global 3.6.11
+
+# reload shell
+python install pipx
+pipx install pygmentize
+
+sudo pacman -S github-cli
+
+gh repo clone snejus/myawesome awesome
+
+sudo pacman -S mpd mpc ncmpcpp pulseaudio pulseaudio-alsa
+sudo pacman -S xorg-server xorg-xset xorg-xrandr slock xorg-xinit xorg-xauth qutebrowser
+
+# vim:ft=bash

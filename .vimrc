@@ -1,8 +1,8 @@
 set nocompatible
 
 """ Vim-plug installation
-if empty(glob("~/.vim/autoload/plug.vim"))
-  silent !curl -fLo "~/.vim/autoload/plug.vim" --create-dirs "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+if empty(glob("$HOME/.vim/autoload/plug.vim"))
+  silent !curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
@@ -10,7 +10,7 @@ endif
 call plug#begin('~/.vim/bundle/')
 
 " fzf <3
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 " asynchronous linting / formatting engine

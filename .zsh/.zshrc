@@ -4,7 +4,7 @@ path=(
     $HOME/.poetry/bin
     $HOME/.pyenv/bin
     $HOME/.local/go/bin/bin
-    $HOME/.pyenv/versions/3.6.12/bin
+    $HOME/.pyenv/versions/3.6.11/bin
     $HOME/.local/go/bin
     $HOME/.luarocks/bin
     $HOME/.nvm/versions/node/v14.4.0/bin/
@@ -14,7 +14,8 @@ path=(
     $PATH
 )
 export -U PATH=$PATH
-neofetch
+neofetch || echo Neofetch not found
+
 export MYPYPATH=$HOME/stubs
 export ZSH=$HOME/.oh-my-zsh
 export WAKATIME_HOME=$HOME/.wakatime
@@ -42,7 +43,6 @@ plugins=(
     timer
     extract
     cheatsheet
-    # globalias
     zsh-completions
     colored-man-pages
     zsh-autosuggestions
@@ -78,7 +78,7 @@ zle -N zle-keymap-select
 eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"
 # eval "$(pandoc --bash-completion)"
-eval "$(register-python-argcomplete3 pipx)"
+eval "$(register-python-argcomplete pipx)"
 # PROG=td source "$GOPATH/src/github.com/urfave/cli/autocomplete/zsh_autocomplete"
 
 export PATH=$HOME/.local/bin:$PATH
@@ -89,16 +89,18 @@ to_source=(
     sens
     aliases
     .completions/git-extras-completion.zsh
-    ../.fzf/shell/completion.zsh
-    ../.fzf/shell/key-bindings.zsh
+    .completions/zsh-completion.zsh
     # ../.nvm/nvm.sh
     # ../.nvm/bash_completion
 )
 
 for name in $to_source; do [ -f $ZDOTDIR/$name ] && source $ZDOTDIR/$name; done
 
-setxkbmap -option caps:escape  # caps lock is an escape
-xset r rate 180 30             # keyboard press delays
+if [[ -n $DISPLAY ]] then
+    setxkbmap -option caps:escape  # caps lock is an escape
+    xset r rate 180 30             # keyboard press delays
+fi
+
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
 # fi

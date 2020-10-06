@@ -55,14 +55,20 @@ alias ag="ag --silent"
 alias agl="ag --silent --pager less --color"
 alias agf="ag --silent -g"
 
+alias pinstall="sudo pacman -S"
+alias psearch="pacman -Ss"
+alias psearchi="pacman -Q | ag"
+alias pinfo="pacman -Sii"
+alias premove="sudo pacman -Rsu"
+alias pupdate="sudo pacman -Syu"
 # Apt
-alias aptinst="\apt list --installed | ag"
-local sa="sudo aptitude"
-alias apt="aptitude"
-alias install="$sa install"
-alias purge="$sa purge"
-alias remove="$sa remove"
-alias update="$sa update"
+# alias aptinst="\apt list --installed | ag"
+# local sa="sudo aptitude"
+# alias apt="aptitude"
+# alias install="$sa install"
+# alias purge="$sa purge"
+# alias remove="$sa remove"
+# alias update="$sa update"
 
 # bitwarden
 alias genpass='bw generate -uln --length 30 | ci'
@@ -78,9 +84,9 @@ alias dp="dephell package"
 
 # Edit often accessed files
 
-alias eaw="vim $DF/.config/awesome/rc.lua"
+alias eaw="vim $HOME/.config/awesome/rc.lua"
 alias ecl="vim $HOME/.ref/gists/changelog/changelog"
-alias eawt="vim $DF/.config/awesome/themes/helohelo/theme.lua"
+alias eawt="vim $HOME/.config/awesome/themes/helohelo/theme.lua"
 alias eenv="vim $HOME/.zshenv"
 alias egg="vim /usr/local/bin/gg"
 alias egit="vim $DF/.gitconfig"
