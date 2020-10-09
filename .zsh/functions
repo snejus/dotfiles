@@ -10,34 +10,54 @@ WHITE='1;37'
 # BLUE='1;38' same blue
 GREY='1;39'
 
-bw_create () {
+_newpassword () {
+    bw generate -uln --length 30
+}
+
+bwgenpass () {
+    copyq disable 2> /dev/null
+    _newpassword | ci
+    copyq enable 2> /dev/null
+}
+
+bwgetpass () {
+    copyq disable 2> /dev/null
+    bw get password $1 | ci
+    copyq enable 2> /dev/null
+}
+
+bwcreate () {
     bw create $1 $(echo "$2" | bw encode)
 }
 
-bw_create_secret () {
-    bw_create item "$(bw get template item | jq \
+bwcreatesecret () {
+    bwcreate item "$(bw get template item | jq \
        ".folderId = $(bw get folder Secrets | jq .id) | \
         .name = \"$1\" | \
         .notes = \"$(base64 -w 0 $2)\" | \
         .login = \"\"")"
 }
 
-bw_get_secret () {
+bwgetsecret () {
     base64 --decode <(bw get item $1 | jq '.notes' | tr -d \")
 }
+
+bwcreatelogin () {
+    pw="$(_newpassword)"
+    template="$(bw get template item)"
+    bwcreate item "$template | jq \
+       ".name = \"$1\" | \
+        .login = {\"username\" = \"$2\", \"password\" = \"$pw\"}")"
+    echo $pw | ci
+}
+
 
 
 du_sort() { du -hd 1 $1 | sort -h }
 whichl() { exa -lah "$(which $1)" }
 locatel() { locate $@ | xargs exa -lah }
-
 locateconf() { locate $1 | sed '/\.conf$/!d' }
 
-clrred() { printf '\e[%sm%s\e[0m' $RED $1 }
-clrgreen() { printf '\e[%sm%s\e[0m' $GREEN $1 }
-clryellow() { printf '\e[%sm%s\e[0m' $YELLOW $1 }
-
-xprint() { xargs -I{} echo -e {} }
 shrinkmp4() { ffmpeg -i $1 -vcodec libx265 -crf 2 $2 }
 
 dadjoke() {
@@ -88,7 +108,7 @@ remove_file_folder() {
 
 depopen() {
     echo Opening $1 repository in the browser
-    xdg-open `pip show $1 | sed -n 's/^.*\(.*github\)/\1/p'`
+    xdg-open $(pip show $1 | sed -n 's/^.*\(.*github\)/\1/p')
 }
 
 deps() {
@@ -139,83 +159,6 @@ docker_delete_noname_images() { docker_noname_image_ids | xargs docker image rm 
 flushright() { sed -e :a -e 's/^.\{1,78\}$/ &/;ta' }
 center() { sed  -e :a -e 's/^.\{1,77\}$/ &/;ta' -e 's/\( *\)\1/\1/' }
 
-##### GITHUB #####
-pr_messages() {
-   pname=$(git info | sed -n '/\.url/s/\(^.*github\.com\/\)\(.*\)\($\|.git\)/\2/p')
-    curl -s -u username:$GITHUB_TOKEN https://api.github.com/repos/$pname/pulls/$1/comments |
-        jq -M '.[] | {user, body, diff_hunk}' |             # select fields
-        sed -n 's/.*\(body\|login\|diff_hunk\)": //p' |     # trim keys
-        tr -d "'" |                                         # trim single quotes
-        sed 's/^"\|",\?$//g' |                              # trim double quotes and commas from start and end
-        xargs -0 echo -e {} |                               # apply newlines
-        fold -w 78 |                                        # wrap
-        sed '/^[a-z-]\+$\|^@@/{x;p;x;}' |                   # blank lines before / after diff
-        sed '/^@@/,/^$/s/.*/\\\\t&/' |                      # tab code
-        sed 's/\\t\(+.*\)/\\\\t\\\\e[1;32m\1\\\\e[0m/' |    # added lines -> green
-        sed 's/\\t\(-.*\)/\\\\t\\\\e[1;31m\1\\\\e[0m/' |    # removed lines -> red
-        sed 's/^[a-z-]\+$/\\\\e[1;3;34m&\\\\e[0m/' |        # nickname -> blue
-        xprint
-}
-
-##### JIRA #####
-show() {
-    echo Looking for issue $1
-    jira view $1 | pygmentize -l md -O style=fruity
-}
-
-beautify() {
-    sed "y/\`'/  /" |
-    sed "s/[-+]\?\+-[^0-9a-zA-Z]//" |
-    tr -s " " |
-    sed '/| |/d' |
-    cut -d "|" -f-8 |  # remove `Assigned` column
-        sed '2s/Is.*/\\\\e[1;3;32m&\\\\e[0m/' |
-        sed 's/[A-Z]\+-[0-9]\+/\\\\e[1;37m&\\\\e[0m/' |
-        sed 's/Story/\\\\e[1;32m&\\\\e[0m/' |
-        sed 's/Sub-task/\\\\e[1;34m&\\\\e[0m/' |
-        sed 's/Bug/\\\\e[1;31m&\\\\e[0m/' |
-        sed 's/Incident/\\\\e[1;33m&\\\\e[0m/' |
-        sed 's/Epic/\\\\e[1;38;5;99m&\\\\e[0m/' |
-        sed 's/High\ /\\\\e[1;31m&\\\\e[0m/' |
-        sed 's/Highest/\\\\e[5;38;5;124m&\\\\e[0m/' |
-        sed 's/Medium/\\\\e[1;38;5;208m&\\\\e[0m/' |
-        sed 's/Low/\\\\e[1;33m&\\\\e[0m/' |
-    xargs -I{} echo -e "  {}" | column -s "|" -t | sed '2i \\a' | sed '$a \\n'
-}
-
-# issues() {
-    # local sortopts
-    # echo $sorter
-    # case "$1" in
-    #     (-C) usecc=yess
-    #         sortopts=;;
-    # esac
-    # if (( $+@[hello] ))
-    # then echo HaveVarHellohello; fi
-    # echo Running
-# }
-#
-printissues() { printf "\n\n" && jira list --template table --query $1 | beautify }
-
-issues() {
-    printissues "\
-        resolution = unresolved and assignee=currentuser() \
-        ORDER BY status DESC, priority DESC, created DESC"
-}
-
-allissues() {
-    printissues "\
-        sprint in openSprints() and assignee=currentuser() \
-        ORDER BY status DESC, priority DESC, created DESC"
-}
-
-sissues() {
-    printissues "\
-        sprint in openSprints() and \
-        resolution=unresolved and assignee=currentuser() \
-        ORDER BY status DESC, priority DESC, created DESC"
-}
-
 ##### CONVERSION BETWEEN FORMATS #####
 rst2md() {
     local filename=$1:t
@@ -256,26 +199,4 @@ md2pdf() {
    pandoc2pdf $tmp gfm
    rm $tmp
 }
-
-confluencify() {
-   local uploadfile="_Confluence$1"
-   cat $1 | sed '/^<!-- vim-markdown/,/<!-- vim-markdown/c:toc:' | # swap toc and remove dropdowns
-      sed '/details\|summary/d' > $uploadfile
-   echo $uploadfile
-}
-
-upload2confluence() {
-   local uploadfile=$(confluencify $1)
-   local htmlfile="$uploadfile:r.html"
-   mark -f $uploadfile
-   rm $uploadfile
-}
-
-testupload2confluence() {
-   local uploadfile=$(confluencify $1)
-   local htmlfile="$uploadfile:r.html"
-   mark -f $uploadfile --dry-run > $htmlfile
-   echo "$htmlfile has been generated"
-}
-
-# vim:ft=zsh
+# vim:ft=bash

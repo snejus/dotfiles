@@ -14,9 +14,31 @@
 # -> $ZDOTDIR/.zlogout
 
 skip_global_compinit=1
-export XDG_CONFIG_HOME=$HOME/.config
-export WAKATIME_HOME=$HOME/.wakatime
-export ZDOTDIR=$HOME/.zsh
-export MPD_HOST=/run/user/1000/mpd/socket
+
+path=(
+    # $HOME/.nvm
+    # $HOME/.cargo/bin
+    # $HOME/.poetry/bin
+    # $HOME/.luarocks/bin
+    # $HOME/.nvm/versions/node/v14.4.0/bin/
+    # $HOME/.gem/ruby/2.7.0/bin
+    # $HOME/.fzf/bin
+    $HOME/go/bin
+    $HOME/.pyenv/bin
+    $HOME/.linuxbrew/bin
+    $PATH
+)
+export -U PATH=$PATH
+
+export BAT_STYLE=plain
+export MPD_HOST=/run/user/60460/mpd/socket
+export MYPYPATH=$HOME/stubs
+export PYTHONDONTWRITEBYTECODE=1
 export SHELL=/usr/bin/zsh
 export SUSHELL=/bin/sh
+export WAKATIME_HOME=$HOME/.wakatime
+export XDG_CONFIG_HOME=$HOME/.config
+export TERM=xterm-256color
+export VISUAL=vim
+export ZDOTDIR=$HOME/.zsh
+export ZSH=$HOME/.oh-my-zsh

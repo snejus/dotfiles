@@ -78,7 +78,7 @@ Plug 'ervandew/supertab'
 
 " Colourschemes
 " Plug 'gruvbox-community/gruvbox'
-Plug 'ajmwagar/vim-deus'
+Plug 'snejus/vim-deus'
 
 " Markdown support
 Plug 'godlygeek/tabular', { 'for': 'markdown' }
@@ -88,8 +88,8 @@ Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
 " Unicode explorer
 Plug 'chrisbra/unicode.vim'
 
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+" Plug 'SirVer/ultisnips'
+" Plug 'honza/vim-snippets'
 
 " Stats
 Plug 'wakatime/vim-wakatime'
@@ -202,6 +202,7 @@ au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
 au BufNewFile,BufRead *.vue setf vue
+au BufNewFile,BufRead *.conf setlocal filetype=conf
 au Filetype html setlocal ts=2
 au Filetype javascript setlocal ts=2
 au Filetype Jenkinsfile setlocal ts=2
@@ -255,6 +256,7 @@ nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
 
 let g:ale_linters = {
 \   'ansible':    ['ansible-lint'],
+\   'bash':       ['shellcheck'],
 \   'dockerfile': ['hadolint'],
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],

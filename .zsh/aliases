@@ -1,6 +1,5 @@
-source $ZDOTDIR/git_aliases
-
 local DF=$HOME/.d
+local CONFIG=$HOME/.config
 
 # MIME
 alias -s md="glow -p -w 80"
@@ -15,6 +14,8 @@ alias -s target="bat -l ini"
 alias -s conf="bat"
 alias -s vim="bat"
 alias -s py="bat"
+alias -s pdf="xpdf"
+alias -s html="qutebrowser"
 
 # General
 alias brave="brave-browser"
@@ -28,6 +29,7 @@ alias fixalsa="alsactl init"
 alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
 alias grip="grip -b"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
+alias hist='history | fzf --tac --no-sort'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
 alias listeners="sudo lsof -i -P -n | grep LISTEN"
 alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
@@ -47,7 +49,6 @@ alias sysu="systemctl --user"
 alias typing="vim $HOME/.ref/docs/typing.md"
 alias ytdl='youtube-dl -x --audio-format flac -o "%(title)s.%(ext)s" --postprocessor-args "-codec flac"'
 
-alias xterm="xterm &"
 alias wakastats="open https://wakatime.com/dashboard"
 
 # Ag
@@ -58,21 +59,9 @@ alias agf="ag --silent -g"
 alias pinstall="sudo pacman -S"
 alias psearch="pacman -Ss"
 alias psearchi="pacman -Q | ag"
-alias pinfo="pacman -Sii"
-alias premove="sudo pacman -Rsu"
-alias pupdate="sudo pacman -Syu"
-# Apt
-# alias aptinst="\apt list --installed | ag"
-# local sa="sudo aptitude"
-# alias apt="aptitude"
-# alias install="$sa install"
-# alias purge="$sa purge"
-# alias remove="$sa remove"
-# alias update="$sa update"
-
-# bitwarden
-alias genpass='bw generate -uln --length 30 | ci'
-alias getpass='function gtp() {bw get password $1 | ci}; gtp'
+alias pinfo="pacman -Siiv"
+alias premove="sudo pacman -Rsuv"
+alias pupdate="sudo pacman -Syuv"
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
@@ -83,23 +72,25 @@ alias docker_usage="docker system df"
 alias dp="dephell package"
 
 # Edit often accessed files
+alias eaw="vim $CONFIG/awesome/rc.lua"
+alias eawt="vim $CONFIG/awesome/themes/helohelo/theme.lua"
+alias econ="vim $CONFIG/conky/conky.conf"
+alias ekitty="vim $CONFIG/kitty/kitty.conf"
+alias empd="vim $CONFIG/mpd/mpd.conf"
+alias encmc="vim $CONFIG/ncmpcpp/config"
+alias encmb="vim $CONFIG/ncmpcpp/bindings"
+alias eneo="vim $CONFIG/neofetch/config.conf"
 
-alias eaw="vim $HOME/.config/awesome/rc.lua"
-alias ecl="vim $HOME/.ref/gists/changelog/changelog"
-alias eawt="vim $HOME/.config/awesome/themes/helohelo/theme.lua"
-alias eenv="vim $HOME/.zshenv"
-alias egg="vim /usr/local/bin/gg"
-alias egit="vim $DF/.gitconfig"
-alias empd="vim $DF/_music/mpd/mpd.conf"
-alias encmc="vim $DF/_music/ncmpcpp/config"
-alias encmb="vim $DF/_music/ncmpcpp/bindings"
-alias etm="vim $DF/.tmux.conf"
-alias evimrc="vim $DF/.vimrc"
+alias ecl="vim $HOME/.local/bin/changelog"
+alias evimrc="vim $HOME/.vimrc"
+alias egitc="vim $HOME/.gitconfig"
 
 alias eal="vim $ZDOTDIR/aliases"
+alias eenv="vim $ZDOTDIR/.zshenv"
 alias efunc="vim $ZDOTDIR/functions"
 alias efzf="vim $ZDOTDIR/fzf"
-alias egal="vim $ZDOTDIR/git_aliases"
+alias egit="vim $ZDOTDIR/git"
+alias ejira="vim $ZDOTDIR/jira"
 alias esens="vim $ZDOTDIR/sens"
 alias ezsh="vim $ZDOTDIR/.zshrc"
 
@@ -107,19 +98,19 @@ alias ezsh="vim $ZDOTDIR/.zshrc"
 alias sal="source $ZDOTDIR/aliases"
 alias sfunc="source $ZDOTDIR/functions"
 alias sfzf="source $ZDOTDIR/fzf"
+alias sgit="source $ZDOTDIR/git"
+alias sjira="source $ZDOTDIR/jira"
 alias ssens="source $ZDOTDIR/sens"
 alias upd="source $ZDOTDIR/.zshrc"
 
-# Jira
-alias showfields='jira fields | ag \"system\" | sed "s/.*: //" | tr -d \", | sort'
-alias jibro='jira browse'
-
 # Journal
-alias j="journalctl"
-alias jf="journalctl -f"
-alias js='journalctl --since=$(date -d "a week ago" -I) --no-pager | ag'
-alias jwk='journalctl --since=$(date -d "a week ago" -I)'
-alias jt="journalctl --since=yesterday"
+alias j='journalctl --no-hostname --catalog --merge'
+alias jf='j --follow'
+alias js='j --since=$(date -d "a week ago" -I) --no-pager | grep'
+alias jwk='j --since=$(date -d "a week ago" -I)'
+alias jmo='j --since=$(date -d "a month ago" -I)'
+alias jt='j --since=yesterday'
+alias jprio='j --priority'
 
 # Python
 alias clog="changelog -p"
@@ -135,11 +126,14 @@ alias pou="poetry update -vv"
 alias poi="poetry install -vv"
 
 # Todoist
-alias td="td --color"
-# alias tdl="td --color
-# alias tdl='td l --color | tee >(echo "Total: $(wc -l)")'
+alias td='todoist'
+alias tq='todoist quick'
+alias tl='todoist list'
 
-alias tdl='function f(){ td l $1 | tee >(echo "Total: $(wc -l)"); }; f'
+tdl () {
+    td --color l $1
+    echo "Total: $(td l | wc -l)"
+}
 
 # Vagrant
 alias vu="vagrant up"

@@ -7,11 +7,12 @@ alias gci="hub ci-status"
 alias gcb="git checkout -b"
 alias gcm="git checkout master"
 alias gct="git checkout -t"
-alias gcom="gg cn"
+alias gcom="git commit -m"
 alias gdm="git diff master"
 alias gre="git checkout --"
 alias gd="git diff"
 alias gfe="git fetch"
+alias ghrc="gh repo clone"
 alias gprc="gh pr create"
 alias gl="git l"
 alias gl1="git l1"
@@ -37,4 +38,21 @@ alias openpr="gh pr view --web"
 alias openrepo="gh repo view --web"
 alias wtf="git wtf --long --all | pygmentize -l yaml -O style=fruity"
 
-# vim:ft=zsh
+pr_messages() {
+   pname=$(git info | sed -n '/\.url/s/\(^.*github\.com\/\)\(.*\)\($\|.git\)/\2/p')
+    curl -s -u username:$GITHUB_TOKEN https://api.github.com/repos/$pname/pulls/$1/comments |
+        jq -M '.[] | {user, body, diff_hunk}' |             # select fields
+        sed -n 's/.*\(body\|login\|diff_hunk\)": //p' |     # trim keys
+        tr -d "'" |                                         # trim single quotes
+        sed 's/^"\|",\?$//g' |                              # trim double quotes and commas from start and end
+        xargs -0 echo -e {} |                               # apply newlines
+        fold -w 78 |                                        # wrap
+        sed '/^[a-z-]\+$\|^@@/{x;p;x;}' |                   # blank lines before / after diff
+        sed '/^@@/,/^$/s/.*/\\\\t&/' |                      # tab code
+        sed 's/\\t\(+.*\)/\\\\t\\\\e[1;32m\1\\\\e[0m/' |    # added lines -> green
+        sed 's/\\t\(-.*\)/\\\\t\\\\e[1;31m\1\\\\e[0m/' |    # removed lines -> red
+        sed 's/^[a-z-]\+$/\\\\e[1;3;34m&\\\\e[0m/' |        # nickname -> blue
+        xargs -i echo -e {}
+}
+
+# vim:ft=bash
