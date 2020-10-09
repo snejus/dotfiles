@@ -12,6 +12,7 @@
 ##
 #
 #ncmpcpp_directory = ~/.ncmpcpp
+ncmpcpp_directory = ~/.config/ncmpcpp
 #
 ##
 ## Directory for storing downloaded lyrics. It defaults to ~/.lyrics since other
@@ -22,7 +23,7 @@
 #
 ##### connection settings #####
 #
-mpd_host = /run/user/1000/mpd/socket
+mpd_host = /run/user/60460/mpd/socket
 #
 #mpd_port = 6600
 #
@@ -55,7 +56,7 @@ playlist_shorten_total_times = yes
 ## }
 ##
 #
-# visualizer_fifo_path = /tmp/user/1000/mpd.fifo
+visualizer_fifo_path = /run/user/60460/mpd.fifo
 #
 ##
 ## Note: Below parameter is needed for ncmpcpp to determine which output
@@ -64,11 +65,13 @@ playlist_shorten_total_times = yes
 ##
 #
 # visualizer_output_name = my_fifo
+visualizer_output_name = mpd > ncmpcpp
 #
 ##
 ## If you set format to 44100:16:2, make it 'yes'.
 ##
 # visualizer_in_stereo = yes
+visualizer_in_stereo = yes
 #
 ##
 ## Note: Below parameter defines how often ncmpcpp has to "synchronize"
@@ -77,7 +80,7 @@ playlist_shorten_total_times = yes
 ## that sane values start with >=10.
 ##
 #
-# visualizer_sync_interval = 70
+# visualizer_sync_interval = 30
 #
 ##
 ## Note: To enable spectrum frequency visualization you need to compile ncmpcpp
@@ -86,10 +89,12 @@ playlist_shorten_total_times = yes
 #
 ## Available values: spectrum, wave, wave_filled, ellipse.
 ##
-# visualizer_type = spectrum
+visualizer_type = spectrum
 # visualizer_look = +|
+# visualizer_type = spectrum
+visualizer_look = +|
 
-#visualizer_type = wave
+# visualizer_type = wave
 # visualizer_look = ●▮
 # visualizer_look = ×Ϟ
 #
@@ -98,7 +103,7 @@ playlist_shorten_total_times = yes
 #
 ## Alternative subset of 256 colors for terminals that support it.
 ##
-# visualizer_color = 41, 83, 119, 155, 185, 215, 209, 203, 197, 161
+visualizer_color = 41, 83, 119, 155, 185, 215, 209, 203, 197, 161
 #
 ##### system encoding #####
 ## ncmpcpp should detect your charset encoding but if it failed to do so, you
@@ -111,7 +116,7 @@ playlist_shorten_total_times = yes
 ## if your encoding is different.
 ##
 #
-system_encoding = "UTF-8"
+# system_encoding = "UTF-8"
 #
 ##### delays #####
 #
