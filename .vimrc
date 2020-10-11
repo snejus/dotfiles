@@ -10,7 +10,7 @@ endif
 call plug#begin('~/.vim/bundle/')
 
 " fzf <3
-" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 " asynchronous linting / formatting engine
@@ -161,6 +161,7 @@ set t_Co=256              " the number of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
+set timeoutlen=300
 set ttyfast               " fast terminal vrummmmmmm
 set updatetime=500        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
@@ -247,10 +248,10 @@ nmap <silent> <Leader>i  :Buffers<CR>
 nmap <silent> <Leader>u  :History<CR>
 nmap <silent> <Leader>cs :Commits<CR>
 nmap <silent> <Leader>cb :BCommits<CR>
-nmap <silent>         \  :Files ~/Documents/projects<CR>
-nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
-nmap <silent> <Leader>=  :Files ~/stubs<CR>
-nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
+" nmap <silent>         \  :Files ~/Documents/projects<CR>
+" nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
+" nmap <silent> <Leader>=  :Files ~/stubs<CR>
+" nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
 
 """ Plugin: ALE
 
