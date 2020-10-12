@@ -14,7 +14,7 @@ alias -s target="bat -l ini"
 alias -s conf="bat"
 alias -s vim="bat"
 alias -s py="bat"
-alias -s pdf="xpdf"
+alias -s pdf="gv"
 alias -s html="qutebrowser"
 
 # General
@@ -31,15 +31,19 @@ alias grip="grip -b"
 alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
 alias hist='history | fzf --tac --no-sort'
 alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
-alias listeners="sudo lsof -i -P -n | grep LISTEN"
+alias listeners="sudo lsof -i -Pn | grep LISTEN"
 alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
 alias ls="exa -lah"
 alias lsn="exa -lah -snew"
 alias m="make"
+alias mimetype="cat /etc/mime.types | ag"
+alias nop="mpop -a"
+alias nem="neomutt"
+alias nom="notmuch new"
 alias ms="make shell"
 alias ncm="ncmpcpp"
 alias notes="brave ~/wikis/main/html/index.html &"
-alias open="xdg-open"
+alias open=""
 alias peotry="poetry"
 alias printpath='echo $PATH | tr : "\n"'
 alias screenshot="flameshot gui"
@@ -51,17 +55,13 @@ alias ytdl='youtube-dl -x --audio-format flac -o "%(title)s.%(ext)s" --postproce
 
 alias wakastats="open https://wakatime.com/dashboard"
 
+alias fprocesses='ps -ef | fzf --bind "ctrl-r:reload(ps -ef)" --header-lines=1 --tac'
+alias fexplore='fzf --bind "enter:execute(bat {})"'
+
 # Ag
 alias ag="ag --silent"
 alias agl="ag --silent --pager less --color"
 alias agf="ag --silent -g"
-
-alias pinstall="sudo pacman -S"
-alias psearch="pacman -Ss"
-alias psearchi="pacman -Q | ag"
-alias pinfo="pacman -Siiv"
-alias premove="sudo pacman -Rsuv"
-alias pupdate="sudo pacman -Syuv"
 
 # Docker
 alias dockerip='eval $(docker-machine env default)'
@@ -76,10 +76,12 @@ alias eaw="vim $CONFIG/awesome/rc.lua"
 alias eawt="vim $CONFIG/awesome/themes/helohelo/theme.lua"
 alias econ="vim $CONFIG/conky/conky.conf"
 alias ekitty="vim $CONFIG/kitty/kitty.conf"
+alias ekittysesh="vim $CONFIG/kitty/kitty.session"
 alias empd="vim $CONFIG/mpd/mpd.conf"
 alias encmc="vim $CONFIG/ncmpcpp/config"
 alias encmb="vim $CONFIG/ncmpcpp/bindings"
 alias eneo="vim $CONFIG/neofetch/config.conf"
+alias enmutt="vim $CONFIG/neomutt/neomuttrc"
 
 alias ecl="vim $HOME/.local/bin/changelog"
 alias evimrc="vim $HOME/.vimrc"
@@ -92,6 +94,7 @@ alias efzf="vim $ZDOTDIR/fzf"
 alias egit="vim $ZDOTDIR/git"
 alias ejira="vim $ZDOTDIR/jira"
 alias esens="vim $ZDOTDIR/sens"
+alias etd="vim $ZDOTDIR/todoist"
 alias ezsh="vim $ZDOTDIR/.zshrc"
 
 # and be able to source some of them on demand
@@ -101,16 +104,28 @@ alias sfzf="source $ZDOTDIR/fzf"
 alias sgit="source $ZDOTDIR/git"
 alias sjira="source $ZDOTDIR/jira"
 alias ssens="source $ZDOTDIR/sens"
+alias std="source $ZDOTDIR/todoist"
 alias upd="source $ZDOTDIR/.zshrc"
 
 # Journal
-alias j='journalctl --no-hostname --catalog --merge'
+alias j='journalctl --no-hostname --merge'
 alias jf='j --follow'
 alias js='j --since=$(date -d "a week ago" -I) --no-pager | grep'
 alias jwk='j --since=$(date -d "a week ago" -I)'
 alias jmo='j --since=$(date -d "a month ago" -I)'
 alias jt='j --since=yesterday'
 alias jprio='j --priority'
+
+# Pacman
+alias pins="sudo pacman -S"
+alias pfind="pacman -Ss"
+alias pfindi="pacman -Q | ag"
+alias pinfo="pacman -Siiv"
+alias pdel="sudo pacman -Rsuv"
+alias pupd="sudo pacman -Syuv"
+alias pfindf="pacman -Fx"
+alias pwhy="pactree -r --color -d 1"
+alias pdeps="pactree --color -d 1"
 
 # Python
 alias clog="changelog -p"
@@ -139,5 +154,14 @@ tdl () {
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
+
+# Yay
+alias yins="yay -S"
+alias yfind="yay -Ss"
+alias yfindi="yay -Q | ag"
+alias yinfo="yay -Siiv"
+alias ydel="yay -Rsuv"
+alias yupd="yay -Syuv"
+alias yfindf="yay -Fx"
 
 # vim:ft=zsh

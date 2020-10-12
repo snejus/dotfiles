@@ -34,12 +34,16 @@ bindkey '^j' down-history
 bindkey '^d' backward-kill-word
 
 export PATH=$HOME/.local/bin:$PATH
+export GPG_TTY=$(tty)
+systemctl --user set-environment GPG_TTY=$GPG_TTY
 
 eval "$(pyenv init -)"
 eval "$(register-python-argcomplete pipx)"
+source /usr/share/todoist/todoist_functions_fzf.sh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 # eval "$(pyenv virtualenv-init -)"
 # eval "$(pandoc --bash-completion)"
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 
 to_source=(
@@ -49,6 +53,7 @@ to_source=(
     git
     jira
     sens
+    todoist
     # .completions/git-extras-completion.zsh
     # .completions/zsh-completion.zsh
 )
@@ -59,8 +64,8 @@ if [[ -n $DISPLAY ]] then
     xset r rate 180 30             # keyboard press delays
 fi
 
-autoload -Uz compinit
-compinit
+# autoload -Uz compinit
+# compinit
 
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
 #     tmux attach -t default || tmux new -s default
@@ -77,4 +82,3 @@ compinit
 
 # autoload -U bashcompinit
 # bashcompinit
-

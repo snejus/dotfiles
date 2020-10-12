@@ -25,19 +25,18 @@ path=(
     # $HOME/.fzf/bin
     $HOME/go/bin
     $HOME/.pyenv/bin
-    $HOME/.linuxbrew/bin
     $PATH
 )
 export -U PATH=$PATH
 
 export BAT_STYLE=plain
-export MPD_HOST=/run/user/60460/mpd/socket
 export MYPYPATH=$HOME/stubs
 export PYTHONDONTWRITEBYTECODE=1
 export SHELL=/usr/bin/zsh
 export SUSHELL=/bin/sh
 export WAKATIME_HOME=$HOME/.wakatime
 export XDG_CONFIG_HOME=$HOME/.config
+export NOTMUCH_CONFIG=$HOME/.config/notmuch/config
 export TERM=xterm-256color
 export VISUAL=vim
 export ZDOTDIR=$HOME/.zsh
