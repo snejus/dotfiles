@@ -10,6 +10,36 @@ WHITE='1;37'
 # BLUE='1;38' same blue
 GREY='1;39'
 
+
+h() { howdoi $* -c -n 5 }
+du_sort() { du -d 1 --si --all $1 | sort -h }
+mcd () { mkdir $1; cd $1 }
+locatel() { locate $@ | xargs exa -lah }
+locateconf() { locate $1 | sed '/\.conf$/!d' }
+whichl() { exa -lah "$(which $1)" }
+shrinkmp4() { ffmpeg -i $1 -vcodec libx265 -crf 2 $2 }
+unzipm () { unzip $1 -d $1:r }
+
+show_mouse_color() {
+    scrot --overwrite /tmp/copycolor.png
+    eval $(xdotool getmouselocation --shell)
+    IMAGE=`convert /tmp/copycolor.png -depth 8 -crop 1x1+$X+$Y txt:-`
+    COLOR=`echo $IMAGE | grep -om1 '#\w\+'`
+    echo -n $COLOR | xclip -i -selection CLIPBOARD
+
+    awesome-client "\
+    naughty = require(\"naughty\")\
+    naughty.notify({\
+    title=\"\tHello, wannabe designer\t\t \",\
+    text=\"\tYour chosen color: $COLOR\",\
+    timeout=10,\
+    fg=\"$COLOR\",\
+    bg=\"#FFFFFF\",\
+    border_width=0,\
+    position=\"bottom_middle\"})"
+
+}
+
 _newpassword () {
     bw generate -uln --length 30
 }
@@ -51,14 +81,6 @@ bwcreatelogin () {
     echo $pw | ci
 }
 
-
-du_sort() { du -hd 1 $1 | sort -h }
-mcd () { mkdir $1 cd $1 }
-locatel() { locate $@ | xargs exa -lah }
-locateconf() { locate $1 | sed '/\.conf$/!d' }
-whichl() { exa -lah "$(which $1)" }
-shrinkmp4() { ffmpeg -i $1 -vcodec libx265 -crf 2 $2 }
-
 dadjoke() {
    echo "\
 $1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1
@@ -80,68 +102,6 @@ $1$1$1$2$1$2$1$2$1$2$1$1$1
 $1$1$1$1$1$1$1$1$1$1$1$1$1"
 }
 
-
-##### PYTHON #####
-cache_purge() {
-    remove_file_folder f .coverage $1
-    remove_file_folder d __pycache__ $1
-    remove_file_folder d .pytest_cache $1
-    remove_file_folder d .eggs $1
-    remove_file_folder d build $1
-    remove_file_folder d dist $1
-    remove_file_folder d "*.egg-info" $1
-    echo Finished removing caches
-}
-
-remove_file_folder() {
-    count=0
-    for file in $(find . -name $2 -type $1);
-    do
-        rm -rf $file $3
-    let "count++"
-    done
-    if [ $count -gt 0 ]; then
-        echo "- Removed $count $2"
-    fi
-}
-
-depopen() {
-    echo Opening $1 repository in the browser
-    xdg-open $(pip show $1 | sed -n 's/^.*\(.*github\)/\1/p')
-}
-
-deps() {
-    echo Generating pydeps dependencies graph for $1
-    pydeps $1 --reverse -T png
-}
-
-cdeps() {
-    echo Looking for circular dependencies for $1
-    pydeps $1 --show-cycles
-}
-
-restshow() { restview --css ~/.ref/github.css $1 }
-runmypy() { mypy $1 --html-report mypy --show-traceback --pretty }
-
-search_skipped() {
-    ag --nogroup --color --color-path $AQUA $1 tests src | \
-        tee /dev/null | \
-        sed 's/:.*//' | \
-        tee >(wc -l) >(printf '\n\e[%smTOTAL: ' "$YELLOW") | \
-        sort | uniq -c | sort -r
-}
-
-skipped_flake() { search_skipped 'noqa|flake8' }
-skipped_pylint() { search_skipped 'pylint: ?d' }
-skipped_mypy() { search_skipped 'type: ignore' }
-
-skipped_pylint_by_error() {
-    ag --nogroup --color --color-path '1;36' 'pylint: ?dis' tests src |
-    tee /dev/null |
-    sed 's/.*able\ \?=\ \?//' | tr , '\n' | tr -d ' ' |
-    tee >(wc -l) >(printf '\e[%smTOTAL: \e[%sm' $MAGENTA $GREY) |
-    sort | uniq -c | sort -rh
-}
 
 ##### DOCKER #####
 
@@ -179,7 +139,7 @@ pandoc2pdf() {
     local naked=$filename:r
     local output=$naked.pdf
     echo Converting $filename to $output
-    pandoc $filename \
+    pandoc \
         -s \
         -f $from \
         -o $output \
@@ -187,15 +147,23 @@ pandoc2pdf() {
         --toc \
         --toc-depth 2 \
         --pdf-engine=xelatex \
-        --highlight-style=$HOME/.d/sarastango.theme \
+        --highlight-style=~/.d/sarastango.json \
         --variable=fontsize:10pt
 }
 rst2pdf() { pandoc2pdf $1 rst }
 md2pdf() {
-   local tmp=_$1
+   local tmp="tmp$1"
    cat $1 | sed '/vim-markdown/,/vim-markdown/d' | # swap toc and remove dropdowns
       sed '/details\|summary/d' > $tmp
    pandoc2pdf $tmp gfm
+   pandoc2pdf $1 gfm
    rm $tmp
 }
+
+function notify-emails-count () {
+    /usr/bin/bash /home/sarunas/.config/notmuch/post-new
+}
+zle -N notify-emails-count
+bindkey "^xm" notify-emails-count
+
 # vim:ft=bash

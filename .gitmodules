@@ -1,6 +1,0 @@
-[submodule ".config/awesome"]
-	path = .config/awesome
-	url = git@github.com:snejus/myawesome
-[submodule ".config/systemd"]
-	path = .config/systemd
-	url = git@github.com:snejus/mysystemd

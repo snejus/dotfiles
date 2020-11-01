@@ -1,4 +1,0 @@
-[flake8]
-ignore = D203,W503,E203
-max-line-length = 90
-max-complexity = 5

@@ -1,4 +1,21 @@
-select_items_command="todoist --color --namespace --project-namespace list | tac | fzf | cut -d ' ' -f 1 | tr '\n' ' '"
+# Todoist
+alias td='todoist'
+alias tq='todoist quick'
+alias tl='todoist list'
+tdl () {
+    td list $1 | \
+        tr -s ' ' | tr -d "'\"" | \
+        fold -w 100 | \
+        sed '/^[^0-9]/d' | \
+        sed -n 's/ /~/;
+            s/ /~~/;
+            s/~\([0-9].*\) \([0-9][0-9]:[0-9][0-9]\) /\1-\2~/;
+            s/ /~/p' | \
+        column -t -s '~' | \
+        xargs -i echo -e {}
+}
+
+select_items_command="tdl | tac | fzf | cut -d ' ' -f 1 | tr '\n' ' '"
 
 function insert-in-buffer () {
     if [ -n "$1" ]; then

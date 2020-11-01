@@ -1,167 +1,230 @@
-local DF=$HOME/.d
-local CONFIG=$HOME/.config
 
-# MIME
-alias -s md="glow -p -w 80"
-alias -s rst=bat
-alias -s png="feh -F"
+####################################
+####         MIMETYPES          ####
+####################################
+
+alias -s bmp="feh"
+alias -s conf="bat -l nginx"
+alias -s desktop="bat"
+alias -s html="qutebrowser"
+alias -s hook="bat -l ini"
+alias -s ini="bat"
 alias -s jpg="feh -F"
 alias -s json="bat"
+alias -s log="bat"
+alias -s lua="bat"
+alias -s md="glow -p -w 80"
+alias -s png="feh -F"
+alias -s pdf="zathura"
+alias -s py="bat"
+alias -s rst=bat
 alias -s service="bat -l ini"
 alias -s socket="bat -l ini"
-alias -s desktop="bat"
+alias -s svg="qutebrowser"
 alias -s target="bat -l ini"
-alias -s conf="bat"
+alias -s toml="bat"
 alias -s vim="bat"
-alias -s py="bat"
-alias -s pdf="gv"
-alias -s html="qutebrowser"
+alias -s xml="bat"
+alias -s zsh="bat"
 
-# General
-alias brave="brave-browser"
-alias c="cdr"
-alias ci="xclip -selection clipboard"
-alias co="xclip -selection clipboard -o"
-alias disablenativescreen="xrandr --output eDP-1 --off"
-alias env="env | sort | pygmentize -l bash -O style=fruity"
-alias fixvale="vim ~/Documents/misc/vale-boilerplate/.vale.ini"
-alias fixalsa="alsactl init"
-alias fixscreen="xrandr --output HDMI-2 --primary --right-of eDP-1"
-alias grip="grip -b"
-alias h='function hdi(){ howdoi $* -c -n 5; }; hdi'
-alias hist='history | fzf --tac --no-sort'
-alias list_ppas="grep -r --include '*.list' '^deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
-alias listeners="sudo lsof -i -Pn | grep LISTEN"
-alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
-alias ls="exa -lah"
-alias lsn="exa -lah -snew"
-alias m="make"
-alias mimetype="cat /etc/mime.types | ag"
-alias nop="mpop -a"
-alias nem="neomutt"
-alias nom="notmuch new"
-alias ms="make shell"
-alias ncm="ncmpcpp"
-alias notes="brave ~/wikis/main/html/index.html &"
-alias open=""
-alias peotry="poetry"
-alias printpath='echo $PATH | tr : "\n"'
-alias screenshot="flameshot gui"
-alias she="poetry shell && source .expenv"
-alias sys="systemctl"
-alias sysu="systemctl --user"
-alias typing="vim $HOME/.ref/docs/typing.md"
+alias -g cfg=~/.config
+alias -g c='| wc -l'
+
+###################################
+####         GENERIC           ####
+###################################
+
+
+alias syt='s -p youtube'
+alias sbc='s -p bandcamp'
+alias ssp='s -p spotify'
+alias sfb='s -p facebook'
+alias sgm='s -p googlemaps'
+alias ssc='s -p soundcloud'
+alias sam='s -p amazon'
+
+alias bgstop='stty tostop'
+alias calc='rofi -show calc -modi calc -no-show-match -no-sort'
+alias ci='xclip -selection clipboard'
+alias co='xclip -selection clipboard -o'
+alias devdb='udevadm info --export-db'
+alias env='env | sort | pygmentize -l bash -O style=fruity'
+alias fd='fd --xdev'
+alias free='free -hlt'
+alias help='cs'
+alias hueadm='hueadm -H 192.168.0.23 -U $(pass show hueuser)'
+# alias kitty='kitty --single-instance'
+alias kitty='kitty --instance-group'
+alias ls='exa -lah --git'
+alias lsn='exa -lah --git -snew'
+alias mimetype='cat /etc/mime.types | ag'
+alias mnt='mount'
+alias nctl='networkctl'
+alias ncm='ncmpcpp'
+alias open=''  # let zsh handle it
+alias openstats='qutebrowser https://wakatime.com/dashboard'
+alias openmonitor='qutebrowser http://localhost:19999'
+alias ping='prettyping'
+alias pss='ps aux | grep'
+alias rgbtxt='less ~/.notes/rgb.txt'
+alias standup='git standup -m3'
+alias sudo='sudo '
+alias viml="vim -c \"normal '0\""
+alias wcl='wc -l'
+alias xterm='xterm -fa Cascadia\ Code -bg "#2c323b" -fg "#ffd8b5" -fs 10'
 alias ytdl='youtube-dl -x --audio-format flac -o "%(title)s.%(ext)s" --postprocessor-args "-codec flac"'
 
-alias wakastats="open https://wakatime.com/dashboard"
+# Debug
+alias fixalsa="alsactl init"
+alias listeners="sudo lsof -i -Pn | grep LISTEN"
+alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
+alias lsmod='lsmod | column -t --table-right 1'
+alias printpath='echo $PATH | tr : \n'
 
-alias fprocesses='ps -ef | fzf --bind "ctrl-r:reload(ps -ef)" --header-lines=1 --tac'
-alias fexplore='fzf --bind "enter:execute(bat {})"'
+# Mail
+alias neo="neomutt"
+alias fmail="systemctl --user start mailfetch"
 
-# Ag
+# Search
 alias ag="ag --silent"
 alias agl="ag --silent --pager less --color"
 alias agf="ag --silent -g"
 
-# Docker
-alias dockerip='eval $(docker-machine env default)'
-alias dco="docker-compose"
-alias docker_usage="docker system df"
+# fzf
+alias fprocesses='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
+alias finterrupts='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
+alias fexplore='fzf --bind "enter:execute(bat {})"'
 
-# Dephell
-alias dp="dephell package"
 
-# Edit often accessed files
-alias eaw="vim $CONFIG/awesome/rc.lua"
-alias eawt="vim $CONFIG/awesome/themes/helohelo/theme.lua"
-alias econ="vim $CONFIG/conky/conky.conf"
-alias ekitty="vim $CONFIG/kitty/kitty.conf"
-alias ekittysesh="vim $CONFIG/kitty/kitty.session"
-alias empd="vim $CONFIG/mpd/mpd.conf"
-alias encmc="vim $CONFIG/ncmpcpp/config"
-alias encmb="vim $CONFIG/ncmpcpp/bindings"
-alias eneo="vim $CONFIG/neofetch/config.conf"
-alias enmutt="vim $CONFIG/neomutt/neomuttrc"
+###################################
+#### QUICK ACCESS AND ZSHFILES ####
+###################################
 
-alias ecl="vim $HOME/.local/bin/changelog"
-alias evimrc="vim $HOME/.vimrc"
-alias egitc="vim $HOME/.gitconfig"
-
-alias eal="vim $ZDOTDIR/aliases"
-alias eenv="vim $ZDOTDIR/.zshenv"
-alias efunc="vim $ZDOTDIR/functions"
-alias efzf="vim $ZDOTDIR/fzf"
-alias egit="vim $ZDOTDIR/git"
-alias ejira="vim $ZDOTDIR/jira"
-alias esens="vim $ZDOTDIR/sens"
-alias etd="vim $ZDOTDIR/todoist"
-alias ezsh="vim $ZDOTDIR/.zshrc"
-
-# and be able to source some of them on demand
-alias sal="source $ZDOTDIR/aliases"
-alias sfunc="source $ZDOTDIR/functions"
-alias sfzf="source $ZDOTDIR/fzf"
-alias sgit="source $ZDOTDIR/git"
-alias sjira="source $ZDOTDIR/jira"
-alias ssens="source $ZDOTDIR/sens"
-alias std="source $ZDOTDIR/todoist"
-alias upd="source $ZDOTDIR/.zshrc"
-
-# Journal
-alias j='journalctl --no-hostname --merge'
-alias jf='j --follow'
-alias js='j --since=$(date -d "a week ago" -I) --no-pager | grep'
-alias jwk='j --since=$(date -d "a week ago" -I)'
-alias jmo='j --since=$(date -d "a month ago" -I)'
-alias jt='j --since=yesterday'
-alias jprio='j --priority'
-
-# Pacman
-alias pins="sudo pacman -S"
-alias pfind="pacman -Ss"
-alias pfindi="pacman -Q | ag"
-alias pinfo="pacman -Siiv"
-alias pdel="sudo pacman -Rsuv"
-alias pupd="sudo pacman -Syuv"
-alias pfindf="pacman -Fx"
-alias pwhy="pactree -r --color -d 1"
-alias pdeps="pactree --color -d 1"
-
-# Python
-alias clog="changelog -p"
-alias ma="python manage.py"
-alias restme="restview --css ~/.ref/github.css README.rst"
-
-# Poetry
-alias poa="poetry add"
-alias pos="poetry show"
-alias psh="poetry shell"
-alias por="poetry remove"
-alias pou="poetry update -vv"
-alias poi="poetry install -vv"
-
-# Todoist
-alias td='todoist'
-alias tq='todoist quick'
-alias tl='todoist list'
-
-tdl () {
-    td --color l $1
-    echo "Total: $(td l | wc -l)"
+_alias () {
+    # 1 - single letter prefix, 2 - alias
+    # 3 - command / path prefix, 4 - file
+    alias $1$2="$4/$3"
 }
 
-# Vagrant
-alias vu="vagrant up"
-alias vs="vagrant ssh"
-alias vh="vagrant halt"
+local CONFIG_ALIAS=(
+    "aw         awesome/rc.lua"
+    "awt        awesome/themes/helohelo/theme.lua"
+    "con        conky/conky.conf"
+    "kitty      kitty/kitty.conf"
+    "kittyd     kitty/default.conf"
+    "kittys     kitty/kitty.session"
+    "mpd        mpd/mpd.conf"
+    "ncmc       ncmpcpp/config"
+    "ncmb       ncmpcpp/bindings"
+    "neo        neofetch/config.conf"
+    "nm         neomutt/neomuttrc"
+    "nmb        neomutt/bindings"
+    "nmm        neomutt/mailcap"
+    "nmc        neomutt/colors"
+    "qute       qutebrowser/config.py"
+)
+
+for mapping in $CONFIG_ALIAS[@]; do
+    _alias e $(echo $mapping) "vim $XDG_CONFIG_HOME"
+done
+
+local EDIT_AND_SOURCE=(
+    "al     aliases"
+    "func   functions"
+    "fzf    fzf"
+    "git    git"
+    "jira   jira"
+    "sens   sens"
+    "td     todoist"
+    "py     python"
+    "env    .zshenv"
+    "zl     .zlogin"
+    "zsh    .zshrc"
+    "prof   .zprofile"
+)
+for mapping in $EDIT_AND_SOURCE[@]; do
+    _alias e $(echo $mapping) "vim $ZDOTDIR"
+    _alias s $(echo $mapping) "source $ZDOTDIR"
+done
+
+alias    upd="szsh"
+alias    ecl="vim $HOME/.local/bin/changelog"
+alias  etool="vim $HOME/.local/bin/tool"
+alias  egitc="vim $HOME/.gitconfig"
+alias  egitp="vim $XDG_CONFIG_HOME/git/config"
+alias evimrc="vim $HOME/.vim/vimrc"
+
+
+###################################
+####     SYSTEM MANAGEMENT     ####
+###################################
+
+
+alias kernelcacheclean='sync; echo 1 > /proc/sys/vm/drop_caches'
+
+# Systemctl
+alias -g   sf="--system"
+alias     sy="systemctl --user --all"
+alias    syc="sy cat"
+alias    sys="sy status"
+alias   syen="sy enable"
+alias  sydis="sy disable"
+alias  systa="sy start"
+alias  systo="sy stop"
+alias  syres="sy restart"
+alias   syld="sy list-dependencies"
+alias  syldr="sy list-dependencies --reverse"
+alias  syluf="sy list-unit-files"
+alias  syrel="sy daemon-reload"
+
+# Journal
+alias     j='journalctl --no-hostname --merge'
+alias    jb='journalctl --catalog --boot 0'
+alias    jf='j --follow'
+alias    jt='j --since=yesterday'
+alias    js='j --since=$(date -d "a week ago" -I) --no-pager | grep'
+alias   jwk='j --since=$(date -d "a week ago" -I)'
+alias   jmo='j --since=$(date -d "a month ago" -I)'
+alias jprio='jmo --priority'
+
+
+####################################
+#### SYSTEM PACKAGES MANAGEMENT ####
+####################################
 
 # Yay
-alias yins="yay -S"
-alias yfind="yay -Ss"
-alias yfindi="yay -Q | ag"
-alias yinfo="yay -Siiv"
-alias ydel="yay -Rsuv"
-alias yupd="yay -Syuv"
+alias  yclog="pacolog -l10"
+alias   ydel="yay -Rsuv"
+alias  ydeps="pactree --color  -d 1"
+alias  yfind="yay -Ss"
 alias yfindf="yay -Fx"
+alias yfindi="yay -Q | ag"
+alias  yinfo="yay -Siiv"
+alias   yins="yay -S"
+alias ylistf="yay -Fl"
+alias ymypkg="package-query -Qtt"
+alias  yshow="yay -Siiv"
+alias ystats="yaourt --stats; yay -P --stats -v"
+alias   yupd="yay -Syuv"
+alias   ywhy="pactree --color -rd 1"
+alias ylistcore="package-query -Sl core"
+
+
+####################################
+####     CONTAINERs AND VMs     ####
+####################################
+
+# Docker
+alias dps="docker ps"
+alias dco="docker-compose"
+alias docker_usage="docker system df"
+alias containerip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
+# alias dockerip='eval $(docker-machine env default)'
+
+# Vagrant
+alias  vu="vagrant up"
+alias  vs="vagrant ssh"
+alias  vh="vagrant halt"
+alias vgs="vagrant global status"
 
 # vim:ft=zsh

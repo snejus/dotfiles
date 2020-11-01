@@ -1,5 +1,6 @@
 [alias]
     l  = log --graph --decorate --all --pretty=cool -12
+    t  = log --graph --decorate --all --pretty=all -1
     l1 = log --graph --decorate --all --pretty=cool
     l2 = log --graph --decorate --all --pretty=nice
     wtf = !git-wtf
@@ -37,10 +38,10 @@
 
 [pretty]
     nice = \
-%C(dim italic white)%ad \
-%C(bold italic "#FF9933")%an \
+%C(dim white)%ad \
+%C(bold "#FF9933")%an \
 %C(bold "#E5989B")%h \
-%C(bold italic "#80CCE6")%><(50,mtrunc)%s \
+%C(bold "#80CCE6")%><(50,trunc)%s \
 %C(bold "#EDB879")%d%C(reset)
     cool = \
 %C(bold "#80CCE6")%><(12,trunc)%ar \
@@ -54,6 +55,9 @@
 
 [tig]
     line-graphics = yes
+
+[tag]
+    gpgSign = true
 
 [url "git@github.com:"]
     insteadOf = https://github.com/

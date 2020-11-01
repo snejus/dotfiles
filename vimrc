@@ -12,43 +12,14 @@ call plug#begin('~/.vim/bundle/')
 " fzf <3
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-
-" asynchronous linting / formatting engine
-Plug 'w0rp/ale' ", { 'on': 'ALEToggle' }
-
-" git
+Plug 'w0rp/ale' ", { 'on': 'ALEToggle' } " asynchronous linting / formatting engine
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-
-
-" minds camelCase and snake_case separators when moving across words
-Plug 'chaoren/vim-wordmotion'
-
-" autocomplete. Need to open vim from venv for project-specific setup
-Plug 'Valloric/YouCompleteMe', { 'for': 'python' }
-
-" Comment out lines with gcc / gc
-Plug 'tpope/vim-commentary'
-
-" tree explorer
-Plug 'preservim/nerdtree'
-
-" easier handling of parentheses / curly brackets etc.
-Plug 'tpope/vim-surround'
-
-Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-
-" close buffer but leave window open
-Plug 'moll/vim-bbye'
-
-" f but 2 characters
-Plug 'justinmk/vim-sneak'
-
-" amazing .rST toolset - a bit heavy on keymaps so needs some custom patching
-" Plug 'Rykka/riv.vim' " , { 'for': 'rst' } causes problems if not loaded initially
-
-" window resize mappings
-Plug 'talek/obvious-resize'
+Plug 'chaoren/vim-wordmotion' " minds camelCase and snake_case separators when moving across words
+Plug 'Valloric/YouCompleteMe', { 'for': 'python' } " autocomplete. Need to open vim from venv for project-specific setup
+Plug 'tpope/vim-commentary' " Comment out lines with gcc / gc
+Plug 'preservim/nerdtree' " tree explorer
+Plug 'tpope/vim-surround' " easier handling of parentheses / curly brackets etc.
 
 " extra syntax highlighting
 Plug 'cespare/vim-toml', { 'for': 'toml' }
@@ -56,43 +27,35 @@ Plug 'aklt/plantuml-syntax', { 'for': 'plantuml' }
 Plug 'raimon49/requirements.txt.vim', { 'for': 'requirements' }
 Plug 'martinda/Jenkinsfile-vim-syntax', { 'for': 'Jenkinsfile' }
 
-" ctags dashboard
-" Plug 'liuchengxu/vista.vim'
-
-" statusline plugins
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-" Plug 'itchyny/lightline.vim'
-" Plug 'rbong/vim-crystalline'
-
-" pattern matches highlighted incrementally
 Plug 'haya14busa/incsearch.vim'
+Plug 'moll/vim-bbye' " close buffer but leave window open
 
-" notes
-" Plug 'vimwiki/vimwiki'
-
-" quick black
-Plug 'psf/black', { 'for': 'python' }
-
+Plug 'snejus/black', { 'for': 'python' }
+Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'ervandew/supertab'
+Plug 'talek/obvious-resize'
 
-" Colourschemes
-" Plug 'gruvbox-community/gruvbox'
-Plug 'snejus/vim-deus'
+Plug 'snejus/vim-deus' " Colourscheme
 
 " Markdown support
 Plug 'godlygeek/tabular', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
 
-" Unicode explorer
-Plug 'chrisbra/unicode.vim'
+Plug 'chrisbra/unicode.vim'   " Unicode explorer
+Plug 'wakatime/vim-wakatime'  " Stats
 
+Plug 'itchyny/calendar.vim'
+
+" ctags
+" Plug 'liuchengxu/vista.vim'
+" Plug 'gruvbox-community/gruvbox'
 " Plug 'SirVer/ultisnips'
 " Plug 'honza/vim-snippets'
-
-" Stats
-Plug 'wakatime/vim-wakatime'
+" Plug 'Rykka/riv.vim' " , { 'for': 'rst' } causes problems if not loaded initially
+" Plug 'justinmk/vim-sneak'
 
 call plug#end()
 
@@ -107,9 +70,11 @@ if has('gui_running')
   set guioptions-=r         " remove righthand toolbar
   set guioptions-=L         " remove lefthand toolbar when split
   set guioptions+=c         " console diags instead of popups
-  set guifont=IBM\ Plex\ Mono\ Medium\ 11
+  set guifont=CascadiaCode\ SemiLight\ 11
+  " set guifont=IBM\ Plex\ Mono\ SemiBold\ 11
   " set guifont=ProFont\ For\ Powerline\ 13
   " set guifont=\Source\ Code\ Pro\ for\ Powerline\ 11
+  "
 endif
 
 if has('persistent_undo')
@@ -122,7 +87,7 @@ if has('autocmd')
   filetype plugin indent on
 endif
 
-""" Options: 'set' defaults
+""" Options: :options
 set autoindent            " automatic identation
 set autoread              " auto reload changed files
 set background=dark       " dark theme
@@ -131,10 +96,11 @@ set belloff=all           " turn off the error bell
 set clipboard=unnamedplus " use clipboard as the primary register
 set cursorline            " highlights current line
 set encoding=utf8
+set noesckeys             " remove the Escape delay
 set expandtab             " tabs are converted to spaces
 set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:- " don't add fillchars
-set foldmethod=indent     " fold by indents - that's python specific
-set foldlevel=99          " fold level of a closed fold
+set foldmethod=marker     " fold by indents - that's python specific
+set foldlevel=0           " fold level of a closed fold
 set history=1000
 set hlsearch              " highlight search results
 set incsearch             " show search results as you type
@@ -161,11 +127,13 @@ set t_Co=256              " the number of colours used
 set t_vb=                 " remove terminal / vim visual bell connection
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
-set timeoutlen=300
+set timeoutlen=500        " escape double click delay
 set ttyfast               " fast terminal vrummmmmmm
-set updatetime=500        " update faster asynchronously
+" set updatetime=500        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
+let &t_TI = ""
+let &t_TE = ""
 
 """ Options: misc
 
@@ -173,7 +141,8 @@ let mapleader = "\<Space>"
 
 " comments in italics
 highlight Comment cterm=italic gui=italic
-
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 let g:deus_italic=1
 let g:deus_sign_column='bg0'  " same colour as the primary bg - potentially move to the theme
 colorscheme deus
@@ -190,7 +159,7 @@ au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|
 
 """ Options: filetype-specific
 " Remap:
-function! g:Set_format_mapping()
+function! g:Set_format_options()
   if &filetype ==# 'python'
     nnoremap <Leader>f :Black<CR>
   else
@@ -198,7 +167,7 @@ function! g:Set_format_mapping()
   endif
 endfunction
 
-au BufEnter * call g:Set_format_mapping()
+au BufEnter * call g:Set_format_options()
 au BufNewFile,BufRead *.rest setlocal filetype=rst
 au BufNewFile,BufRead *.ts setlocal filetype=typescript
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript
@@ -206,14 +175,13 @@ au BufNewFile,BufRead *.vue setf vue
 au BufNewFile,BufRead *.conf setlocal filetype=conf
 au Filetype html setlocal ts=2
 au Filetype javascript setlocal ts=2
-au Filetype Jenkinsfile setlocal ts=2
-au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80
-" au Filetype markdown setlocal wrap et lbr sw
+au Filetype Jenkinsfile setlocal ts=2 sw=2
+au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80 foldlevel=99
 au Filetype typescript setlocal ts=2
-au Filetype vimwiki setlocal ts=2
-au Filetype vue setlocal ts=2
+" au Filetype vimwiki setlocal ts=2
+" au Filetype vue setlocal ts=2
 au Filetype vim setlocal ts=2
-au Filetype vuejs setlocal ts=2
+" au Filetype vuejs setlocal ts=2
 au Filetype yml setlocal ts=2
 au Filetype yaml setlocal ts=2
 au FileType xdefaults setlocal commentstring=!%s
@@ -278,12 +246,14 @@ let g:ale_fixers = {
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['fixjson', 'prettier'],
+\   'markdown':   ['prettier'],
 \   'vue':        ['eslint'],
 \}
 let g:ale_python_flake8_options = '--jobs 8'
 let g:ale_python_pylint_options = '--jobs 8'
-let g:ale_javascript_prettier_options = '--tab-width 4'
+" let g:ale_javascript_prettier_options = '--tab-width 4'
 
+let g:ale_disable_lsp=1
 let g:ale_sign_highlight_linenrs=1
 
 let g:ale_linters_explicit=1
@@ -302,9 +272,8 @@ let g:ale_lint_on_filetype_changed=0
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
-" Ϟ×
-let g:ale_sign_error = '༒'
-let g:ale_sign_warning = '൝ '
+let g:ale_sign_error = 'x'
+let g:ale_sign_warning = '- '
 
 " Remap: navigate between errors
 nmap <silent> <Leader>ek <Plug>(ale_previous_wrap)
@@ -461,6 +430,7 @@ nnoremap <F5> :w<CR> :make<CR>
 
 """ Plugin: vim-gitgutter
 
+nmap <Leader>hd <Plug>(GitGutterPreviewHunk)
 let g:gitgutter_preview_win_floating=1
 let g:gitgutter_grep = 'ag --nocolor'
 let g:gitgutter_git_executable = '/usr/bin/git'
@@ -487,13 +457,30 @@ endfunction
 
 " let g:vim_markdown_folding_style_pythonic = 1
 let g:vim_markdown_strikethrough = 1
-
+let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_no_default_key_mappings = 1
 
 """ Plugin: Ultisnips
 let g:UltiSnipsExpandTrigger="<C-U>"
 let g:UltiSnipsJumpForwardTrigger="<C-Y>"
 let g:UltiSnipsJumpBackwardTrigger="<C-N>"
 let g:UltiSnipsSnippetDirectories=["~/.vim/bundle/vim-snippets/UltiSnips"]
+
+""" Plugin: Calendar
+let g:calendar_google_calendar = 1
+let g:calendar_google_task = 0
+
+
+let g:calendar_view = "week"
+let g:calendar_first_day = "monday"
+
+let g:calendar_google_api_key = '...'
+let g:calendar_google_client_id = system('echo -n $(getsecret cal_client_id)')
+let g:calendar_google_client_secret = system('echo -n $(getsecret cal_client_secret)')
+
+
+""" Plugin: Unicode
+let g:Unicode_no_default_mappings = v:true
 
 """ Syntax: rst
 
@@ -504,7 +491,15 @@ let g:rst_syntax_code_list = {
 \ 'sh': ['sh', 'shell'],
 \ 'xhtml': ['xhtml'],
 \ }
+" :%s/\(\<[^`" ]\([a-z.]\+_\)\+[a-z]\+\>\)[^"(`]\?$/``\1``/g  codify aaa_aaa
+
 """ Key remaps
+" unmap <Leader>un
+" unmap q
+
+nnoremap Q <Nop>
+nnoremap q <Nop>
+
 " match parens with backspace
 xmap <BS> %
 nmap <BS> %

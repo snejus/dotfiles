@@ -1,0 +1,28 @@
+#!/bin/bash
+
+[[ ! -n $VIMREPODIR ]] && echo 'export VIMREPODIR=...' && exit 1
+
+_curr_dir=$(pwd)
+cd $VIMREPODIR
+
+pyenv local 3.6.12
+make distclean
+
+./configure \
+    --with-features=huge \
+    --with-x=true \
+    --enable-cscope \
+    --enable-gui=gtk3 \
+    --enable-multibyte \
+    --enable-luainterp=yes \
+    --enable-perlinterp=yes \
+    --enable-rubyinterp=yes \
+    --enable-python3interp=yes \
+    --prefix=$HOME/.local
+
+make VIMRUNTIMEDIR=$HOME/.local/share/vim/vim82
+make install
+
+cd $_curr_dir
+
+# vim:ft=sh

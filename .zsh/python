@@ -1,0 +1,133 @@
+#!/usr/bin/env zsh
+###################################
+####     DOCUMENTS PREVIEW     ####
+###################################
+
+alias restme='restview README.rst'  # rST server
+alias restshow='restview --css ~/.shed/github.css'
+
+render () {
+    ext=$1:e
+    if [[ $ext == "md" ]]; then
+        grip -b "$1"
+    elif [[ $ext == "rest" ]] || [[ $ext == "rst" ]]; then
+        restview --css $HOME/.shed/github.css "$1"
+    else
+        echo "Can't recognise file format"
+    fi
+    return 0
+}
+
+
+####################################
+####           Heroku           ####
+####################################
+
+hec () {
+    dir=$2
+    [[ ! -n $dir ]] && dir=.heroku
+    heroku git:clone -a $1 $dir
+}
+
+hrk () {
+    if [[ -d ./.heroku ]]; then
+        cd ./.heroku
+        heroku $@
+        cd ..
+    else
+        heroku $@
+    fi
+}
+compdef _heroku hrk
+
+###################################
+####           PYTHON          ####
+###################################
+
+alias m="make"
+alias ms="make shell"
+alias ma="python manage.py"
+alias clog="changelog -p"
+
+# Dephell
+alias dp="dephell package"
+
+# Poetry
+alias peotry="poetry"
+alias psh="poetry shell"
+alias pou="poetry update -vv"
+alias poi="poetry install -vv"
+alias pdet="poetry show"
+
+cache_purge() {
+    remove_file_folder f .coverage $1
+    remove_file_folder d __pycache__ $1
+    remove_file_folder d .mypy_cache $1
+    remove_file_folder d .pytest_cache $1
+    remove_file_folder d .eggs $1
+    remove_file_folder d build $1
+    remove_file_folder d dist $1
+    remove_file_folder d "*.egg-info" $1
+    echo Finished removing caches
+}
+
+remove_file_folder() {
+    count=0
+    for file in $(find . -name $2 -type $1);
+    do
+        rm -rf $file $3
+    let "count++"
+    done
+    if [ $count -gt 0 ]; then
+        echo "- Removed $count $2"
+    fi
+}
+
+depopen() {
+    echo Opening $1 repository in the browser
+    xdg-open $(pip show $1 | sed -n 's/^.*\(.*github\)/\1/p')
+}
+
+deps() {
+    echo Generating pydeps dependencies graph for $1
+    pydeps $1 --reverse -T png
+}
+
+cdeps() {
+    echo Looking for circular dependencies for $1
+    pydeps $1 --show-cycles
+}
+
+alias mypy='mypy --sqlite-cache --pretty --show-traceback'
+
+# runmypy() {
+#     mypy --sqlite-cache --html-report mypy --show-traceback --pretty
+# }
+
+search_skipped() {
+    ag --nogroup --color --color-path $AQUA $1 tests src | \
+        tee /dev/null | \
+        sed 's/:.*//' | \
+        tee >(wc -l) >(printf '\n\e[%smTOTAL: ' "$YELLOW") | \
+        sort | uniq -c | sort -r
+}
+
+skipped_flake() {
+    search_skipped 'noqa|flake8'
+}
+skipped_pylint() {
+    search_skipped 'pylint: ?d'
+}
+skipped_mypy() {
+    search_skipped 'type: ignore'
+}
+
+skipped_pylint_by_error() {
+    ag --nogroup --color --color-path '1;36' 'pylint: ?dis' tests src |
+    tee /dev/null |
+    sed 's/.*able\ \?=\ \?//' | tr , '\n' | tr -d ' ' |
+    tee >(wc -l) >(printf '\e[%smTOTAL: \e[%sm' $MAGENTA $GREY) |
+    sort | uniq -c | sort -rh
+}
+
+# vim:ft=bash
