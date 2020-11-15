@@ -16,28 +16,37 @@ du_sort() { du -d 1 --si --all $1 | sort -h }
 mcd () { mkdir $1; cd $1 }
 locatel() { locate $@ | xargs exa -lah }
 locateconf() { locate $1 | sed '/\.conf$/!d' }
-whichl() { exa -lah "$(which $1)" }
+whichl() { lsd -lah "$(which $1)" }
 shrinkmp4() { ffmpeg -i $1 -vcodec libx265 -crf 2 $2 }
 unzipm () { unzip $1 -d $1:r }
 
+toflac () {
+    noext=$1:r
+    to=$noext.flac
+    ffmpeg -i $1 -codec:a -o -codec flac $to
+}
+
 show_mouse_color() {
+    if [[ -n $1 ]]; then sleep $1; fi
+
     scrot --overwrite /tmp/copycolor.png
     eval $(xdotool getmouselocation --shell)
-    IMAGE=`convert /tmp/copycolor.png -depth 8 -crop 1x1+$X+$Y txt:-`
-    COLOR=`echo $IMAGE | grep -om1 '#\w\+'`
-    echo -n $COLOR | xclip -i -selection CLIPBOARD
+
+    img=$(convert /tmp/copycolor.png -depth 8 -crop 1x1+$X+$Y txt:-)
+    color=$(echo $img | grep -om1 '#\w\+')
+
+    echo -n $cikir | xclip -i -selection clipboard
 
     awesome-client "\
     naughty = require(\"naughty\")\
     naughty.notify({\
     title=\"\tHello, wannabe designer\t\t \",\
-    text=\"\tYour chosen color: $COLOR\",\
+    text=\"\tYour chosen color: $color\",\
     timeout=10,\
-    fg=\"$COLOR\",\
+    fg=\"$color\",\
     bg=\"#FFFFFF\",\
     border_width=0,\
     position=\"bottom_middle\"})"
-
 }
 
 _newpassword () {
@@ -50,7 +59,7 @@ bwgenpass () {
     copyq enable 2> /dev/null
 }
 
-bwgetpass () {
+bwgetpw () {
     copyq disable 2> /dev/null
     bw get password $1 | ci
     copyq enable 2> /dev/null
@@ -81,6 +90,10 @@ bwcreatelogin () {
     echo $pw | ci
 }
 
+bwsearch () {
+    bw list items --search $1 | jq 'del(.[].login.password)'
+}
+
 dadjoke() {
    echo "\
 $1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1
@@ -103,20 +116,15 @@ $1$1$1$1$1$1$1$1$1$1$1$1$1"
 }
 
 
-##### DOCKER #####
-
-dockerstop () {
-    echo Killing every container which mentions $1
-    docker ps --filter name=$1 | xargs -I{} docker stop {}
+##### GENERAL TEXT PROCESSING #####
+flushright() {
+    sed -e :a -e 's/^.\{1,78\}$/ &/;ta'
 }
 
-docker_noname_image_ids() { docker images -a | grep "<none>" | tr -s ' ' | cut -d ' ' -f3 }
-docker_delete_noname_images() { docker_noname_image_ids | xargs docker image rm }
-
-
-##### GENERAL TEXT PROCESSING #####
-flushright() { sed -e :a -e 's/^.\{1,78\}$/ &/;ta' }
-center() { sed  -e :a -e 's/^.\{1,77\}$/ &/;ta' -e 's/\( *\)\1/\1/' }
+center() {
+    ncols=$(( $(tput cols) - 3 ))
+    sed  -e :a -e 's/^.\{1,'"$ncols"'\}$/ &/;ta' -e 's/\( *\)\1/\1/'
+}
 
 ##### CONVERSION BETWEEN FORMATS #####
 rst2md() {
@@ -125,10 +133,10 @@ rst2md() {
     local output=$naked.md
     echo Converting $filename to $output
     pandoc $filename \
-        -s \
         --from rst \
         --to gfm \
-        -o $output \
+        --output $output \
+        --standalone \
         --toc \
         --toc-depth 2
 }
@@ -139,31 +147,36 @@ pandoc2pdf() {
     local naked=$filename:r
     local output=$naked.pdf
     echo Converting $filename to $output
-    pandoc \
-        -s \
-        -f $from \
-        -o $output \
-        -V geometry:margin=1.4in \
+    pandoc $filename \
+        --from $from \
+        --output $output \
+        -V geometry:margin=1in \
+        --standalone \
         --toc \
         --toc-depth 2 \
         --pdf-engine=xelatex \
-        --highlight-style=~/.d/sarastango.json \
-        --variable=fontsize:10pt
+        --highlight-style=$HOME/.d/sarastango.theme \
+        --variable=documentclass:scrreprt \
+        --variable=fontsize:9pt \
+        --variable=fontenc:T1 \
+        --variable='mainfont:IBM Plex Sans' \
+        --variable='monofont:IBM Plex Mono Light' \
+        --variable=links-as-notes
 }
-rst2pdf() { pandoc2pdf $1 rst }
+
+rst2pdf() {
+    pandoc2pdf $1 rst
+}
+
+# md2pdf() {
+#     pandoc2pdf $1 gfm
+# }
 md2pdf() {
    local tmp="tmp$1"
    cat $1 | sed '/vim-markdown/,/vim-markdown/d' | # swap toc and remove dropdowns
       sed '/details\|summary/d' > $tmp
    pandoc2pdf $tmp gfm
-   pandoc2pdf $1 gfm
    rm $tmp
 }
-
-function notify-emails-count () {
-    /usr/bin/bash /home/sarunas/.config/notmuch/post-new
-}
-zle -N notify-emails-count
-bindkey "^xm" notify-emails-count
 
 # vim:ft=bash

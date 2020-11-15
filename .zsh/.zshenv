@@ -24,8 +24,10 @@ export LANG=en_US
 export EDITOR=vim
 export SHELL=/usr/bin/zsh
 export BROWSER=qutebrowser
+export TZ=Europe/London
 
 export BAT_STYLE=plain
+export MPD_HOST=/run/user/$UID/mpd/socket
 export PYTHONDONTWRITEBYTECODE=1
 
 export ZDOTDIR=$HOME/.zsh

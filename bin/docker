@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if ( ! systemctl is-active docker -q ); then
+    echo Launching containerd and docker services
+    sudo systemctl start docker.target
+    echo Starting docker machine $DOCKER_MACHINE_NAME
+    docker-machine start $DOCKER_MACHINE_NAME
+    echo -n "docker $@" | xclip -selection clipboard
+    echo "Now run 'dockerip' alias and run 'docker $@' (it's in your clipboard)"
+else
+    /usr/bin/docker $@
+fi

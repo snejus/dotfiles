@@ -1,0 +1,42 @@
+#!/bin/bash
+
+[[ -z $VIMREPODIR ]] && echo 'export VIMREPODIR=...' && exit 1
+cd "$VIMREPODIR" || exit
+
+git stash
+git checkout master
+git pull origin
+
+pyenv local 3.6.12
+
+make distclean
+
+if [[ $1 == nogui ]]; then
+    ./configure \
+        --with-features=huge \
+        --with-x=false \
+        --without-x \
+        --disable-gui \
+        --enable-multibyte \
+        --enable-luainterp=yes \
+        --enable-perlinterp=yes \
+        --enable-rubyinterp=yes \
+        --enable-python3interp=yes \
+        --prefix="$HOME/.local"
+else
+    ./configure \
+        --with-features=huge \
+        --with-x=true \
+        --enable-gui=gtk3 \
+        --enable-multibyte \
+        --enable-luainterp=yes \
+        --enable-perlinterp=yes \
+        --enable-rubyinterp=yes \
+        --enable-python3interp=yes \
+        --prefix="$HOME/.local"
+fi
+
+make VIMRUNTIMEDIR="$HOME/.local/share/vim/vim82"
+make install
+
+# vim:ft=bash

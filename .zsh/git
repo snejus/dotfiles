@@ -1,4 +1,5 @@
 alias -g csu="--compact-summary"
+alias gs='gstatus'
 alias ga="git add"
 alias gau="git add -u"
 alias gc="git checkout"
@@ -9,6 +10,7 @@ alias gcm="git checkout master"
 alias gct="git checkout -t"
 alias gcom="git commit -m"
 alias gdm="git diff master"
+alias gds='gdm --staged'
 alias gre="git checkout --"
 alias gd="git diff"
 alias gfe="git fetch"
@@ -35,7 +37,6 @@ alias gstl="git stash list | pygmentize -l yaml -O style=fruity"
 alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=2"
 alias gitinspection="gitinspector --file-types='**' --grading -T --format html > gitinspector.html && open gitinspector.html"
 alias openpr="gh pr view --web"
-alias wtf="git wtf --long --all | pygmentize -l yaml -O style=fruity"
 
 pr_messages() {
    pname=$(git info | sed -n '/\.url/s/\(^.*github\.com\/\)\(.*\)\($\|.git\)/\2/p')

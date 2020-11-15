@@ -44,6 +44,8 @@ compdef _heroku hrk
 ####           PYTHON          ####
 ###################################
 
+alias tpd='tool pkg -d'
+
 alias m="make"
 alias ms="make shell"
 alias ma="python manage.py"
@@ -57,7 +59,11 @@ alias peotry="poetry"
 alias psh="poetry shell"
 alias pou="poetry update -vv"
 alias poi="poetry install -vv"
-alias pdet="poetry show"
+alias pos="poetry show"
+alias pov="poetry version"
+
+# Linting
+alias mypy='mypy --sqlite-cache --pretty --show-traceback'
 
 cache_purge() {
     remove_file_folder f .coverage $1
@@ -90,7 +96,7 @@ depopen() {
 
 deps() {
     echo Generating pydeps dependencies graph for $1
-    pydeps $1 --reverse -T png
+    pydeps $1 --reverse -T png --display feh
 }
 
 cdeps() {
@@ -98,7 +104,6 @@ cdeps() {
     pydeps $1 --show-cycles
 }
 
-alias mypy='mypy --sqlite-cache --pretty --show-traceback'
 
 # runmypy() {
 #     mypy --sqlite-cache --html-report mypy --show-traceback --pretty

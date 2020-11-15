@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+while true; do
+    _output=$(nice -n 19 mpc --format '%file%\n%title% \n%artist% \n%album%' current --wait) || exit 1
+    _musicdir=/media/music/
+    _message="$(sed 1d <<< "$_output")"
+    _file=$_musicdir$(head -1 <<< "$_output")
+    _coverpic="$(fd -e png -e jpg -d1 -1 ^cover "$(sed 's/\/[^/]*$//' <<< "$_file")")"
+    if [[ -z $_coverpic ]]; then
+        if [[ $_file =~ "flac" ]]; then
+            _coverpic="$_file-cover.png"
+            metaflac "$_file" --export-picture-to "$_coverpic" 2> /dev/null || _coverpic=""
+        fi
+    fi
+    if [[ -n "$_coverpic" ]]; then
+        notify-send "🔊" "\n$_message" -i "$_coverpic"
+    else
+        notify-send "🔊" "\n$_message"
+    fi
+done

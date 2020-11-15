@@ -1,106 +1,143 @@
+#
+#  ███ ███ ██     ██ ███ ███ ███ ███
+#  ██   ██ ██     ██ ██   ██ ██
+#  ██   ██ ██     ██ ██   ██ ██
+#  ██   ██ ██     ██ ██   ██  ██ ██
+#  ███ ███ ██     ██ ███ ███      ██
+#  ██   ██ ██     ██ ██   ██      ██
+#  ██   ██ ███ ██ ██ ██   ██ ███ ███
+#
 
-####################################
-####         MIMETYPES          ####
-####################################
+# {{{ Mime types
 
-alias -s bmp="feh"
-alias -s conf="bat -l nginx"
-alias -s desktop="bat"
-alias -s html="qutebrowser"
-alias -s hook="bat -l ini"
-alias -s ini="bat"
-alias -s jpg="feh -F"
-alias -s json="bat"
-alias -s log="bat"
-alias -s lua="bat"
-alias -s md="glow -p -w 80"
-alias -s png="feh -F"
-alias -s pdf="zathura"
-alias -s py="bat"
+# Code
+alias -s desktop=bat
+alias -s c=bat
+alias -s cfg=bat
+alias -s conf=bat
+alias -s h=bat
+alias -s hook=bat
+alias -s hwdb='bat -l ini'
+alias -s ini=bat
+alias -s json=bat
+alias -s link='bat -l ini'
+alias -s log=bat
+alias -s lua=bat
+alias -s network='bat -l ini'
+alias -s py=bat
 alias -s rst=bat
-alias -s service="bat -l ini"
-alias -s socket="bat -l ini"
-alias -s svg="qutebrowser"
-alias -s target="bat -l ini"
-alias -s toml="bat"
-alias -s vim="bat"
-alias -s xml="bat"
-alias -s zsh="bat"
+alias -s rules='bat -l dotenv'
+alias -s service='bat -l ini'
+alias -s socket=bat
+alias -s target=bat
+alias -s theme='bat -l ini'
+alias -s toml=bat
+alias -s txt=bat
+alias -s vim=bat
+alias -s xml=bat
+alias -s zsh=bat
+
+# Image
+alias -s bmp=feh
+alias -s jpg=feh
+alias -s png=feh
+alias -s svg=qutebrowser
+
+# Markdown
+alias -s md=glow -p
+
+# Pdf
+alias -s pdf=zathura
+
+# Web
+alias -s html=qutebrowser
+
+# Video
+alias -s mp4=mpv
+# }}}
+
+# {{{ Global aliases
 
 alias -g cfg=~/.config
 alias -g c='| wc -l'
+alias -g sf=--system
+alias -g u=--user
+# }}}
 
-###################################
-####         GENERIC           ####
-###################################
+# {{{ Generic aliases
+# ls
+alias  ls='lsd -1A'
+alias lsl='lsd -lAh --date=relative --size short'
+alias lsn='lsl -rt'
+alias lss='lsl --total-size --sizesort'
 
-
-alias syt='s -p youtube'
+# Search
+alias sam='s -p amazon'
 alias sbc='s -p bandcamp'
-alias ssp='s -p spotify'
+alias sdc='s -p discogs'
 alias sfb='s -p facebook'
 alias sgm='s -p googlemaps'
 alias ssc='s -p soundcloud'
-alias sam='s -p amazon'
+alias ssp='s -p spotify'
+alias syt='s -p youtube'
+
+# Default flags
+alias ag='ag --color'
+alias bw='bw --pretty'
+alias dmesg='dmesg -H'
+alias free='free -hlt'
+alias fd='fd --xdev'
+alias feh='feh -F'
+alias gh='LESS=-RX gh'
+alias glow='glow -p'
+alias hueadm='hueadm -H 192.168.0.23 -U $(pass show hueuser)'
+alias ping='grc ping'
+alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
+alias sudo='sudo '
+alias ytdl='youtube-dl -x --audio-format mp3 -o "%(title)s.%(ext)s"'
 
 alias bgstop='stty tostop'
-alias calc='rofi -show calc -modi calc -no-show-match -no-sort'
 alias ci='xclip -selection clipboard'
+alias cimg='xclip -selection clipboard -t image/png -i'
 alias co='xclip -selection clipboard -o'
-alias devdb='udevadm info --export-db'
+alias devdb='udevadm info --export-db | grep'
 alias env='env | sort | pygmentize -l bash -O style=fruity'
-alias fd='fd --xdev'
-alias free='free -hlt'
 alias help='cs'
-alias hueadm='hueadm -H 192.168.0.23 -U $(pass show hueuser)'
-# alias kitty='kitty --single-instance'
-alias kitty='kitty --instance-group'
-alias ls='exa -lah --git'
-alias lsn='exa -lah --git -snew'
+alias kimg='kitty +kitten icat'
+alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
+alias mans='man --global-apropos'
 alias mimetype='cat /etc/mime.types | ag'
 alias mnt='mount'
 alias nctl='networkctl'
 alias ncm='ncmpcpp'
 alias open=''  # let zsh handle it
 alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias openmonitor='qutebrowser http://localhost:19999'
-alias ping='prettyping'
+alias printpath='echo $PATH | tr : "\n"'
 alias pss='ps aux | grep'
 alias rgbtxt='less ~/.notes/rgb.txt'
 alias standup='git standup -m3'
-alias sudo='sudo '
-alias viml="vim -c \"normal '0\""
-alias wcl='wc -l'
-alias xterm='xterm -fa Cascadia\ Code -bg "#2c323b" -fg "#ffd8b5" -fs 10'
-alias ytdl='youtube-dl -x --audio-format flac -o "%(title)s.%(ext)s" --postprocessor-args "-codec flac"'
+alias winall='xwininfo -root -children -tree'
 
 # Debug
-alias fixalsa="alsactl init"
-alias listeners="sudo lsof -i -Pn | grep LISTEN"
-alias loghttp="tcpflow -p -c -i eth0 port 80 | grep -oE '(GET|POST|HEAD) .* HTTP/1.[01]|Host: .*'"
-alias lsmod='lsmod | column -t --table-right 1'
-alias printpath='echo $PATH | tr : \n'
+alias listeners='sudo lsof -i -Pn | grep LISTEN'
 
 # Mail
-alias neo="neomutt"
-alias fmail="systemctl --user start mailfetch"
+alias neo='neomutt'
 
-# Search
+# File search
 alias ag="ag --silent"
 alias agl="ag --silent --pager less --color"
-alias agf="ag --silent -g"
 
 # fzf
-alias fprocesses='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
-alias finterrupts='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
-alias fexplore='fzf --bind "enter:execute(bat {})"'
+alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
+alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
+alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
+alias fe='fzf --bind "enter:execute(bat {})"'
+alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
+# }}}
 
-
-###################################
-#### QUICK ACCESS AND ZSHFILES ####
-###################################
-
-_alias () {
+# {{{ Quick access shortcuts
+local _alias () {
     # 1 - single letter prefix, 2 - alias
     # 3 - command / path prefix, 4 - file
     alias $1$2="$4/$3"
@@ -121,6 +158,7 @@ local CONFIG_ALIAS=(
     "nmb        neomutt/bindings"
     "nmm        neomutt/mailcap"
     "nmc        neomutt/colors"
+    "pic        picom/picom.conf"
     "qute       qutebrowser/config.py"
 )
 
@@ -135,47 +173,46 @@ local EDIT_AND_SOURCE=(
     "git    git"
     "jira   jira"
     "sens   sens"
-    "td     todoist"
+    "pkg    pkg"
     "py     python"
+    "td     todoist"
     "env    .zshenv"
+    "prof   .zprofile"
     "zl     .zlogin"
     "zsh    .zshrc"
-    "prof   .zprofile"
 )
 for mapping in $EDIT_AND_SOURCE[@]; do
     _alias e $(echo $mapping) "vim $ZDOTDIR"
     _alias s $(echo $mapping) "source $ZDOTDIR"
 done
 
-alias    upd="szsh"
-alias    ecl="vim $HOME/.local/bin/changelog"
-alias  etool="vim $HOME/.local/bin/tool"
-alias  egitc="vim $HOME/.gitconfig"
-alias  egitp="vim $XDG_CONFIG_HOME/git/config"
+alias upd="szsh"
+alias ecl="vim $HOME/.local/bin/changelog"
+alias etool="vim $HOME/.local/bin/tool"
+alias egitc="vim $HOME/.gitconfig"
+alias egitp="vim $XDG_CONFIG_HOME/git/config"
 alias evimrc="vim $HOME/.vim/vimrc"
+# }}}
 
-
-###################################
-####     SYSTEM MANAGEMENT     ####
-###################################
-
-
-alias kernelcacheclean='sync; echo 1 > /proc/sys/vm/drop_caches'
+# {{{ System and journal
+alias cleankcache='sync; echo 1 > /proc/sys/vm/drop_caches'
 
 # Systemctl
-alias -g   sf="--system"
-alias     sy="systemctl --user --all"
-alias    syc="sy cat"
-alias    sys="sy status"
-alias   syen="sy enable"
-alias  sydis="sy disable"
-alias  systa="sy start"
-alias  systo="sy stop"
-alias  syres="sy restart"
-alias   syld="sy list-dependencies"
-alias  syldr="sy list-dependencies --reverse"
-alias  syluf="sy list-unit-files"
-alias  syrel="sy daemon-reload"
+alias    sy="systemctl --user"
+alias   syc="sy cat"
+alias   sys="sy status"
+alias  syen="sy enable"
+alias sydis="sy disable"
+alias systa="sy start"
+alias systo="sy stop"
+alias syres="sy restart"
+alias  syld="sy list-dependencies"
+alias syldr="sy list-dependencies --reverse"
+alias syluf="sy list-unit-files"
+alias syrel="sy daemon-reload"
+
+alias sstart='systemctl --user start awesomex-session.target'
+alias sstop='systemctl --user stop awesomex-session.target'
 
 # Journal
 alias     j='journalctl --no-hostname --merge'
@@ -186,45 +223,36 @@ alias    js='j --since=$(date -d "a week ago" -I) --no-pager | grep'
 alias   jwk='j --since=$(date -d "a week ago" -I)'
 alias   jmo='j --since=$(date -d "a month ago" -I)'
 alias jprio='jmo --priority'
+# }}}
 
-
-####################################
-#### SYSTEM PACKAGES MANAGEMENT ####
-####################################
-
-# Yay
-alias  yclog="pacolog -l10"
-alias   ydel="yay -Rsuv"
-alias  ydeps="pactree --color  -d 1"
-alias  yfind="yay -Ss"
-alias yfindf="yay -Fx"
-alias yfindi="yay -Q | ag"
-alias  yinfo="yay -Siiv"
-alias   yins="yay -S"
-alias ylistf="yay -Fl"
-alias ymypkg="package-query -Qtt"
-alias  yshow="yay -Siiv"
-alias ystats="yaourt --stats; yay -P --stats -v"
-alias   yupd="yay -Syuv"
-alias   ywhy="pactree --color -rd 1"
-alias ylistcore="package-query -Sl core"
-
-
-####################################
-####     CONTAINERs AND VMs     ####
-####################################
-
+# {{{ Docker and vagrant
 # Docker
-alias dps="docker ps"
-alias dco="docker-compose"
-alias docker_usage="docker system df"
+alias dockerdown="docker-machine stop $DOCKER_MACHINE_NAME && sudo systemctl stop docker.target"
+alias dps='docker ps'
+alias dco='docker-compose'
+alias docker_usage='docker system df'
 alias containerip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
-# alias dockerip='eval $(docker-machine env default)'
+alias dockerip='eval $(docker-machine env default)'
+
+dockerstop () {
+    echo Killing every container which mentions $1
+    docker ps --filter name=$1 | xargs -i docker stop {}
+}
+
+docker_noname_image_ids() {
+    docker images -a | grep "<none>" | tr -s ' ' | cut -d ' ' -f3
+}
+
+docker_delete_noname_images() {
+    docker_noname_image_ids | xargs docker image rm
+}
+
 
 # Vagrant
-alias  vu="vagrant up"
-alias  vs="vagrant ssh"
-alias  vh="vagrant halt"
+alias vu="vagrant up"
+alias vs="vagrant ssh"
+alias vh="vagrant halt"
 alias vgs="vagrant global status"
+# }}}
 
 # vim:ft=zsh

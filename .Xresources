@@ -1,0 +1,30 @@
+*foreground: #ffd8b5
+*background: #2c323b
+
+*color0:  #2c323b
+*color1:  #ff557f
+*color2:  #a8e137
+*color3:  #edb879
+*color4:  #6495ed
+*color5:  #8e6ebc
+*color6:  #87ceeb
+*color7:  #bbaa99
+
+*color8:  #000000
+*color9:  #f2201f
+*color10: #96ff54
+*color11: #fc9b29
+*color12: #1a8fff
+*color13: #c31fc9
+*color14: #19cfce
+*color15: #ffffff
+
+XTerm.*.faceName: IBM Plex Mono
+XTerm.*.faceSize: 11
+XTerm.termName: xterm-256color
+XTerm.vt100.locale: false
+XTerm.vt100.utf8: true
+! XTerm.vt100.reverseVideo: false
+
+Xcursor.size: 30
+Xcursor.theme: Neutral

@@ -2,17 +2,27 @@
 alias td='todoist'
 alias tq='todoist quick'
 alias tl='todoist list'
-tdl () {
-    td list $1 | \
-        tr -s ' ' | tr -d "'\"" | \
+
+_listfix () {
+    tr -s ' ' | \
+        tr -d "'\"" | \
         fold -w 100 | \
         sed '/^[^0-9]/d' | \
         sed -n 's/ /~/;
             s/ /~~/;
             s/~\([0-9].*\) \([0-9][0-9]:[0-9][0-9]\) /\1-\2~/;
             s/ /~/p' | \
-        column -t -s '~' | \
-        xargs -i echo -e {}
+        column -t -s '~'
+}
+
+tdl () {
+    # list all
+    tl | _listfix
+}
+
+tdlr () {
+    # list recent
+    tl | tail -n10 | _listfix
 }
 
 select_items_command="tdl | tac | fzf | cut -d ' ' -f 1 | tr '\n' ' '"
