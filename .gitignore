@@ -5,7 +5,6 @@ github.css
 assets
 .python-version
 .env
-notes/
 .zsh/sens
 
 
@@ -14,8 +13,7 @@ notes/
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
+*.db
 
 *.swp
 *.swo
@@ -25,7 +23,6 @@ __pycache__/
 .venv/
 
 credentials.json
-config.yaml
 config.json
 plan.txt
 .pytest_cache/
@@ -35,3 +32,4 @@ test.py
 node_modules/
 static/bundles/main.js
 data/
+notes/

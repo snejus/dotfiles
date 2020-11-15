@@ -1,10 +1,15 @@
 [alias]
-    l  = log --graph --decorate --all --pretty=cool -12
-    t  = log --graph --decorate --all --pretty=all -1
-    l1 = log --graph --decorate --all --pretty=cool
+    l  = log --graph --all --pretty=nice -12
     l2 = log --graph --decorate --all --pretty=nice
-    wtf = !git-wtf
-    cs = ci-status
+	lo = log --pretty=lo --graph --date=human
+	ls = log --pretty=lo --graph --date=human --simplify-by-decoration
+	la  = log --pretty=lc --graph --all
+	lao = log --pretty=lo --graph --all --date=human
+	las = log --pretty=lo --graph --all --date=human --simplify-by-decoration
+
+	lg  = log --pretty=lc --graph --branches=* --tags=* --remotes=origin --remotes=upstream
+	lgo = log --pretty=lo --graph --branches=* --tags=* --remotes=origin --remotes=upstream --date=human
+	lgs = log --pretty=lo --graph --branches=* --tags=* --remotes=origin --remotes=upstream --date=human --simplify-by-decoration
 
 [branch]
     autoSetupRebase = always
@@ -37,18 +42,29 @@
     date = format:%F %H:%M
 
 [pretty]
+    lo = tformat:\
+%C(bold yellow)%h%C(reset)\
+%C(italic bold green)%d%C(reset) \
+%s \
+%C(italic blue)%ad%C(reset) \
+%C(241)%aN%C(reset)
+
+    lc = format:\
+%C(bold yellow)%h%C(reset) \
+%C(white)-%C(reset) \
+%C(italic blue)%ad%C(reset) \
+%C(italic cyan)(%ar)%C(reset)\
+%C(auto)%d%C(reset)%n \
+%C(white)⤷%C(reset) \
+%C(bold)%s \
+%C(241)- %aN <%aE>%C(reset)%n
+
     nice = \
-%C(dim white)%ad \
-%C(bold "#FF9933")%an \
-%C(bold "#E5989B")%h \
-%C(bold "#80CCE6")%><(50,trunc)%s \
-%C(bold "#EDB879")%d%C(reset)
-    cool = \
-%C(bold "#80CCE6")%><(12,trunc)%ar \
-%C(bold "#EDB879")%h \
-%C(bold "#000000")%><(14,mtrunc)%an \
-%C(bold "#EDB879")%><|(80,mtrunc)%s \
-%C(bold "#80CCE6")%><(44,mtrunc)%d%C(reset)
+%C(white)%<|(12,trunc)%ar%C(reset) \
+%C(bold yellow)%an%C(reset) \
+%C(bold red)%h%C(reset) \
+%C(bold blue)%s%C(reset) \
+%C(bold dim yellow)%d%C(reset)
 
 [rebase]
     abbreviateCommands = true
