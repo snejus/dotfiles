@@ -12,15 +12,17 @@ get_coverpic() {
     # check if it's found in the album dir
     coverpic="$(fd -e png -e jpg -d1 -1 ^cover "$albumdir")"
 
-    # check our covers dir, use filename
+    # if not, check our covers dir, use filename
     if [[ -z $coverpic ]]; then
         coverpic="$(fd -e png -e jpg "$file" $coversdir)" 
     fi
+
+    # if not, extract the cover if it's a flac file
     if [[ -z $coverpic ]] && [[ $file =~ "flac" ]]; then
         single="${file/[01][0-9][ ]*}"
-        if [[ -z $single ]]; then  # part of an album
+        if [[ -z $single ]]; then  # part of an album, use that folder
             coverpic=$albumdir/cover.png
-         else
+         else # move to the generic covers dir
             coverpic=$coversdir/$coverpic
         fi
         metaflac "$filepath" --export-picture-to "$coverpic" 2> /dev/null || coverpic=""
@@ -39,12 +41,12 @@ notify() {
     fi
 }
 
-
-notify "$(mpc --format '%file%\n%title% \n%artist% \n%album%' current)"
+format='%file%\n%title% \n%artist% \n%album%'
+notify "$(mpc --format "$format" current)"
 
 if [[ ! $1 == now ]]; then
     while true; do
-        notify "$(nice -n 19 mpc --format '%file%\n%title% \n%artist% \n%album%' current --wait)" || exit 1
+        notify "$(nice -n 19 mpc --format "$format" current --wait)" || exit 1
     done
 fi
 
