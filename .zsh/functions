@@ -5,9 +5,9 @@ GREEN='1;32'
 YELLOW='1;33'
 BLUE='1;34'
 MAGENTA='1;35'
-AQUA='1;36'
+CYAN='1;36'
 WHITE='1;37'
-# BLUE='1;38' same blue
+BLUE='1;38'
 GREY='1;39'
 
 
@@ -177,6 +177,39 @@ md2pdf() {
       sed '/details\|summary/d' > $tmp
    pandoc2pdf $tmp gfm
    rm $tmp
+}
+
+ns() {
+    notmuch search --sort=oldest-first $1 | tr -d '"' | bat -l msg
+}
+
+_with_color () {
+    command env \
+        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+        LESS_TERMCAP_md=$(printf "\e[1;32m") \
+        LESS_TERMCAP_me=$(printf "\e[0m") \
+        LESS_TERMCAP_se=$(printf "\e[0m") \
+        LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+        LESS_TERMCAP_ue=$(printf "\e[0m") \
+        LESS_TERMCAP_us=$(printf "\e[1;35m") \
+        PAGER=/usr/bin/less _NROFF_U=1 "$@"
+}
+
+hub git () {
+    _with_color "$0" "$@"
+}
+
+man () {
+    exists=$(fd "^$1" /usr/share/man -t f -1)
+    if [[ -n $exists ]]; then
+        _with_color "$0" "$@"
+    else
+        flag=--help
+        if [[ $2 == "long" ]]; then
+            flag=--long-help
+        fi
+        $1 $flag | bat -l man --theme "Solarized (dark)"
+    fi
 }
 
 # vim:ft=bash
