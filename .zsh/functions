@@ -69,6 +69,14 @@ bwcreate () {
     bw create $1 $(echo "$2" | bw encode)
 }
 
+bwcreatenote () {
+    bwcreate item "$(bw get template item | jq \
+       ".folderId = $(bw get folder Notes | jq .id) | \
+        .name = \"$1\" | \
+        .notes = \"$(cat $2)\" | \
+        .login = \"\"")"
+}
+
 bwcreatesecret () {
     bwcreate item "$(bw get template item | jq \
        ".folderId = $(bw get folder Secrets | jq .id) | \
@@ -210,6 +218,21 @@ man () {
         fi
         $1 $flag | bat -l man --theme "Solarized (dark)"
     fi
+}
+
+convertaudio () {
+    ffmpeg -i $1 -codec:a -o -codec $2 hello.$2
+}
+
+svg2png () {
+    input=$1
+    width=$2
+    height=$3
+    output=$(basename $input .svg).png
+    if [[ -n $height ]]; then
+        height=$width
+    fi
+    convert -background transparent -resize ${height}x$width $input $output
 }
 
 # vim:ft=bash
