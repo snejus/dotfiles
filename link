@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+
+USER_BINDIR=$HOME/.local/bin
+
+link () {
+    from=$1
+    todir=$2
+    frompath=$(realpath "$from")
+    resolved="$(readlink "$todir/$from")"
+    # if [[ ! $frompath == "$resolved" ]]; then
+    #     ln -s -b "$frompath" "$todir"
+    # fi
+    echo $from
+    echo $todir
+    echo $frompath
+    echo $resolved
+}
+
+link_homeroot () {
+    LINKS=(
+        "vimrc $HOME/.vim"
+        ".Xresources $HOME"
+        ".gitconfig $HOME"
+        ".gitignore $HOME"
+        ".tmux.conf $HOME"
+    )
+    for link_pair in "${LINKS[@]}"; do
+        link $link_pair
+    done
+
+}
+
+link_bindir () {
+    scripts="$(fd -a . bin)"
+
+    for script in $scripts; do
+        link "$script" "$USER_BINDIR"
+    done
+}
+
+link_homeroot
+# link_bindir
+# link_zsh () { }
