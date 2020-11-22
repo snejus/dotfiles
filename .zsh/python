@@ -63,7 +63,30 @@ alias pos="poetry show"
 alias pov="poetry version"
 
 # Linting
-alias mypy='mypy --sqlite-cache --pretty --show-traceback'
+_srcdir() {
+    dirname $(fd __init__ -1 src)
+}
+
+lint_pylint() {
+    pylint -j 4 -f colorized $(_srcdir)
+}
+
+lint_mypy() {
+    mypy --sqlite-cache --pretty --show-traceback $(_srcdir)
+}
+
+lint_flake8() {
+    flake8 -j 4 --show-source --benchmark --statistics $(_srcdir)
+}
+
+lint() {
+    echo flake8
+    lint_flake8
+    echo mypy
+    lint_mypy
+    echo pylint
+    lint_pylint
+}
 
 cache_purge() {
     remove_file_folder f .coverage $1
