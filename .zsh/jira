@@ -19,20 +19,20 @@ ORANGE='\\\\e[1;38;5;208m&\\\\e[0m'
 
 
 _colorfilter() {
-    sed "2s/Is.*/$GREEN_IT/; 
+    sed "2s/Is.*/$GREEN_IT/;
         s/[A-Z]\+-[0-9]\+/$WHITE/g;
-        s/Story/$GREEN/; 
-        s/Question/$CYAN/; 
-        s/Task/$BLUE/; 
+        s/Story/$GREEN/;
+        s/Question/$CYAN/;
+        s/Task/$BLUE/;
         s/Sub-task/$BLUE0/;
-        s/Bug/$RED/; 
-        s/Incident/$YELLOW/; 
+        s/Bug/$RED/;
+        s/Incident/$YELLOW/;
         s/Epic/$MAGENTA/;
-        s/High\ /$RED/; 
-        s/Highest/$RED_IT/; 
-        s/Medium/$ORANGE/; 
-        s/Backlog/$BLACK/; 
-        s/To Do/$WHITE/; 
+        s/High\ /$RED/;
+        s/Highest/$RED_IT/;
+        s/Medium/$ORANGE/;
+        s/Backlog/$BLACK/;
+        s/To Do/$WHITE/;
         s/Investigating/$YELLOW/;
         s/In Progress/$GREEN/;
         s/Review/$BLUE/;
@@ -60,7 +60,7 @@ _beautify() {
 }
 
 _printissues() {
-    jira list --template table --query $1 | _beautify 
+    jira list --template table --query $1 | _beautify
 }
 
 _printepics() {
@@ -91,28 +91,28 @@ jls() {
 
 jlsa() {
     _printissues "\
-        assignee=currentuser() 
+        assignee=currentuser()
         ORDER BY status DESC, priority DESC, created DESC"
 }
 
 _to_table() {
     ncols=$(( $(tput cols) - 3 ))
     jq -r '.[] | ({ key: .key}) + { nature: (.links | keys)} + .links[] | flatten | @sh' |
-        sed "s/' \+'/';'/g" | 
-            column -t -s ";" -T 3 -c $ncols | 
+        sed "s/' \+'/';'/g" |
+            column -t -s ";" -T 3 -c $ncols |
             tr -d "'" | _colorfilter | _position_nicely
 }
 
 _links () {
     jira list --queryfields=issuelinks --query "$1 \
         resolution = unresolved and assignee=currentuser()
-        ORDER BY type, status DESC, priority DESC" -t debug | 
-            jq '[ .issues[] | 
-                { key, links: .fields.issuelinks[] | 
-                    { (.type.inward): (.inwardIssue // .outwardIssue | 
-                        { ticket: (.key + " " + .fields.summary), 
-                          type: .fields.issuetype.name, 
-                          priority: .fields.priority.name, 
+        ORDER BY type, status DESC, priority DESC" -t debug |
+            jq '[ .issues[] |
+                { key, links: .fields.issuelinks[] |
+                    { (.type.inward): (.inwardIssue // .outwardIssue |
+                        { ticket: (.key + " " + .fields.summary),
+                          type: .fields.issuetype.name,
+                          priority: .fields.priority.name,
                           status: .fields.status.name } ) } } ]' | _to_table
 }
 
@@ -123,4 +123,25 @@ jlselinks () {
 jlslinks () {
     _links
 }
+
+_label () {
+    sed 's/^[0-9]/COR-&/'
+}
+
+jtr () {
+    jira transition $1 $(_label <<< $2)
+}
+
+jio () {
+    xdg-open "$SUBDOMAIN/browse/$(_label <<< $1)"
+}
+
+jifields () {
+    jira fields | grep system | sed "s/.*: //" | tr -d \", | sort
+}
+
+jshow jinfo jsh () {
+    _label <<< $1 | xargs jira view | pygmentize -l yaml -O style=monokai
+}
+
 # vim:ft=bash
