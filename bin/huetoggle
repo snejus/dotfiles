@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-_huecmd="hueadm -H 192.168.0.23 -U $(pass show hueuser)"
+_huecmd="hueadm -c ~/.config/hueadm/hueadm.json"
 state=$($_huecmd light $1 | sed -n 's/    on: \(.*\)$/\1/p')
 
 if [[ $state = true ]]; then
