@@ -19,6 +19,7 @@ alias -s h=bat
 alias -s hook=bat
 alias -s hwdb='bat -l ini'
 alias -s ini=bat
+alias -s js=bat
 alias -s json=bat
 alias -s link='bat -l ini'
 alias -s log=bat
@@ -28,6 +29,7 @@ alias -s py=bat
 alias -s rst=bat
 alias -s rules='bat -l dotenv'
 alias -s service='bat -l ini'
+alias -s sql=bat
 alias -s socket=bat
 alias -s target=bat
 alias -s theme='bat -l ini'
@@ -62,14 +64,17 @@ alias -g cfg=~/.config
 alias -g c='| wc -l'
 alias -g sf=--system
 alias -g u=--user
+alias -g help='--help | bat -l man --theme "Solarized (dark)"'
 # }}}
 
 # {{{ Generic aliases
+
 # ls
-alias  ls='lsd -1A'
-alias lsl='lsd -lAh --date=relative --size short'
-alias lsn='lsl -rt'
-alias lss='lsl --total-size --sizesort'
+alias lsl='lsd -lA --size short --date=relative'
+alias  ls='lsd -lA --size short --date=relative --blocks="size,user,date,name"'
+alias lsn='ls -rt'
+alias lss='lsl -r --total-size --sizesort'
+alias lst='ls --tree'
 
 # Search
 alias sam='s -p amazon'
@@ -84,25 +89,27 @@ alias syt='s -p youtube'
 # Default flags
 alias ag='ag --color'
 alias bw='bw --pretty'
+alias cdu='cdu -idh -s'
 alias dmesg='dmesg -H'
 alias free='free -hlt'
 alias fd='fd --xdev'
 alias feh='feh -F'
 alias gh='LESS=-RX gh'
 alias glow='glow -p'
-alias hueadm='hueadm -H 192.168.0.23 -U $(pass show hueuser)'
-alias ping='grc ping'
+alias hue='hueadm -c ~/.config/hueadm/hueadm.json -H $(pass show hueip) -U $(pass show hueuser)'
+alias mkdir='mkdir -pv'
 alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
 alias sudo='sudo '
 alias ytdl='youtube-dl -x --audio-format mp3 -o "%(title)s.%(ext)s"'
+alias vim=nvim
 
 alias bgstop='stty tostop'
+alias calc='bc'
 alias ci='xclip -selection clipboard'
 alias cimg='xclip -selection clipboard -t image/png -i'
 alias co='xclip -selection clipboard -o'
 alias devdb='udevadm info --export-db | grep'
 alias env='env | sort | pygmentize -l bash -O style=fruity'
-alias help='cs'
 alias kimg='kitty +kitten icat'
 alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
 alias mans='man --global-apropos'
@@ -114,9 +121,10 @@ alias open=''  # let zsh handle it
 alias openstats='qutebrowser https://wakatime.com/dashboard'
 alias printpath='echo $PATH | tr : "\n"'
 alias pss='ps aux | grep'
-alias rgbtxt='less ~/.notes/rgb.txt'
+alias rgbtxt='bat ~/repo/notes/rgb.txt'
 alias standup='git standup -m3'
-alias winall='xwininfo -root -children -tree'
+alias vman='MANPAGER="vim -M +MANPAGER - " man'
+alias xwinall='xwininfo -root -children -tree'
 
 # Debug
 alias listeners='sudo lsof -i -Pn | grep LISTEN'
@@ -134,6 +142,10 @@ alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupt
 alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
 alias fe='fzf --bind "enter:execute(bat {})"'
 alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
+
+# Taskwarrior
+alias ta='task add'
+
 # }}}
 
 # {{{ Quick access shortcuts
@@ -153,11 +165,11 @@ local CONFIG_ALIAS=(
     "mpd        mpd/mpd.conf"
     "ncmc       ncmpcpp/config"
     "ncmb       ncmpcpp/bindings"
-    "neo        neofetch/config.conf"
-    "nm         neomutt/neomuttrc"
-    "nmb        neomutt/bindings"
-    "nmm        neomutt/mailcap"
-    "nmc        neomutt/colors"
+    "nf         neofetch/config.conf"
+    "neo        neomutt/neomuttrc"
+    "neob       neomutt/bindings"
+    "neom       neomutt/mailcap"
+    "neoc       neomutt/colors"
     "pic        picom/picom.conf"
     "qute       qutebrowser/config.py"
 )
@@ -182,16 +194,16 @@ local EDIT_AND_SOURCE=(
     "zsh    .zshrc"
 )
 for mapping in $EDIT_AND_SOURCE[@]; do
-    _alias e $(echo $mapping) "vim $ZDOTDIR"
-    _alias s $(echo $mapping) "source $ZDOTDIR"
+    _alias e $(echo $mapping) "vim $HOME/.d/zsh"
+    _alias s $(echo $mapping) "vim $HOME/.d/zsh"
 done
 
 alias upd="szsh"
-alias ecl="vim $HOME/.local/bin/changelog"
-alias etool="vim $HOME/.local/bin/tool"
-alias egitc="vim $HOME/.gitconfig"
-alias egitp="vim $XDG_CONFIG_HOME/git/config"
-alias evimrc="vim $HOME/.vim/vimrc"
+alias ecl="vim $HOME/.d/bin/changelog"
+alias etool="vim $HOME/.d/bin/tool"
+alias egitc="vim $HOME/.d/.gitconfig"
+alias evim="vim $HOME/.vim/vimrc"
+alias evimc="vim $HOME/.vim/bundle/vim-deus/colors/deus.vim"
 # }}}
 
 # {{{ System and journal
@@ -227,7 +239,9 @@ alias jprio='jmo --priority'
 
 # {{{ Docker and vagrant
 # Docker
-alias dockerdown="docker-machine stop $DOCKER_MACHINE_NAME && sudo systemctl stop docker.target"
+# alias dockerdown="docker-machine stop $DOCKER_MACHINE_NAME && sudo systemctl stop docker.target"
+alias dockerup="sudo systemctl start docker.target"
+alias dockerdown="sudo systemctl stop docker.target"
 alias dps='docker ps'
 alias dco='docker-compose'
 alias docker_usage='docker system df'
@@ -252,7 +266,7 @@ docker_delete_noname_images() {
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
-alias vgs="vagrant global status"
+alias vgs="vagrant global-status"
 # }}}
 
 # vim:ft=zsh
