@@ -42,34 +42,6 @@ autoload -U zsh-mime-setup
 zsh-mime-setup                          # alias -s
 # }}}
 
-# {{{ Source things
-export PATH=$HOME/.local/bin:$HOME/.pyenv/shims:$PATH
-export PYENV_SHELL=zsh
-export DOCKER_MACHINE_NAME=default
-pyenv rehash
-
-to_source=(
-    $ZSH/oh-my-zsh.sh
-    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-    /usr/share/todoist/todoist_functions_fzf.sh
-    $HOME/.pyenv/completions/pyenv.zsh
-    $HOME/.cache/heroku/autocomplete/zsh_setup
-    $ZDOTDIR/.fzf.zsh
-    $ZDOTDIR/aliases
-    $ZDOTDIR/fzf
-    $ZDOTDIR/functions
-    $ZDOTDIR/git
-    $ZDOTDIR/jira
-    $ZDOTDIR/sens
-    $ZDOTDIR/python
-    $ZDOTDIR/todoist
-    $ZDOTDIR/pkg
-)
-for name in $to_source; do
-    [ -f $name ] && source $name
-done
-# }}}
-
 # {{{ ZLE mappings
 bindkey -v
 bindkey ^k  up-history
@@ -137,6 +109,23 @@ zstyle ':completion:*:approximate:*' max-errors 'reply=(  $((  ($#PREFIX+$#SUFFI
 zstyle ':completion::*:(rm|vi):*' ignore-line true
 
 kitty + complete setup zsh | source /dev/stdin                                                                                  /
+
+# }}}
+
+# {{{ Source tings
+to_source=(
+    /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    /usr/share/zsh/scripts/git-prompt.zsh
+    /usr/share/todoist/todoist_functions_fzf.sh
+    $HOME/.pyenv/completions/pyenv.zsh
+    $HOME/.cache/heroku/autocomplete/zsh_setup
+    $ZDOTDIR/.completions/pip.zsh
+    $ZDOTDIR/.zsh_aliases
+)
+for name in $to_source; do
+    [ -f $name ] && source $name
+done
 # }}}
 
 # {{{ X-specific options

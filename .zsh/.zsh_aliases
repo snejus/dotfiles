@@ -1,0 +1,69 @@
+#
+#  ███ ███ ██     ██ ███ ███ ███ ███
+#  ██   ██ ██     ██ ██   ██ ██
+#  ██   ██ ██     ██ ██   ██ ██
+#  ██   ██ ██     ██ ██   ██  ██ ██
+#  ███ ███ ██     ██ ███ ███      ██
+#  ██   ██ ██     ██ ██   ██      ██
+#  ██   ██ ███ ██ ██ ██   ██ ███ ███
+#
+
+for file in $(find $HOME/.d/.zsh/alias/*); do
+    source $file
+
+    name=$(basename $file)
+    alias e$name="vim $file"
+    alias s$name="source $file"
+done
+
+# {{{ Quick access shortcuts
+local _alias () {
+    # 1 - single letter prefix, 2 - alias
+    # 3 - command / path prefix, 4 - file
+    alias $1$2="$4/$3"
+}
+
+local CONFIG_ALIAS=(
+    "aw         awesome/rc.lua"
+    "awt        awesome/themes/helohelo/theme.lua"
+    "con        conky/conky.conf"
+    "kitty      kitty/kitty.conf"
+    "kittyd     kitty/default.conf"
+    "kittys     kitty/kitty.session"
+    "mpd        mpd/mpd.conf"
+    "ncmc       ncmpcpp/config"
+    "ncmb       ncmpcpp/bindings"
+    "nf         neofetch/config.conf"
+    "neo        neomutt/neomuttrc"
+    "neob       neomutt/bindings"
+    "neom       neomutt/mailcap"
+    "neoc       neomutt/colors"
+    "pic        picom/picom.conf"
+    "qute       qutebrowser/config.py"
+)
+
+for mapping in $CONFIG_ALIAS[@]; do
+    _alias e $(echo $mapping) "vim $XDG_CONFIG_HOME"
+done
+
+local EDIT_AND_SOURCE=(
+    "al     .zsh_aliases"
+    "env    .zshenv"
+    "prof   .zprofile"
+    "zl     .zlogin"
+    "zsh    .zshrc"
+)
+for mapping in $EDIT_AND_SOURCE[@]; do
+    _alias e $(echo $mapping) "vim $HOME/.d/.zsh"
+    _alias s $(echo $mapping) "vim $HOME/.d/.zsh"
+done
+
+alias upd="szsh"
+alias ecl="vim $HOME/.d/bin/changelog"
+alias etool="vim $HOME/.d/bin/tool"
+alias egitc="vim $HOME/.d/.gitconfig"
+alias evim="vim $HOME/.vim/vimrc"
+alias evimc="vim $HOME/.vim/bundle/vim-deus/colors/deus.vim"
+# }}}
+
+# vim:ft=zsh
