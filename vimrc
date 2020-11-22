@@ -50,6 +50,17 @@ call plug#end()
 " }}}
 
 " {{{ Options: if has
+if has('nvim')
+  let g:python3_host_prog = "~/.local/pipx/venvs/black/bin/python"
+  let g:loaded_python_provider = 0
+else
+  set noesckeys
+  set t_Co=256              " the number of colours used
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  let &t_Co=256
+endif
+
 if has('gui_running')
   set guioptions-=m         " remove menu
   set guioptions-=M         " remove menu
@@ -83,8 +94,7 @@ set backspace=eol,indent,start
 set belloff=all           " turn off the error bell
 set clipboard=unnamedplus " use clipboard as the primary register
 set cursorline            " highlights current line
-" set encoding=utf8
-set noesckeys             " remove the Escape delay
+set encoding=utf8
 set expandtab             " tabs are converted to spaces
 set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:- " don't add fillchars
 set foldmethod=marker     " fold by indents - that's python specific
@@ -111,7 +121,6 @@ set spelllang=en_gb
 set splitbelow            " consistent :sp
 set splitright            " consistent :vs
 set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
-set t_Co=256              " the number of colours used
 set tabstop=4             " 4 space tabs by default
 set termguicolors         " in reality, increases the contrast a bit
 set termencoding=utf-8
@@ -126,9 +135,6 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore comp
 let mapleader = "\<Space>"
 " comments in italics
 " highlight Comment cterm=italic
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-let &t_Co=256
 let g:deus_italic=1
 let g:deus_sign_column='bg0'  " same colour as the primary bg - potentially move to the theme
 let g:deus_termcolors=256
@@ -332,6 +338,9 @@ nnoremap <F5> :w<CR> :make<CR>
 " {{{ Plugin: vim-gitgutter
 
 nmap <Leader>hd <Plug>(GitGutterPreviewHunk)
+nmap <Leader>hn <Plug>(GitGutterNextHunk)
+nmap <Leader>hp <Plug>(GitGutterPrevHunk)
+nmap <Leader>ha <Plug>(GitGutterStageHunk)
 let g:gitgutter_preview_win_floating=1
 let g:gitgutter_grep = 'ag --nocolor'
 let g:gitgutter_git_executable = '/usr/bin/git'
