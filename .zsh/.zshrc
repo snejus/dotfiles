@@ -9,6 +9,11 @@
 #
 
 export GPG_TTY=$(tty)
+export PYENV_SHELL=zsh
+export PATH=$HOME/.pyenv/shims:$HOME/.local/bin:$PATH
+export LESS=-rR
+export JQ_COLORS="1;30:1;31:1;32:1;35:1;36:1;38:1;38"
+pyenv rehash
 
 center() {
     ncols=$(( $(tput cols) - 3 ))
@@ -16,20 +21,30 @@ center() {
 }
 
 if [[ $GPG_TTY == /dev/pts/1 ]]; then
-     echo "$(pass show 'test')" | center | lolcat -a -s 10
+     echo "$(pass show 'test')" | center | lolcat
 fi
 
-
 # {{{ Variables and functions
-HISTFILE=$HOME/.zsh/.zsh_history
+HISTFILE=$ZDOTDIR/.zsh_history
 HISTSIZE=50000
-ZSH=$HOME/.oh-my-zsh
-ZSH_THEME=glister
+SAVEHIST=50000
 
-fpath=(
-    $ZSH/custom/functions
-    $fpath
-)
+unsetopt LIST_AMBIGUOUS
+setopt  COMPLETE_IN_WORD
+
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:\
+*.tar=01;31:*.zip=01;31:*.gz=01;31:*.jar=01;31:\
+*.jpg=01;35:*.png=01;35:*.svg=01;35:\
+*.mov=01;35:*.mpg=01;35:*.mkv=01;35:*.mp4=01;35:\
+*.aac=00;36:*.flac=00;36:*.mp3=00;36:*.wav=00;36:\
+*.log=3;38;5;245:*.txt=3;38;5;245:*.dump=3;38;5;245:*.coverage=3;38;5;245:*.gitignore=3;38;5;245:\
+*.py=00;32:\
+*.lock=01;32:*oject.toml=01;32:*etup.py=01;32:*equirements.txt=01;32:\
+*etup.cfg=3;32:*ypy.ini=3;32:*ylintrc=3;32:*ox.ini=3;32:\
+*.md=01;31:*.rst=01;31:\
+*file=01;33:\
+*ockerfile=01;36:*ockerignore=01;36:*-compose.test.yml=01;36:*-compose.yml=01;36:"
+
 plugins=(
     cheatsheet
     virtualenv
@@ -47,20 +62,15 @@ bindkey -v
 bindkey ^k  up-history
 bindkey ^j  down-history
 bindkey ^d  backward-kill-word
-bindkey '^[l' autosuggest-execute
+bindkey '^[;' autosuggest-execute
 # }}}
 
 # {{{ Completions
 zmodload -i zsh/complist
-autoload -Uz compinit
-compinit -d $ZDOTDIR/comp/.zcompdump
-
-unsetopt LIST_AMBIGUOUS
-setopt  COMPLETE_IN_WORD
+autoload -Uz compaudit compinit
+compinit
 
 # Thanks @Tropical_Peach on SO
-bindkey -M viins '\C-i' complete-word
-
 zstyle ':completion:*' list-separator '⼁'
 zstyle ':completion:*' list-colors "=(#b) #([0-9.]#)*=36=31"
 
@@ -132,14 +142,16 @@ done
 if [[ -n $DISPLAY ]]; then #&& [[ -n $GPG_TTY ~= pts ]]; then
     xset r rate 160 40
     setxkbmap -option "" -option "caps:escape" -option "terminate:ctrl_alt_bksp"
-    xmodmap -e "remove Mod5 = ISO_Level3_Shift"
-    xmodmap -e "remove Mod5 = Mode_switch"
-    xmodmap -e "remove Mod4 = Hyper_L"
-    xmodmap -e "keycode 0xce = Super_R"
-    xmodmap -e "remove Mod4 = Super_R"
-    xmodmap -e "remove Mod2 = Num_Lock"
-    xmodmap -e "remove Mod1 = Alt_R"
-    xmodmap -e "remove Mod1 = Meta_L"
-    xmodmap -e "remove Control = Control_R"
+    # xmodmap -e "remove Mod5 = ISO_Level3_Shift"
+    # xmodmap -e "remove Mod5 = Mode_switch"
+    # xmodmap -e "remove Mod4 = Hyper_L"
+    # xmodmap -e "keycode 0xce = Super_R"
+    # xmodmap -e "remove Mod4 = Super_R"
+    # xmodmap -e "remove Mod2 = Num_Lock"
+    # xmodmap -e "remove Mod1 = Alt_R"
+    # xmodmap -e "remove Mod1 = Meta_L"
+    # xmodmap -e "remove Control = Control_R"
 fi
 # }}}
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
