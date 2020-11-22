@@ -82,7 +82,7 @@ bwcreatesecret () {
        ".folderId = $(bw get folder Secrets | jq .id) | \
         .name = \"$1\" | \
         .notes = \"$(base64 -w 0 $2)\" | \
-        .login = \"\"")"
+        .login = \"\"")" | jq
 }
 
 bwgetsecret () {
