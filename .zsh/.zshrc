@@ -130,7 +130,7 @@ to_source=(
     /usr/share/todoist/todoist_functions_fzf.sh
     $HOME/.pyenv/completions/pyenv.zsh
     $HOME/.cache/heroku/autocomplete/zsh_setup
-    $ZDOTDIR/.completions/pip.zsh
+    $ZDOTDIR/completions/pip.zsh
     $ZDOTDIR/.zsh_aliases
 )
 for name in $to_source; do

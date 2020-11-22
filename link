@@ -1,19 +1,17 @@
 #!/usr/bin/bash
 
 USER_BINDIR=$HOME/.local/bin
+ZSHPATH=$HOME/.zsh
 
 link () {
     from=$1
     todir=$2
     frompath=$(realpath "$from")
-    resolved="$(readlink "$todir/$from")"
-    # if [[ ! $frompath == "$resolved" ]]; then
-    #     ln -s -b "$frompath" "$todir"
-    # fi
-    echo $from
-    echo $todir
-    echo $frompath
-    echo $resolved
+    topath=$todir/$(basename "${from}")
+    resolved="$(readlink "$topath")"
+    if [[ ! $frompath == "$resolved" ]]; then
+        ln -s -b "$frompath" "$todir"
+    fi
 }
 
 link_homeroot () {
@@ -37,7 +35,12 @@ link_bindir () {
         link "$script" "$USER_BINDIR"
     done
 }
+link_zsh () {
+    for file in $(fd ".z" .zsh/ -aHd1); do
+        link "$file" "$ZSHPATH"
+    done
+}
 
 link_homeroot
-# link_bindir
-# link_zsh () { }
+link_bindir
+link_zsh
