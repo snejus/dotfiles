@@ -61,7 +61,7 @@ alias -g help='--help | bat -l man --theme "Solarized (dark)"'
 
 # ls
 alias lsl='lsd -lA --size short --date=relative'
-alias  ls='lsd -lA --size short --date=relative --blocks="size,user,date,name"'
+alias ls='lsd -lA --size short --date=relative --blocks="size,user,date,name"'
 alias lsn='ls -rt'
 alias lss='lsl -r --total-size --sizesort'
 alias lst='ls --tree'
@@ -77,7 +77,7 @@ alias ssp='s -p spotify'
 alias syt='s -p youtube'
 
 # Default flags
-alias ag='ag --color'
+alias ag='ag --silent --color --pager less'
 alias bw='bw --pretty'
 alias cdu='cdu -idh -s'
 alias dmesg='dmesg -H'
@@ -86,14 +86,12 @@ alias fd='fd --xdev'
 alias feh='feh -F'
 alias gh='LESS=-RX gh'
 alias glow='glow -p'
-alias hue='hueadm -c ~/.config/hueadm/hueadm.json'
+alias hue="hueadm -c $HOME/.config/hueadm/hueadm.json"
 alias mkdir='mkdir -pv'
 alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
 alias sudo='sudo '
 alias ytdl='youtube-dl -x --audio-format mp3 -o "%(title)s.%(ext)s"'
-alias vim=nvim
 
-alias bgstop='stty tostop'
 alias calc='bc'
 alias ci='xclip -selection clipboard'
 alias cimg='xclip -selection clipboard -t image/png -i'
@@ -101,30 +99,22 @@ alias co='xclip -selection clipboard -o'
 alias devdb='udevadm info --export-db | grep'
 alias env='env | sort | pygmentize -l bash -O style=fruity'
 alias kimg='kitty +kitten icat'
+alias listeners='sudo lsof -i -Pn | grep LISTEN'
 alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
-alias mans='man --global-apropos'
 alias mimetype='cat /etc/mime.types | ag'
-alias mnt='mount'
 alias nctl='networkctl'
 alias ncm='ncmpcpp'
+alias neo='neomutt'
 alias open=''  # let zsh handle it
 alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias printpath='echo $PATH | tr : "\n"'
+alias printpath='echo $PATH | tr : \n'
 alias pss='ps aux | grep'
 alias rgbtxt='bat ~/repo/notes/rgb.txt'
-alias standup='git standup -m3'
+alias standup='git standup -m3 -d7'
+alias ta='task add'
+alias tpd='tool -pkg deps'
 alias vman='MANPAGER="vim -M +MANPAGER - " man'
 alias xwinall='xwininfo -root -children -tree'
-
-# Debug
-alias listeners='sudo lsof -i -Pn | grep LISTEN'
-
-# Mail
-alias neo='neomutt'
-
-# File search
-alias ag="ag --silent"
-alias agl="ag --silent --pager less --color"
 
 # fzf
 alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
@@ -132,14 +122,10 @@ alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupt
 alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
 alias fe='fzf --bind "enter:execute(bat {})"'
 alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
-
-# Taskwarrior
-alias ta='task add'
-
 # }}}
 
 # {{{ System and journal
-alias cleankcache='sync; echo 1 > /proc/sys/vm/drop_caches'
+alias cleankcache='zsh -c "sync; echo 1 > /proc/sys/vm/drop_caches"'
 
 # Systemctl
 alias    sy="systemctl --user"
