@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 # Jira
 # TODO: Use json for normal lists too, not just dependencies
 # TODO: Tidy up all aliases
@@ -19,26 +20,26 @@ ORANGE='\\\\e[1;38;5;208m&\\\\e[0m'
 
 
 _colorfilter() {
-    sed "2s/Is.*/$GREEN_IT/;
-        s/[A-Z]\+-[0-9]\+/$WHITE/g;
-        s/Story/$GREEN/;
-        s/Question/$CYAN/;
-        s/Task/$BLUE/;
-        s/Sub-task/$BLUE0/;
-        s/Bug/$RED/;
-        s/Incident/$YELLOW/;
-        s/Epic/$MAGENTA/;
-        s/High\ /$RED/;
-        s/Highest/$RED_IT/;
-        s/Medium/$ORANGE/;
-        s/Backlog/$BLACK/;
-        s/To Do/$WHITE/;
-        s/Investigating/$YELLOW/;
-        s/In Progress/$GREEN/;
-        s/Review/$BLUE/;
-        s/Testing/$MAGENTA/;
-        s/Done/$GREY/" |
-        xargs -I{} echo -e {}
+    sed "1s/Ty.*/$GREEN_IT/;
+          s/[A-Z]\+-[0-9]\+/$WHITE/g;
+          s/Story/$GREEN/;
+          s/Question/$CYAN/;
+          s/Task/$BLUE/;
+          s/Sub-task/$BLUE0/;
+          s/Bug/$RED/;
+          s/Incident/$YELLOW/;
+          s/Epic/$MAGENTA/;
+          s/High\ /$RED/;
+          s/Highest/$RED_IT/;
+          s/Medium/$ORANGE/;
+          s/Backlog/$BLACK/;
+          s/To Do/$WHITE/;
+          s/Investigating/$YELLOW/;
+          s/In Progress/$GREEN/;
+          s/Review/$BLUE/;
+          s/Testing/$MAGENTA/;
+          s/Done/$GREY/" |
+            xargs -I{} echo -e {}
 }
 
 _position_nicely() {
@@ -48,65 +49,62 @@ _position_nicely() {
 }
 
 _beautify() {
-    sed "s/[-+]\?\+-[^0-9a-zA-Z]//" |
-    tr '\t' ' ' |       # tabs -> spaces
-    tr -s " " |         # multiple spaces -> single space
-    sed '/| |/d' |      # remove the extra bits between headers and values
-    sed '/Reporter/!s/ [A-za-z]* |$/ |/' |  # remove surnames
+    sed -n "s/^\(| \+[A-Z].* |\)$/\1/p" |
+    tr -s " " |    # multiple spaces -> single space
+    tr -d "'" |    # remove single quotes
+    sed '2i \\a' | # separation between the headers and the data
     _colorfilter |
-    sed '2i \\a' |      # separation between the headers and the data
-    column -s "|" -t |
+    sed 's/| \([A-Z]\)[a-z]\+ \([A-Z]\)[a-z]\+ /| \1\2 /g' |  # make initials
+    column -s "|" -t -o "       " |
     _position_nicely
 }
 
 _printissues() {
-    jira list --template table --query $1 | _beautify
+    jira list --template table --query "$1" | _beautify
 }
 
 _printepics() {
-    jira list --template epic-list --query $1 | _beautify
+    jira list --template epic-list --query "$1" | _beautify
 }
 
+
+__ISSUEORDER="ORDER BY status, type ASC, description"
+__ORDERING="ORDER BY status DESC, priority DESC, created DESC"
+__NOTDONE="resolution=unresolved"
+__EPIC="type=Epic"
+__MINE="assignee=currentuser()"
+
 jlsea() {
-    _printepics "\
-        resolution = unresolved and type=Epic and project=COR \
-        ORDER BY status DESC, priority DESC, created DESC"
+    _printepics "$__EPIC and $__NOTDONE and project=COR $__ORDERING"
 }
 
 jlse() {
-    _printepics "\
-        resolution = unresolved and assignee=currentuser() and type=Epic \
-        ORDER BY status DESC, priority DESC, created DESC"
-}
-
-jels() {
-    jira epic list "$(_make_label $1)" | _beautify
+    _printepics "$__EPIC and $__NOTDONE and $__MINE $__ORDERING"
 }
 
 jls() {
-    _printissues "\
-        resolution = unresolved and assignee=currentuser()
-        ORDER BY type ASC, priority DESC, status"
+    _printissues "$__NOTDONE and $__MINE $__ISSUEORDER"
 }
 
 jlsa() {
-    _printissues "\
-        assignee=currentuser()
-        ORDER BY status DESC, priority DESC, created DESC"
+    _printissues "$__MINE $__ORDERING"
+}
+
+jels() {
+    jira epic list "$1" | _beautify
 }
 
 _to_table() {
     ncols=$(( $(tput cols) - 3 ))
     jq -r '.[] | ({ key: .key}) + { nature: (.links | keys)} + .links[] | flatten | @sh' |
-        sed "s/' \+'/';'/g" |
-            column -t -s ";" -T 3 -c $ncols |
+        sed "s/' \+'/'%'/g" |
+            column -t -s "%" -T 3 -c $ncols -o '    ' |
             tr -d "'" | _colorfilter | _position_nicely
 }
 
 _links () {
-    jira list --queryfields=issuelinks --query "$1 \
-        resolution = unresolved and assignee=currentuser()
-        ORDER BY type, status DESC, priority DESC" -t debug |
+    querystart=$1
+    jira list --queryfields=issuelinks -t json --query "$querystart $__NOTDONE and $__MINE" |
             jq '[ .issues[] |
                 { key, links: .fields.issuelinks[] |
                     { (.type.inward): (.inwardIssue // .outwardIssue |
@@ -124,24 +122,21 @@ jlslinks () {
     _links
 }
 
-_label () {
-    sed 's/^[0-9]/COR-&/'
-}
-
 jtr () {
-    jira transition $1 $(_label <<< $2)
+    jira transition "$1" "$2"
 }
 
 jio () {
-    xdg-open "$SUBDOMAIN/browse/$(_label <<< $1)"
+    xdg-open "$SUBDOMAIN/browse/${1/#[0-9]*/COR-$1}"
 }
 
-jifields () {
-    jira fields | grep system | sed "s/.*: //" | tr -d \", | sort
+jfields () {
+    jira fields | jq '.[] | [.key, .name]' | bat -l json
 }
 
-jshow jinfo jsh () {
-    _label <<< $1 | xargs jira view | pygmentize -l yaml -O style=monokai
+jshow() {
+    jira view "$1" | bat -l yml
 }
-
+alias jinfo=jshow
+alias jsh=jshow
 # vim:ft=bash
