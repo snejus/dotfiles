@@ -1,9 +1,10 @@
-set nocompatible
+set encoding=utf8
+scriptencoding utf-8
 
-"{{{ Vim-plug installation
-if empty(glob("$HOME/.vim/autoload/plug.vim"))
+" {{{ Vim-plug installation
+if empty(glob('$HOME/.vim/autoload/plug.vim'))
   silent !curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  au pluginstall VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 "}}}
 " {{{ Plugins, sorted by how much worse my life would be without them
@@ -20,7 +21,6 @@ Plug 'tpope/vim-commentary'
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
 
-" syntax
 Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'aklt/plantuml-syntax', { 'for': 'plantuml' }
 Plug 'raimon49/requirements.txt.vim', { 'for': 'requirements' }
@@ -51,9 +51,10 @@ call plug#end()
 
 " {{{ Options: if has
 if has('nvim')
-  let g:python3_host_prog = "~/.local/pipx/venvs/black/bin/python"
+  let g:python3_host_prog = '~/.local/pipx/venvs/black/bin/python'
   let g:loaded_python_provider = 0
 else
+  set ttyfast
   set noesckeys
   set t_Co=256              " the number of colours used
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -71,14 +72,12 @@ if has('gui_running')
   set guioptions-=r         " remove righthand toolbar
   set guioptions-=L         " remove lefthand toolbar when split
   set guioptions+=c         " console diags instead of popups
-  " set guifont=IBM\ Plex\ Mono\ SemiLight\ Bold\ 12
   set guifont=IBM\ Plex\ Mono\ Thin\ 12
 endif
 
-
 if has('persistent_undo')
-  silent ! [[ -d ~/.vim/backups ]] || mkdir ~/.vim/backups
-  set undodir=~/.vim/backups
+  silent ! [[ -d ~/.cache/vimundo ]] || mkdir ~/.cache/vimundo
+  set undodir=~/.cache/vimundo
   set undofile
 endif
 
@@ -87,46 +86,41 @@ if has('autocmd')
 endif
 " }}}
 " {{{ Options: :options
-set autoindent            " automatic identation
-set autoread              " auto reload changed files
-set background=dark       " dark theme
+set autoindent
+set autoread
+set background=dark
 set backspace=eol,indent,start
-set belloff=all           " turn off the error bell
-set clipboard=unnamedplus " use clipboard as the primary register
-set cursorline            " highlights current line
-set encoding=utf8
-set expandtab             " tabs are converted to spaces
-set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:- " don't add fillchars
-set foldmethod=marker     " fold by indents - that's python specific
-set foldlevel=0           " fold level of a closed fold
+set belloff=all
+set clipboard=unnamedplus
+set cursorline
+set expandtab
+set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:-
+set foldmethod=marker
+set foldlevel=0
 set history=1000
-set hlsearch              " highlight search results
-set incsearch             " show search results as you type
-set laststatus=2          " always show statusline
+set hlsearch
+set incsearch
+set laststatus=2
 set listchars=tab:>\ ,trail:-,extends:→,precedes:←,nbsp:+
-set modifiable            " buffers are modifiable
-" set noequalalways         " split windows sizes always split in half
-set noshowmode            " get rid of --INSERT-- in the bottom
-set noshowcmd             " do not display last command in the bottom
-set noswapfile            " do not use swapfiles
-set nowrap                " don't wrap long lines
-set nowritebackup         " do not backup - git is used anyways
-" set number relativenumber " displays hybrid line numbers
-" set signcolumn=no        " always show sign column
-set scrolloff=999         " keep the cursor centered
-set shiftwidth=4          " use 'tabstop' value for this
-set shortmess+=F          " get rid of the file name displayed in the command line bar
-set sidescroll=1          " in nowrap mode, scroll by horizontally by 1 char, not half of the screen
+set modifiable
+set noshowmode
+set noshowcmd
+set noswapfile
+set nowrap
+set nowritebackup
+set scrolloff=999
+set shiftwidth=4
+set shortmess+=F
+set sidescroll=1          " in nowrap mode, scroll horizontally by 1 char, not half of the screen
 set spelllang=en_gb
-set splitbelow            " consistent :sp
-set splitright            " consistent :vs
-set synmaxcol=1000        " only syntax-highlight the first 1000 characters in a line
-set tabstop=4             " 4 space tabs by default
-set termguicolors         " in reality, increases the contrast a bit
+set splitbelow
+set splitright
+set synmaxcol=1000
+set tabstop=4
+set termguicolors
 set termencoding=utf-8
-set timeoutlen=500        " escape double click delay
-set ttyfast               " fast terminal vrummmmmmm
-set updatetime=500        " update faster asynchronously
+set timeoutlen=500
+set updatetime=100        " update faster asynchronously
 set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 " }}}
@@ -147,9 +141,8 @@ colorscheme deus
 " colorscheme gruvbox
 
 " this beauty remembers where the cursor was when file was closed and returns to the same position
-au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 " }}}
-" {{{ Options: filetype-specific
+" {{{ Options: automation groups
 " Remap:
 function! g:Set_format_options()
   if &filetype ==# 'python'
@@ -159,36 +152,33 @@ function! g:Set_format_options()
   endif
 endfunction
 
-au BufEnter * call g:Set_format_options()
-au BufNewFile,BufRead *.rest setlocal filetype=rst
-au BufNewFile,BufRead *.ts setlocal filetype=typescript
-au BufNewFile,BufRead *.tsx setlocal filetype=typescript
-au BufNewFile,BufRead *.vue setf vue
-au BufNewFile,BufRead *.conf setlocal filetype=conf
-au Filetype html setlocal ts=2
-au Filetype javascript setlocal ts=2
-au Filetype Jenkinsfile setlocal ts=2 sw=2
-au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80 foldlevel=99
-au Filetype typescript setlocal ts=2
-" au Filetype vimwiki setlocal ts=2
-" au Filetype vue setlocal ts=2
-au Filetype vim setlocal ts=2 sw=2
-" au Filetype vuejs setlocal ts=2
-au Filetype yml setlocal ts=2
-au Filetype yaml setlocal ts=2
-au FileType xdefaults setlocal commentstring=!%s
-au FileType requirements setlocal commentstring=#\ %s
+augroup automator
+  au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
+  au BufWritePre * %s/\s\+$//e
+  au BufEnter * call g:Set_format_options()
+augroup END
 
-au FileChangedRO * setlocal buftype=acwrite noreadonly
+augroup sudowrite
+  au FileChangedRO * setlocal buftype=acwrite noreadonly
+augroup END
 
-" remove trailing whitespace on save
-au BufWritePre * %s/\s\+$//e
+augroup missingft
+  au BufNewFile,BufRead *.rest setlocal filetype=rst
+  au BufNewFile,BufRead *.conf setlocal filetype=conf
+  au Filetype html setlocal ts=2
+  au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80 foldlevel=99
+  au FileType requirements setlocal commentstring=#\ %s
+  au Filetype Jenkinsfile setlocal ts=2 sw=2
+  au Filetype vim setlocal ts=2 sw=2
+  au FileType xdefaults setlocal commentstring=!%s
+  au Filetype yml setlocal ts=2 sw=2
+  au Filetype yaml setlocal ts=2 sw=2
+augroup END
+
 " }}}
 
 " {{{ Plugin: NERDTree
 
-" au vimenter * NERDTree " open on startup
-" au vimenter * wincmd p " goes together with the above, at least in macvim
 let NERDTreeWinSize=40
 let NERDTreeMinimalUI=1
 let g:NERDTreeDirArrowExpandable = ''
@@ -231,6 +221,7 @@ let g:ale_linters = {
 \   'sh':         ['shellcheck'],
 \   'text':       ['vale'],
 \   'yaml':       ['yamllint'],
+\   'vim':        ['vint'],
 \   'vue':        ['eslint'],
 \   'zsh':        ['shellcheck'],
 \}
@@ -243,8 +234,8 @@ let g:ale_fixers = {
 \   'markdown':   ['prettier'],
 \   'vue':        ['eslint'],
 \}
-let g:ale_python_flake8_options = '--jobs 8'
-let g:ale_python_pylint_options = '--jobs 8'
+let g:ale_python_flake8_options = '--jobs 2'
+let g:ale_python_pylint_options = '--jobs 2'
 " let g:ale_javascript_prettier_options = '--tab-width 4'
 
 let g:ale_disable_lsp=1
@@ -297,18 +288,13 @@ nmap <leader>hg <plug>(YCMHover)
 " }}}
 " {{{ Plugin: lightline / airline
 
-if has("gui_running")
-    let g:airline_powerline_fonts = 1
-else
-    let g:airline_powerline_fonts = 0
-    let g:airline_symbols_ascii = 1
-endif
-
 let g:airline_theme='deus'
 let g:airline_symbols_ascii = 1
+let g:airline_powerline_fonts = 1
 let g:airline_highlighting_cache = 1
 let g:airline_skip_empty_sections = 1
 let g:airline#extensions#fzf#enabled = 1
+let g:airline#extensions#branch#enabled = 1
 " }}}
 " {{{ Plugin: obvious-resize
 let g:obvious_resize_default = 2
@@ -338,16 +324,24 @@ nnoremap <F5> :w<CR> :make<CR>
 " {{{ Plugin: vim-gitgutter
 
 nmap <Leader>hd <Plug>(GitGutterPreviewHunk)
-nmap <Leader>hn <Plug>(GitGutterNextHunk)
+nmap <Leader>hn <Plug>(GitGutterNextHunk)<Plug>(GitGutterPreviewHunk)
 nmap <Leader>hp <Plug>(GitGutterPrevHunk)
 nmap <Leader>ha <Plug>(GitGutterStageHunk)
-let g:gitgutter_preview_win_floating=1
+nmap <Leader>hu <Plug>(GitGutterUndoHunk)
+
+nmap <Leader>hh :GitGutterLineHighlightsToggle<CR>
+nmap <Leader>hf :GitGutterFold<CR>
+
+let g:gitgutter_preview_win_floating = 1
 let g:gitgutter_grep = 'ag --nocolor'
 let g:gitgutter_git_executable = '/usr/bin/git'
+let g:gitgutter_highlight_lines = 0
+let g:gitgutter_map_keys = 0
+
 " }}}
 " {{{ Plugin: Supertab
 
-let g:SuperTabDefaultCompletionType = "context"
+let g:SuperTabDefaultCompletionType = 'context'
 " }}}
 " {{{ Plugin: Tabular and vim-markdown
 
@@ -369,19 +363,13 @@ let g:vim_markdown_strikethrough = 1
 let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_no_default_key_mappings = 1
 " }}}
-" {{{ Plugin: Ultisnips
-let g:UltiSnipsExpandTrigger="<C-U>"
-let g:UltiSnipsJumpForwardTrigger="<C-Y>"
-let g:UltiSnipsJumpBackwardTrigger="<C-N>"
-let g:UltiSnipsSnippetDirectories=["~/.vim/bundle/vim-snippets/UltiSnips"]
-" }}}
 " {{{ Plugin: Calendar
 let g:calendar_google_calendar = 1
 let g:calendar_google_task = 0
 
 
-let g:calendar_view = "week"
-let g:calendar_first_day = "monday"
+let g:calendar_view = 'week'
+let g:calendar_first_day = 'monday'
 
 let g:calendar_google_api_key = '...'
 let g:calendar_google_client_id = $CAL_CLIENT_ID
@@ -391,7 +379,6 @@ let g:calendar_google_client_secret = $CAL_CLIENT_SECRET
 let g:Unicode_no_default_mappings = v:true
 "}}}
 "{{{ Syntax: rst
-
 let g:rst_syntax_code_list = {
 \ 'bash': ['bash'],
 \ 'dockerfile': ['dockerfile'],
@@ -425,8 +412,8 @@ nmap <C-L> <C-W><C-L>
 nmap <C-H> <C-W><C-H>
 
 " Folds
-nmap <CR> za
-nmap <Space><CR> zMzvzt
+nmap <Leader>- za
+nmap <Leader><CR> zMzvzt
 
 " line-wise movement
 nmap gh g0
@@ -460,16 +447,13 @@ nmap <silent> tn :<C-U>tabnew<CR>
 nmap <silent> gt :<C-U>tabnext<CR>
 nmap <silent> gb :<C-U>tabprevious<CR>
 
-" clipboard you've been finally hacked
-nmap <Leader>p "+p
-vmap <Leader>y "+y
-
 " show highlighting group for a word under cursor
-nmap <silent> <Leader>h
+nmap <silent> <Leader>cc
   \ :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
   \ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
   \ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
 
+" navigation in the quickfix window
 nmap <Leader>ne :cn<CR>
 nmap <Leader>np :cp<CR>
 
