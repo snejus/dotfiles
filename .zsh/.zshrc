@@ -10,8 +10,8 @@
 
 export GPG_TTY=$(tty)
 export PYENV_SHELL=zsh
-export PATH=$HOME/.pyenv/shims:$HOME/.local/bin:$PATH
-export LESS=-rR
+export PATH=$HOME/.pyenv/shims:$HOME/.local/bin:$PATH:$HOME/.fzf/bin
+export LESS=-R
 export JQ_COLORS="1;30:1;31:1;32:1;35:1;36:1;38:1;38"
 pyenv rehash
 
@@ -45,16 +45,6 @@ export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 *file=01;33:\
 *ockerfile=01;36:*ockerignore=01;36:*-compose.test.yml=01;36:*-compose.yml=01;36:"
 
-plugins=(
-    cheatsheet
-    virtualenv
-    colored-man-pages
-    zsh-autosuggestions
-)
-autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
-add-zsh-hook chpwd chpwd_recent_dirs    # cdr
-autoload -U zsh-mime-setup
-zsh-mime-setup                          # alias -s
 # }}}
 
 # {{{ ZLE mappings
@@ -122,12 +112,17 @@ kitty + complete setup zsh | source /dev/stdin                                  
 
 # }}}
 
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs    # cdr
+autoload -U zsh-mime-setup
+zsh-mime-setup                          # alias -s
 # {{{ Source tings
 to_source=(
     /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
     /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     /usr/share/zsh/scripts/git-prompt.zsh
     /usr/share/todoist/todoist_functions_fzf.sh
+    $HOME/.fzf/shell/key-bindings.zsh
     $HOME/.pyenv/completions/pyenv.zsh
     $HOME/.cache/heroku/autocomplete/zsh_setup
     $ZDOTDIR/completions/pip.zsh
@@ -153,5 +148,3 @@ if [[ -n $DISPLAY ]]; then #&& [[ -n $GPG_TTY ~= pts ]]; then
     # xmodmap -e "remove Control = Control_R"
 fi
 # }}}
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

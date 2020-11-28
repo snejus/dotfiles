@@ -44,17 +44,20 @@ compdef _heroku hrk
 ####           PYTHON          ####
 ###################################
 
-alias tpd='tool pkg -d'
+alias tpd='tool -pkg deps'
 
-alias m="make"
 alias ms="make shell"
 alias ma="python manage.py"
+alias print_settings='python manage.py print_settings | pygmentize -l bash -O style=fruity | less -XLR'
 alias clog="changelog -p"
 
 # Dephell
 alias dp="dephell package"
 
 # Poetry
+alias vp='vim pyproject.toml'
+alias act='source $(poetry env info --path)/bin/activate'
+alias deact=deactivate
 alias peotry="poetry"
 alias psh="poetry shell"
 alias pou="poetry update -vv"
@@ -119,7 +122,7 @@ depopen() {
 
 deps() {
     echo Generating pydeps dependencies graph for $1
-    pydeps $1 --reverse -T png --display feh
+    pydeps $1 --include-missing --reverse -T png --display feh
 }
 
 cdeps() {
@@ -156,6 +159,16 @@ skipped_pylint_by_error() {
     sed 's/.*able\ \?=\ \?//' | tr , '\n' | tr -d ' ' |
     tee >(wc -l) >(printf '\e[%smTOTAL: \e[%sm' $MAGENTA $GREY) |
     sort | uniq -c | sort -rh
+}
+
+compose2plantuml () {
+    compose_plantuml --link-graph
+                     --boundaries
+                     --port_boundaries
+                     --volume_boundaries
+                     --group
+                     --notes
+         docker-compose.test.yml > integrated.uml
 }
 
 # vim:ft=bash

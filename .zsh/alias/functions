@@ -216,12 +216,14 @@ man () {
         if [[ $2 == "long" ]]; then
             flag=--long-help
         fi
-        $1 $flag | bat -l man --theme "Solarized (dark)"
+        $1 $flag | bat -l man
     fi
 }
 
 convertaudio () {
-    ffmpeg -i $1 -codec:a -o -codec $2 hello.$2
+    input_format=$1:e
+    output=$(basename $1 $input_format)$2
+    ffmpeg -i $1 -codec:a -o -codec $2 $output
 }
 
 svg2png () {

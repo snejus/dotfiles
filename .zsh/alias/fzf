@@ -26,7 +26,7 @@ EOF
 local misc="--no-mouse --height 60% -1 --reverse --multi --inline-info"
 local FD_OPTIONS="--follow --hidden -E \*.html -E .git -E node_modules -E .heroku"
 
-export FZF_DEFAULT_OPTS="$misc --preview=$(preview_arg | tr -d  '\n') --preview-window=$(preview_window_arg) --bind=$(mappings_arg | tr -d '\n')"
+export FZF_DEFAULT_OPTS="--color 16 $misc --preview=$(preview_arg | tr -d  '\n') --preview-window=$(preview_window_arg) --bind=$(mappings_arg | tr -d '\n')"
 export FZF_DEFAULT_COMMAND="git ls-files --cached --others --exclude-standard | fd --type f --type l $FD_OPTIONS"
 
 f() {

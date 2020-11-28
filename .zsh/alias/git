@@ -2,6 +2,7 @@ alias -g csu="--compact-summary"
 
 alias git=hub
 alias ga="git add"
+alias gac='git add $(gf)'
 alias gau="git add -u"
 alias gc="git checkout"
 alias gc-="git checkout -"
@@ -9,20 +10,25 @@ alias gci="hub ci-status"
 alias gcb="git checkout -b"
 alias gcm="git checkout master"
 alias gct="git checkout -t"
+alias gcc="git commit --no-edit --amend"
 alias gcom="git commit -m"
 alias gdm="git diff master"
 alias gds='git diff --staged'
-alias gre="git checkout --"
 alias gd="git diff"
-alias gfe="git fetch"
+alias gfe="git fetch --all"
 alias ghrc="gh repo clone"
 alias gprc="gh pr create"
-alias gl="git l"
 alias gl1="git l1"
+alias gl="git l"
+alias gla="git la"
 alias gls="git ls"
+alias glsa="git lsa"
 alias glc="git lc"
+alias glca="git lca"
 alias glf="git lf"
+alias glfa="git lfa"
 alias glp="git lp"
+alias glpa="git lpa"
 alias glse="git lf -S"
 alias gm="git merge"
 alias gmom="git merge origin/master"
@@ -30,8 +36,11 @@ alias gp="git push"
 alias gpou="git push origin -u"
 alias grb="git rebase"
 alias gre='git restore'
-alias grel='git restore `gf`'
+alias gres='git restore --staged'
+alias gresc='git restore --staged $(gf)'
+alias grec='git restore $(gf)'
 alias grh="git reset --hard HEAD"
+alias grl="git rl"
 alias groot='cd $(git rev-parse --show-cdup)'
 alias grpo="git remote prune origin"
 alias gs="gstatus"
@@ -42,6 +51,7 @@ alias gstl="git stash list | pygmentize -l yaml -O style=fruity"
 alias gnew="git diff --name-only --diff-filter=d 2>/dev/null | xargs bat --diff --diff-context=2"
 alias gitinspection="gitinspector --file-types='**' --grading -T --format html > gitinspector.html && open gitinspector.html"
 alias openpr="gh pr view --web"
+alias openbuild='$BROWSER $(hub ci-status -f "%U")'
 
 prmsg() {
     if [[ -n $1 ]]; then

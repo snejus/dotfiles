@@ -54,7 +54,8 @@ alias -g cfg=~/.config
 alias -g c='| wc -l'
 alias -g sf=--system
 alias -g u=--user
-alias -g help='--help | bat -l man --theme "Solarized (dark)"'
+alias -g help='--help | bat -l man'
+alias -g m='/media/music'
 # }}}
 
 # {{{ Generic aliases
@@ -77,7 +78,7 @@ alias ssp='s -p spotify'
 alias syt='s -p youtube'
 
 # Default flags
-alias ag='ag --silent --color --pager less'
+alias ag='ag --silent --color --pager bat'
 alias bw='bw --pretty'
 alias cdu='cdu -idh -s'
 alias dmesg='dmesg -H'
@@ -93,7 +94,7 @@ alias sudo='sudo '
 alias ytdl='youtube-dl -x --audio-format mp3 -o "%(title)s.%(ext)s"'
 
 alias calc='bc'
-alias ci='xclip -selection clipboard'
+alias ci='xclip -selection clipboard -r'
 alias cimg='xclip -selection clipboard -t image/png -i'
 alias co='xclip -selection clipboard -o'
 alias devdb='udevadm info --export-db | grep'
@@ -107,7 +108,7 @@ alias ncm='ncmpcpp'
 alias neo='neomutt'
 alias open=''  # let zsh handle it
 alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias printpath='echo $PATH | tr : \n'
+alias printpath='echo $PATH | tr : "\n"'
 alias pss='ps aux | grep'
 alias rgbtxt='bat ~/repo/notes/rgb.txt'
 alias standup='git standup -m3 -d7'
@@ -166,6 +167,11 @@ alias docker_usage='docker system df'
 alias containerip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
 alias dockerip='eval $(docker-machine env default)'
 
+dimg () {
+    docker images -a --format='{{ .Repository | printf "%.30s" | printf "%-30s" }} {{ .Tag | printf "%-20s" }} {{ .Size }}'  |
+        grep -v '<none>'
+}
+
 dockerstop () {
     echo Killing every container which mentions $1
     docker ps --filter name=$1 | xargs -i docker stop {}
@@ -178,7 +184,6 @@ docker_noname_image_ids() {
 docker_delete_noname_images() {
     docker_noname_image_ids | xargs docker image rm
 }
-
 
 # Vagrant
 alias vu="vagrant up"

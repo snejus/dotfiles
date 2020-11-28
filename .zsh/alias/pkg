@@ -27,7 +27,7 @@ alias pfcmp='pacfile --check'
 alias paclogg='paclog --grep'
 
 __showdeps () {
-    if [[ -n $3 ]]; then   # render in the term with kitty
+    if [[ -z $3 ]]; then   # render in the term with kitty
         pactree $2 $1 | dot -Tpng | kimg
     else  # raise
         pactree $2 $1 | dot -Tpng | feh -

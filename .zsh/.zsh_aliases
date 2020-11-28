@@ -53,14 +53,14 @@ local EDIT_AND_SOURCE=(
 )
 for mapping in $EDIT_AND_SOURCE[@]; do
     __make_alias e $(echo $mapping) "vim $HOME/.d/.zsh"
-    __make_alias s $(echo $mapping) "vim $HOME/.d/.zsh"
+    __make_alias s $(echo $mapping) "source $HOME/.d/.zsh"
 done
 
 alias upd="szsh"
 alias ecl="vim $HOME/repo/sn-scriptville/changelog"
 alias etool="vim $HOME/repo/sn-scriptville/tool"
 alias egitc="vim $HOME/.d/.gitconfig"
-alias evim="vim $HOME/.vim/vimrc"
+alias evim="vim $HOME/.d/vimrc"
 alias evimc="vim $HOME/.vim/bundle/vim-deus/colors/deus.vim"
 # }}}
 
