@@ -14,7 +14,7 @@ get_coverpic() {
 
     # if not, check our covers dir, use filename
     if [[ -z $coverpic ]]; then
-        coverpic="$(fd -e png -e jpg "$file" $coversdir)" 
+        coverpic="$(fd -e png -e jpg "$file" $coversdir)"
     fi
 
     # if not, extract the cover if it's a flac file
@@ -23,9 +23,9 @@ get_coverpic() {
         if [[ -z $single ]]; then  # part of an album, use that folder
             coverpic=$albumdir/cover.png
          else # move to the generic covers dir
-            coverpic=$coversdir/$coverpic
+            coverpic=$coversdir/$file
         fi
-        metaflac "$filepath" --export-picture-to "$coverpic" 2> /dev/null || coverpic=""
+        metaflac "$filepath" --export-picture-to "$coverpic" || coverpic=""
     fi
     echo "$coverpic"
 }
