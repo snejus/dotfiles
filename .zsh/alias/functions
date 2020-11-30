@@ -1,41 +1,46 @@
 ##### GENERAL #####
 
-RED='1;31'
-GREEN='1;32'
-YELLOW='1;33'
-BLUE='1;34'
-MAGENTA='1;35'
-CYAN='1;36'
-WHITE='1;37'
-BLUE='1;38'
-GREY='1;39'
+h() {
+    howdoi "$@" -c -n 5
+}
 
+du_sort() {
+    du -d 1 --si --all "$1" | sort -h
+}
 
-h() { howdoi $* -c -n 5 }
-du_sort() { du -d 1 --si --all $1 | sort -h }
-mcd () { mkdir $1; cd $1 }
-locatel() { locate $@ | xargs exa -lah }
-locateconf() { locate $1 | sed '/\.conf$/!d' }
-whichl() { lsd -lah "$(which $1)" }
-shrinkmp4() { ffmpeg -i $1 -vcodec libx265 -crf 2 $2 }
-unzipm () { unzip $1 -d $1:r }
+mcd () {
+    mkdir "$1"
+    cd "$1" || return
+}
 
-toflac () {
+whichl() {
+    lsl -lah "$(which "$1")"
+}
+
+mp4compact() {
+    ffmpeg -i "$1" -vcodec libx265 -crf 2 "$2"
+}
+
+unzipm () {
+    unzip "$1" -d $1:r
+}
+
+2flac () {
     noext=$1:r
     to=$noext.flac
-    ffmpeg -i $1 -codec:a -o -codec flac $to
+    ffmpeg -i "$1" -codec:a -o -codec flac "$to"
 }
 
 show_mouse_color() {
     if [[ -n $1 ]]; then sleep $1; fi
 
     scrot --overwrite /tmp/copycolor.png
-    eval $(xdotool getmouselocation --shell)
+    eval "$(xdotool getmouselocation --shell)"
 
     img=$(convert /tmp/copycolor.png -depth 8 -crop 1x1+$X+$Y txt:-)
     color=$(echo $img | grep -om1 '#\w\+')
 
-    echo -n $cikir | xclip -i -selection clipboard
+    xclip -selection clipboard <<< "$color"
 
     awesome-client "\
     naughty = require(\"naughty\")\
@@ -54,26 +59,22 @@ _newpassword () {
 }
 
 bwgenpass () {
-    copyq disable 2> /dev/null
     _newpassword | ci
-    copyq enable 2> /dev/null
 }
 
 bwgetpw () {
-    copyq disable 2> /dev/null
-    bw get password $1 | ci
-    copyq enable 2> /dev/null
+    bw get password "$1" | ci
 }
 
 bwcreate () {
-    bw create $1 $(echo "$2" | bw encode)
+    bw create "$1" "$(echo "$2" | bw encode)"
 }
 
 bwcreatenote () {
     bwcreate item "$(bw get template item | jq \
        ".folderId = $(bw get folder Notes | jq .id) | \
         .name = \"$1\" | \
-        .notes = \"$(cat $2)\" | \
+        .notes = \"$(cat "$2")\" | \
         .login = \"\"")"
 }
 
@@ -81,25 +82,25 @@ bwcreatesecret () {
     bwcreate item "$(bw get template item | jq \
        ".folderId = $(bw get folder Secrets | jq .id) | \
         .name = \"$1\" | \
-        .notes = \"$(base64 -w 0 $2)\" | \
+        .notes = \"$(base64 -w 0 "$2")\" | \
         .login = \"\"")" | jq
 }
 
 bwgetsecret () {
-    base64 --decode <(bw get item $1 | jq '.notes' | tr -d \")
+    base64 --decode <(bw get item "$1" | jq '.notes' | tr -d \")
 }
 
 bwcreatelogin () {
     pw="$(_newpassword)"
     template="$(bw get template item)"
     bwcreate item "$template | jq \
-       ".name = \"$1\" | \
-        .login = {\"username\" = \"$2\", \"password\" = \"$pw\"}")"
-    echo $pw | ci
+       ".name = \""$1"\" | \
+        .login = {\"username\" = \""$2"\", \"password\" = \""$pw"\"}")"
+    echo "$pw" | ci
 }
 
 bwsearch () {
-    bw list items --search $1 | jq 'del(.[].login.password)'
+    bw list items --search "$1" | jq 'del(.[].login.password)'
 }
 
 dadjoke() {
@@ -122,7 +123,6 @@ $1$1$1$2$1$2$1$2$1$2$1$1$1
 $1$1$1$2$1$2$1$2$1$2$1$1$1
 $1$1$1$1$1$1$1$1$1$1$1$1$1"
 }
-
 
 ##### GENERAL TEXT PROCESSING #####
 flushright() {
@@ -193,8 +193,8 @@ ns() {
 
 _with_color () {
     command env \
-        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-        LESS_TERMCAP_md=$(printf "\e[1;32m") \
+        LESS_TERMCAP_mb=$(printf "\e[1;32m") \
+        LESS_TERMCAP_md=$(printf "\e[1;31m") \
         LESS_TERMCAP_me=$(printf "\e[0m") \
         LESS_TERMCAP_se=$(printf "\e[0m") \
         LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
@@ -203,12 +203,18 @@ _with_color () {
         PAGER=/usr/bin/less _NROFF_U=1 "$@"
 }
 
-hub git () {
+hub () {
     _with_color "$0" "$@"
 }
+alias git=hub
 
 man () {
-    exists=$(fd "^$1" /usr/share/man -t f -1)
+    if [[ ! ${#@} == 1 ]]; then
+        /usr/bin/man "$@"
+        return
+    fi
+
+    exists=$(fd "^$1" /usr/share/man -1)
     if [[ -n $exists ]]; then
         _with_color "$0" "$@"
     else
@@ -220,21 +226,52 @@ man () {
     fi
 }
 
-convertaudio () {
+convertff () {
     input_format=$1:e
-    output=$(basename $1 $input_format)$2
-    ffmpeg -i $1 -codec:a -o -codec $2 $output
+    output=$(basename "$1" "$input_format")$2
+    echo $output
+    ffmpeg -i "$1" "$output"
 }
+
+convertbpm () {
+    input_format=$1:e
+    output=$3
+    if [[ -z $output ]]; then
+        output=$1
+    fi
+    ffmpeg -yi "$1" -filter:a "atempo=$2" "$2x$output"
+}
+
 
 svg2png () {
     input=$1
     width=$2
     height=$3
-    output=$(basename $input .svg).png
+    output=$(basename "$input" .svg).png
     if [[ -n $height ]]; then
         height=$width
     fi
     convert -background transparent -resize ${height}x$width $input $output
+}
+
+flacaddpic () {
+    flac -f $1 --picture=$2
+}
+
+__confluencify() {
+  sed '/^<!-- vim-markdown/,/<!-- vim-markdown/d;
+       /<\/\?details>\|<\/\?summary>/d; # remove html tags' "$1"
+}
+
+upload2confluence() {
+   mark -f <(__confluencify "$1") --debug --trace
+}
+
+testupload2confluence() {
+   uploadfile="_Test_Confluence_$1"
+   htmlfile="${uploadfile:r}.html"
+   mark -f <(__confluencify "$1") --dry-run > "$htmlfile"
+   echo "$htmlfile has been generated"
 }
 
 # vim:ft=bash
