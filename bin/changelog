@@ -35,105 +35,77 @@
 #
 #       $ alias clog='changelog -p'
 #
-declare -A PROJECTS
+
 # flake8: https://gitlab.com/pycqa/flake8/-/tree/master/docs/source/release-notes - non-standard
-PROJECTS[attrs]="python-attrs/attrs"
-PROJECTS[django-filter]="carltongibson/django-filter"
-PROJECTS[heroku]="heroku/cli"
-PROJECTS[httpie]="httpie/httpie"
-PROJECTS[isort]="PyCQA/isort"
-PROJECTS[lxml]="lxml/lxml"
-PROJECTS[pdoc3]="pdoc3/pdoc"
-PROJECTS[poetry]="python-poetry/poetry"
-PROJECTS[pygments]="pygments/pygments"
-PROJECTS[smart-open]="RaRe-Technologies/smart_open"
-PROJECTS[zeep]="mvantellingen/python-zeep"
+declare -A PROJECTS
+# repos that contain CHANG* file in their root (anything that starts with `CHANG`, case-insensitive)
+PROJECTS[httpie]=httpie/httpie
+PROJECTS[poetry]=python-poetry/poetry
+PROJECTS[feh]=derf/feh
+PROJECTS[prettier]=prettier/prettier
 
 declare -A LINKS
-LINKS[markdown]="Python-Markdown/markdown/master/docs/change_log/release-3.3.md"
-LINKS[djangorestframework]="encode/django-rest-framework/master/docs/community/release-notes.md"
-LINKS[pip]="pypa/pip/master/NEWS.rst"
-LINKS[psycopg2]="psycopg/psycopg2/master/NEWS"
-LINKS[psycopg2-binary]="psycopg/psycopg2/master/NEWS"
-LINKS[pytest]="pytest-dev/pytest/master/doc/en/changelog.rst"
-LINKS[pytz]="stub42/pytz/master/tz/NEWS"
-LINKS[wakatime]="wakatime/wakatime/master/HISTORY.rst"
-# TODO: Handle NEWS
-# TODO: Use default main repo
+LINKS[markdown]=Python-Markdown/markdown/master/docs/change_log/release-3.3.md
+LINKS[docker-compose]=https://github.com/docker/compose/blob/release/CHANGELOG.md
+LINKS[djangorestframework]=encode/django-rest-framework/master/docs/community/release-notes.md
+LINKS[pytest]=pytest-dev/pytest/master/doc/en/changelog.rst
+LINKS[pytz]=stub42/pytz/master/tz/NEWS
+LINKS[whitenoise]=evansd/whitenoise/master/docs/changelog.rst
 
 VERBOSE=1
-PIP="$(pass show main-repo-pip)"
+PAGER=0
+PLAIN=0
+DEFAULT_PIP="$(pass show main-repo-pip)"  # path to the default venv pip for private packages
 
-good() {
-    printf "\e[1;3;32m$1\e[0m"
+pspeak() {
+    # - printf speak - (or polite-speak) - mind the VERBOSE flag
+    if [[ -n $VERBOSE ]]; then
+        printf "$@"
+    fi
 }
 
-okay() {
-    printf "\e[1;33m$1\e[0m"
+good() {  # bold green
+    printf $'\e[1;32m%s\e[0m' "$1"
 }
 
-oh() {
-    printf "\e[1;31m$1\e[0m"
+okay() {  # bold orange
+    printf $'\e[1;33m%s\e[0m' "$1"
+}
+
+oh() {  # bold red
+    printf $'\e[1;31m%s\e[0m' "$1"
 }
 
 happy() {
-    printf "$(good "$1")"
-    [[ -n $2 ]] && printf " $2\n" || printf "\n"
+    pspeak '%s %s\n' "$(good "$1")" "$2"
 }
 
 hmmm() {
-    printf >&2 "$(okay WARNING:) $1\n"
+    printf >&2 '%s %s\n' "$(okay WARNING:)" "$1"
 }
 
 uhoh() {
-    printf >&2 "$(oh ERROR:) $1\n"
-}
-
-parse_homepage() {
-    sed -n 's/.*\"\?Home-\?page\"\?: //pI' | tr -d '",'
-}
-
-try_with_pypi() {
-    pypi info "$pkg" | sed -n '/UNKNOWN/!s/^Home page: //pI' 2> /dev/null
-}
-
-get_homepage() {
-    pkg=$1
-    if command -v pypi &> /dev/null; then
-        details=$(try_with_pypi "$pkg")
-        [[ -n $details ]] && echo "$details" && return
-        hmmm "pypi didn't find the package: Trying pip"
-    else
-        hmmm "pypi executable not found: Using pip"
-    fi
-
-    pip=""
-    if [[ -n $PIP ]]; then
-        pip=$PIP
-    else
-        pip=pip
-    fi
-    echo $pip
-
-    details=$($pip show "$pkg")
-    [[ -n $details ]] && echo "$details" | parse_homepage
+    printf >&2 '%s %s\n' "$(oh ERROR:)" "$1"
 }
 
 get() {
-    curl -s -u "username:$GITHUB_TOKEN" "$(echo "$1" | tr -d ' "')"
+    url=$1
+    curl -L -s -u "username:$GITHUB_TOKEN" "$(tr -d ' "' <<< "$url")"
 }
 
 show() {
 # Markdown: glow -> pygments -> plain
 # Restructured text: pygments -> plain
     url="$1"
-    plain=$2
-    [[ $plain -eq 1 ]] && get "$url" && return
+    if [[ $PLAIN -eq 1 ]]; then
+        get "$url"
+        return
+    fi
 
     format="rst"
-    echo "$url" | grep -vq ".rst" && format="md"
+    grep -vq ".rst" <<< "$url" && format="md"
     if [[ $format == "md" ]] && command -v glow &> /dev/null; then
-        get "$url" | glow -s dark - && return 0
+        get "$url" | glow -s dark - && return
     fi
 
     if command -v pygmentize &> /dev/null; then
@@ -145,90 +117,123 @@ show() {
 
 render() {
     url=$1
-    pager=$2
-    plain=$3
 
-    if [[ $pager -eq 0 ]]; then
-        show "$url" $plain 1>&2
+    if [[ $PAGER -eq 0 ]]; then
+        show "$url" 1>&2
     else
-        printf "$(show "$url" $plain)" | less -R 1>&2
+        printf '%s' "$(show "$url")" | less -R 1>&2
     fi
+}
+
+try_with_pypi() {
+    pypi info "$pkg" 2> /dev/null | sed -n "/github/p; /pypi/p; s/.* //; s/\/tree\/master//"
+}
+
+get_homepage() {
+    pkg=$1
+    if command -v pypi > /dev/null; then
+        details=$(try_with_pypi "$pkg")
+        if [[ -n $details ]]; then
+            printf '%s' "$details"
+            return
+        fi
+        hmmm "pypi didn't find the package: Trying pip"
+    else
+        hmmm "pypi executable not found: Using pip"
+    fi
+
+    pipbin=$DEFAULT_PIP
+    if [[ -z $pipbin ]]; then
+        pipbin=pip
+    fi
+    $pipbin show "$pkg" 2> /dev/null | sed -n "/Home/s/.*: //p"
+}
+
+try_non_github_homepage() {
+    curl -s "$1" | grep -oPm1 "github.com/\K[^/]*/[^/\" ]*"
+}
+
+get_info_source() {
+    repo_name=$1
+    repofilelist=$(get "https://api.github.com/repos/$repo_name/contents" |
+        jq '.[] | [.name, .download_url] | @tsv')
+
+    changelogurl=$(grep -i -oP '(history.*|news.*|chang.*).*\Khttps[^ "]*"' <<< "$repofilelist")
+    if [[ -n $changelogurl ]]; then
+        pspeak '%s the changelog\n' "$(good Found)"
+        export INFOSOURCE="$changelogurl"
+        return
+    fi
+
+    hmmm "Failed to find the changelog in the repository root. Looking for a readme instead."
+    readmeurl=$(grep -i -oPm1 "readme.*\Khttps[^\"]*" <<< "$repofilelist")
+    if [[ -z $readmeurl ]]; then
+        uhoh "$pkg doesn't have a readme"
+        exit 1
+    fi
+    pspeak '%s the readme\n' "$(good Found)"
+    export INFOSOURCE="$changelogurl"
 }
 
 changelog() {
     pkg=$1
-    pager=$2
-    plain=$3
-
-    [[ -n $VERBOSE ]] && printf "Looking for $(good "$pkg") changelog\n"
+    pspeak 'Looking for %s changelog\n' "$(good "$pkg")"
     if [[ -z $GITHUB_TOKEN ]]; then
         hmmm "GITHUB_TOKEN is not found in the environment"
     fi
 
     directlink="${LINKS[$pkg]}"
     if [[ -n $directlink ]]; then
-        [[ -n $VERBOSE ]] && happy "Link to the changelog is already defined"
-        render "https://raw.githubusercontent.com/$directlink" $pager $plain
+        happy "Link to the changelog is already defined"
+        render "https://raw.githubusercontent.com/$directlink"
         exit 0
     fi
 
     predefined="${PROJECTS[$pkg]}"
     if [[ -n $predefined ]]; then
-        [[ -n $VERBOSE ]] && printf "$(good Found) the package repo in the defined list\n"
+        pspeak '%s the package repo in the defined list\n' "$(good Found)"
         projectname=$predefined
     else
-        homepage="$(get_homepage $pkg)"
+        homepage="$(get_homepage "$pkg")"
         if [[ -z $homepage ]]; then
             uhoh "Pip failed to find the package"
             exit 1
         fi
-        [[ -n $VERBOSE ]] && happy "Home-page:" "$homepage"
-
-        pat_projectname='s/^.*hub\.com\/\(.*\/\?\$\?\)/\1/pI'
-        projectname=$(echo "$homepage" | sed -n "$pat_projectname")
+        happy "Home-page:" "$homepage"
+        projectname=$(sed -n "/github/s/.*\.com\///p" <<< "$homepage")
         if [[ -z $projectname ]]; then
-            uhoh "Could not find $pkg github repository. Check out its home page instead: $homepage" && \
-            exit 1
+            pspeak 'Sad, the home page is not a Github URL.\n'
+            pspeak 'Lets just try something quick though ...\n'
+            projectname=$(try_non_github_homepage "$homepage")
+            if [[ -n $projectname ]]; then
+                happy Bingo
+            else
+                uhoh "Could not find $pkg github repository. Check out its home page instead: $homepage"
+                exit 1
+            fi
         fi
     fi
-    [[ -n $VERBOSE ]] && happy "Github project:" "$projectname"
-
-    pat_changelogurl='s/download_url.*\(https.*change.*\),/\1/pI'
-    pat_downloadurl='s/download_url.*\(https.*\),/\1/pI'
-
-    changelogurl=$(get "https://api.github.com/repos/$projectname/contents" | sed -n "$pat_changelogurl")
-    if [[ -n $changelogurl ]]; then
-        [[ -n $VERBOSE ]] && printf "$(good Found) the changelog\n"
-        url="$changelogurl"
-    else
-        hmmm "Failed to find the changelog in the repository root. Looking for a readme instead."
-        readmeurl=$(get "https://api.github.com/repos/$projectname/readme" | sed -n "$pat_downloadurl")
-        [[ -z $readmeurl ]] && uhoh "❓ $pkg doesn't have a readme❓" && exit 1
-        [[ -n $VERBOSE ]] && printf "$(good Found) the readme"
-        url="$readmeurl"
-    fi
-    render "$url" "$pager" "$plain"
+    happy "Github project:" "$projectname"
+    get_info_source "$projectname"
+    render "$INFOSOURCE"
     exit 0
 }
 
 chill() {
-    printf "\e[1;34m$1\e[0m"
+    printf $'\e[1;34m%s\e[0m' "$1"
 }
 
 comment() {
-    printf "\e[1;3;90m$1\e[0m"
+    printf $'\e[1;38m%s\e[0m' "$1"
 }
-#┌
-#├
-#├
-#└
+
 show_help() {
     cat <<-EOF
 
-  » $(chill changelog) $(okay [options]) $(good package) $(okay [options])
+  » $(chill changelog) $(okay "[options]") $(good package) $(okay "[options]")
 
     ╰─ $(okay "-p, --pager")       $(comment "# page the output")
-    ╰─ $(okay "-P, --plain")       $(comment "# do not apply post-processing")
+    ╰─ $(okay "-P, --plain")       $(comment "# do not apply post-processing (keep it ugly)")
     ╰─ $(okay "-s, --silent")      $(comment "# only print errors and the output")
     ╰─ $(okay "-h, --help")        $(comment "# display help")
 
@@ -245,14 +250,11 @@ unhappy_input() {
 if test $# -eq 0; then
     show_help
 else
-    pager=0
-    plain=0
-    pkg=""
     while test $# -ne 0; do
         case $1 in
-            -p|--pager) pager=1 ;;
-            -P|--plain) plain=1 ;;
-            -s|--silent) VERBOSE="" ;;
+            -p|--pager) PAGER=1 ;;
+            -P|--plain) PLAIN=1 ;;
+            -s|--silent) VERBOSE= ;;
             -h|--help) show_help; exit ;;
             *)
             if [[ -z $pkg ]]; then
@@ -265,6 +267,6 @@ else
         shift
     done
     [[ -z $pkg ]] && unhappy_input "Please provide a package name"  && exit 1
-    changelog "$pkg" $pager $plain
+    changelog "$pkg"
 fi
 # vim:ft=sh
