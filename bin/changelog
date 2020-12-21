@@ -39,14 +39,16 @@
 # flake8: https://gitlab.com/pycqa/flake8/-/tree/master/docs/source/release-notes - non-standard
 declare -A PROJECTS
 # repos that contain CHANG* file in their root (anything that starts with `CHANG`, case-insensitive)
-PROJECTS[httpie]=httpie/httpie
-PROJECTS[poetry]=python-poetry/poetry
+
+PROJECTS[docker-compose]=docker/compose
 PROJECTS[feh]=derf/feh
+PROJECTS[httpie]=httpie/httpie
+PROJECTS[interaction]=yobota/interaction
+PROJECTS[poetry]=python-poetry/poetry
 PROJECTS[prettier]=prettier/prettier
 
 declare -A LINKS
 LINKS[markdown]=Python-Markdown/markdown/master/docs/change_log/release-3.3.md
-LINKS[docker-compose]=https://github.com/docker/compose/blob/release/CHANGELOG.md
 LINKS[djangorestframework]=encode/django-rest-framework/master/docs/community/release-notes.md
 LINKS[pytest]=pytest-dev/pytest/master/doc/en/changelog.rst
 LINKS[pytz]=stub42/pytz/master/tz/NEWS
@@ -57,7 +59,7 @@ PAGER=0
 PLAIN=0
 DEFAULT_PIP="$(pass show main-repo-pip)"  # path to the default venv pip for private packages
 
-pspeak() {
+speak() {
     # - printf speak - (or polite-speak) - mind the VERBOSE flag
     if [[ -n $VERBOSE ]]; then
         printf "$@"
@@ -77,7 +79,7 @@ oh() {  # bold red
 }
 
 happy() {
-    pspeak '%s %s\n' "$(good "$1")" "$2"
+    speak '%s %s\n' "$(good "$1")" "$2"
 }
 
 hmmm() {
@@ -126,7 +128,7 @@ render() {
 }
 
 try_with_pypi() {
-    pypi info "$pkg" 2> /dev/null | sed -n "/github/p; /pypi/p; s/.* //; s/\/tree\/master//"
+    pypi info "$pkg" 2> /dev/null | sed -n "/github\|pypi/s/.* //p; s/\/tree\/master//"
 }
 
 get_homepage() {
@@ -158,9 +160,9 @@ get_info_source() {
     repofilelist=$(get "https://api.github.com/repos/$repo_name/contents" |
         jq '.[] | [.name, .download_url] | @tsv')
 
-    changelogurl=$(grep -i -oP '(history.*|news.*|chang.*).*\Khttps[^ "]*"' <<< "$repofilelist")
+    changelogurl=$(grep -i -oPm1 '(history.*|news.*|chang.*).*\Khttps[^ "]*"' <<< "$repofilelist")
     if [[ -n $changelogurl ]]; then
-        pspeak '%s the changelog\n' "$(good Found)"
+        speak '%s the changelog\n' "$(good Found)"
         export INFOSOURCE="$changelogurl"
         return
     fi
@@ -171,13 +173,13 @@ get_info_source() {
         uhoh "$pkg doesn't have a readme"
         exit 1
     fi
-    pspeak '%s the readme\n' "$(good Found)"
+    speak '%s the readme\n' "$(good Found)"
     export INFOSOURCE="$changelogurl"
 }
 
 changelog() {
     pkg=$1
-    pspeak 'Looking for %s changelog\n' "$(good "$pkg")"
+    speak 'Looking for %s changelog\n' "$(good "$pkg")"
     if [[ -z $GITHUB_TOKEN ]]; then
         hmmm "GITHUB_TOKEN is not found in the environment"
     fi
@@ -191,19 +193,19 @@ changelog() {
 
     predefined="${PROJECTS[$pkg]}"
     if [[ -n $predefined ]]; then
-        pspeak '%s the package repo in the defined list\n' "$(good Found)"
+        speak '%s the package repo in the defined list\n' "$(good Found)"
         projectname=$predefined
     else
         homepage="$(get_homepage "$pkg")"
         if [[ -z $homepage ]]; then
-            uhoh "Pip failed to find the package"
+            uhoh "pip and pypi failed to find the package"
             exit 1
         fi
         happy "Home-page:" "$homepage"
         projectname=$(sed -n "/github/s/.*\.com\///p" <<< "$homepage")
         if [[ -z $projectname ]]; then
-            pspeak 'Sad, the home page is not a Github URL.\n'
-            pspeak 'Lets just try something quick though ...\n'
+            speak 'Sad, the home page is not a Github URL.\n'
+            speak 'Lets just try something quick though ...\n'
             projectname=$(try_non_github_homepage "$homepage")
             if [[ -n $projectname ]]; then
                 happy Bingo
