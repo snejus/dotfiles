@@ -34,7 +34,7 @@ __showdeps () {
     fi
 }
 
-pdep () {
+pdeps () {
     __showdeps $1 -g $2
 }
 

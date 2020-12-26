@@ -44,26 +44,31 @@ compdef _heroku hrk
 ####           PYTHON          ####
 ###################################
 
+alias py36='pyenv global 3.6.12'
+alias pys='pyenv global system'
 alias tpd='tool -pkg deps'
 
-alias ms="make shell"
-alias ma="python manage.py"
+alias ms='make shell'
+alias ma='python manage.py'
+alias clog='changelog -p'
 alias print_settings='python manage.py print_settings | pygmentize -l bash -O style=fruity | less -XLR'
-alias clog="changelog -p"
 
 # Dephell
-alias dp="dephell package"
+alias dp='dephell package'
 
 # Poetry
 alias vp='vim pyproject.toml'
 alias act='source $(poetry env info --path)/bin/activate'
 alias deact=deactivate
-alias peotry="poetry"
-alias psh="poetry shell"
-alias pou="poetry update -vv"
-alias poi="poetry install -vv"
-alias pos="poetry show"
-alias pov="poetry version"
+alias peotry=poetry
+alias poa='poetry add -vv'
+alias pob='poetry build -f wheel'
+alias psh='poetry shell'
+alias pou='poetry update -vv'
+alias poi='poetry install -vv'
+alias pop='poetry publish -r yopy'
+alias pos='poetry show'
+alias pov='poetry version'
 
 # Linting
 _srcdir() {
@@ -75,11 +80,21 @@ lint_pylint() {
 }
 
 lint_mypy() {
-    mypy --sqlite-cache --pretty --show-traceback $(_srcdir)
+    if [[ -n $1 ]]; then
+        src="$1"
+    else
+        src=$(_srcdir)
+    fi
+    $PIPX_VENVS_PATH/mypy/bin/mypy --sqlite-cache --pretty --show-traceback "$src"
 }
 
 lint_flake8() {
-    flake8 -j 4 --show-source --benchmark --statistics $(_srcdir)
+    if [[ -n $1 ]]; then
+        src="$1"
+    else
+        src=$(_srcdir)
+    fi
+    flake8 -j 4 --show-source --benchmark --statistics "$src"
 }
 
 lint() {
@@ -121,13 +136,13 @@ depopen() {
 }
 
 deps() {
-    echo Generating pydeps dependencies graph for $1
-    pydeps $1 --include-missing --reverse -T png --display feh
+    echo "Generating pydeps dependencies graph for $1"
+    pydeps --include-missing --reverse -T png --display feh "$1/*"
 }
 
-cdeps() {
-    echo Looking for circular dependencies for $1
-    pydeps $1 --show-cycles
+depscirc() {
+    echo "Looking for circular dependencies for $1"
+    pydeps --show-cycles "$1/*"
 }
 
 
@@ -162,13 +177,20 @@ skipped_pylint_by_error() {
 }
 
 compose2plantuml () {
-    compose_plantuml --link-graph
-                     --boundaries
-                     --port_boundaries
-                     --volume_boundaries
-                     --group
-                     --notes
-         docker-compose.test.yml > integrated.uml
+    echo '@startuml'
+    compose_plantuml --link-graph \
+                     --boundaries \
+                     --port_boundaries \
+                     --volume_boundaries \
+                     --group \
+                     --notes $1 2> /dev/null
+    echo '@enduml'
+}
+showuml () {
+    naked=$1:r
+    pngfile="$naked.png"
+    java -jar ~/.shed/puml/plantuml.jar "$1"
+    feh "$pngfile"
 }
 
 # vim:ft=bash

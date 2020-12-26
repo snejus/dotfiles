@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
-if ( ! systemctl is-active docker -q ); then
+if ( ! systemctl is-active docker -q ) ; then
     echo Launching containerd and docker services
     sudo systemctl start docker.target
-    echo Starting docker machine $DOCKER_MACHINE_NAME
-    docker-machine start $DOCKER_MACHINE_NAME
-    echo -n "docker $@" | xclip -selection clipboard
-    echo "Now run 'dockerip' alias and run 'docker $@' (it's in your clipboard)"
-else
-    /usr/bin/docker $@
 fi
+/usr/bin/docker "$@"
+
+# if [[ -n $DOCKER_MACHINE_NAME ]] && [[ -z $DOCKER_HOST ]]; then
+#     echo Starting docker machine "$DOCKER_MACHINE_NAME"
+#     docker-machine start "$DOCKER_MACHINE_NAME"
+#     # echo -n docker "$@" | xclip -selection clipboard
+#     # echo "Now run 'dockerip' alias and re-run 'docker $@' (it's in your clipboard)"
+# else
+#     eval $(docker-machine env default)
+#     /usr/bin/docker "$@"
+# fi

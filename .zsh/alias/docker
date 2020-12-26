@@ -1,0 +1,49 @@
+# {{{ docker
+alias dockerup='sudo systemctl start docker.target'
+alias dockerdown='sudo systemctl stop docker.service docker.socket containerd.service'
+alias docker_usage='docker system df'
+alias dps='docker ps'
+alias dcls='docker container ls'
+alias dcip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
+alias dils='docker image ls'
+alias dvls='docker volume ls'
+alias dlogin='bwgetsecret packages-token | docker login https://docker.pkg.github.com -u snejus --password-stdin'
+
+dbash () {
+    docker exec -ti "$1" bash
+}
+
+_RED=$'\e[1;31m&\e[0m'
+_GREEN=$'\e[1;32m&\e[0m'
+_YELLOW=$'\e[1;33m&\e[0m'
+_MAGENTA=$'\e[1;35m&\e[0m'
+_EXT=' \(postgres\|redis\|python\|localstack\)[^ ]*'
+
+dimg () {
+    docker images -a --format='table {{ .CreatedSince }}\t{{ .Size }}\t{{ .SharedSize }}\t{{ .Tag }}\t{{ .Repository }}'  |
+        grep -v '<none>' |
+        sed "/ig_/s/.*/$_MAGENTA/;
+            /github/s/.*/$_GREEN/;
+            /$_EXT/s/.*/$_YELLOW/;
+            s/$YOPKGPAT/$_RED/;"
+}
+
+_docker_noname_image_ids() {
+    docker images -a | grep "<none>" | tr -s ' ' | cut -d ' ' -f3
+}
+
+ddelnonameimg() {
+    _docker_noname_image_ids | xargs docker image rm
+}
+
+# }}}
+# {{{ docker-compose
+alias dco='docker-compose'
+alias dcob='dco build --parallel'
+alias vdc='vim docker-compose.yml'
+# }}}
+# {{{ docker-machine
+alias dockerip='eval $(docker-machine env default)'
+# }}}
+
+# vim:ft=bash

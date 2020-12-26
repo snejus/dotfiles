@@ -13,26 +13,33 @@ export PYENV_SHELL=zsh
 export PATH=$HOME/.pyenv/shims:$HOME/.local/bin:$PATH:$HOME/.fzf/bin
 export LESS=-R
 export JQ_COLORS="1;30:1;31:1;32:1;35:1;36:1;38:1;38"
+export PSQL_PAGER="pspg -b --bold-labels --double-header --force-uniborder --interactive"
+export UID=$(id -u)
+export GID=$(id -g)
+
+export PYTHONDONTWRITEBYTECODE=1
+export IPYTHONDIR=$XDG_CONFIG_HOME/ipython
+export LESSHISTFILE=$CACHEDIR/less
+export MYPY_CACHE_DIR=$CACHEDIR/mypy
+export MYPYPATH=$HOME/stubs
+export PIPX_VENVS_PATH=$HOME/.local/pipx/venvs
+export PYLINTHOME=$CACHEDIR/pylint
+export PSQL_HISTORY=$CACHEDIR/psql
+export REPODIR=$HOME/repo
+export VAGRANT_HOME=$CACHEDIR/vagrant
+export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
+export WEECHAT_HOME=$XDG_CONFIG_HOME/weechat
+
 pyenv rehash
-
-center() {
-    ncols=$(( $(tput cols) - 3 ))
-    sed  -e :a -e 's/^.\{1,'"$ncols"'\}$/ &/;ta' -e 's/\( *\)\1/\1/'
-}
-
-if [[ $GPG_TTY == /dev/pts/1 ]]; then
-     echo "$(pass show 'test')" | center | lolcat
-fi
 
 # {{{ Variables and functions
 HISTFILE=$ZDOTDIR/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
 
-unsetopt LIST_AMBIGUOUS
 setopt  COMPLETE_IN_WORD
 
-export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:\
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;33;40:\
 *.tar=01;31:*.zip=01;31:*.gz=01;31:*.jar=01;31:\
 *.jpg=01;35:*.png=01;35:*.svg=01;35:\
 *.mov=01;35:*.mpg=01;35:*.mkv=01;35:*.mp4=01;35:\
@@ -43,6 +50,7 @@ export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 *etup.cfg=3;32:*ypy.ini=3;32:*ylintrc=3;32:*ox.ini=3;32:\
 *.md=01;31:*.rst=01;31:\
 *file=01;33:\
+*.env=01;37:*.yml=01;37:*.json=01;37:\
 *ockerfile=01;36:*ockerignore=01;36:*-compose.test.yml=01;36:*-compose.yml=01;36:"
 
 # }}}
@@ -121,7 +129,7 @@ to_source=(
     /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
     /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     /usr/share/zsh/scripts/git-prompt.zsh
-    /usr/share/todoist/todoist_functions_fzf.sh
+    # /usr/share/todoist/todoist_functions_fzf.sh
     $HOME/.fzf/shell/key-bindings.zsh
     $HOME/.pyenv/completions/pyenv.zsh
     $HOME/.cache/heroku/autocomplete/zsh_setup

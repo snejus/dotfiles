@@ -1,5 +1,4 @@
-##### GENERAL #####
-
+# {{{ Generic
 h() {
     howdoi "$@" -c -n 5
 }
@@ -17,20 +16,16 @@ whichl() {
     lsl -lah "$(which "$1")"
 }
 
-mp4compact() {
-    ffmpeg -i "$1" -vcodec libx265 -crf 2 "$2"
+unzip2folder () {
+    unzip "$1" -d "$1:r"
 }
 
-unzipm () {
-    unzip "$1" -d $1:r
+ns() {
+    notmuch search --sort=oldest-first "$1" | tr -d '"' | bat -l msg
 }
+# }}}
 
-2flac () {
-    noext=$1:r
-    to=$noext.flac
-    ffmpeg -i "$1" -codec:a -o -codec flac "$to"
-}
-
+# {{{ Color
 show_mouse_color() {
     if [[ -n $1 ]]; then sleep $1; fi
 
@@ -52,143 +47,6 @@ show_mouse_color() {
     bg=\"#FFFFFF\",\
     border_width=0,\
     position=\"bottom_middle\"})"
-}
-
-_newpassword () {
-    bw generate -uln --length 30
-}
-
-bwgenpass () {
-    _newpassword | ci
-}
-
-bwgetpw () {
-    bw get password "$1" | ci
-}
-
-bwcreate () {
-    bw create "$1" "$(echo "$2" | bw encode)"
-}
-
-bwcreatenote () {
-    bwcreate item "$(bw get template item | jq \
-       ".folderId = $(bw get folder Notes | jq .id) | \
-        .name = \"$1\" | \
-        .notes = \"$(cat "$2")\" | \
-        .login = \"\"")"
-}
-
-bwcreatesecret () {
-    bwcreate item "$(bw get template item | jq \
-       ".folderId = $(bw get folder Secrets | jq .id) | \
-        .name = \"$1\" | \
-        .notes = \"$(base64 -w 0 "$2")\" | \
-        .login = \"\"")" | jq
-}
-
-bwgetsecret () {
-    base64 --decode <(bw get item "$1" | jq '.notes' | tr -d \")
-}
-
-bwcreatelogin () {
-    pw="$(_newpassword)"
-    template="$(bw get template item)"
-    bwcreate item "$template | jq \
-       ".name = \""$1"\" | \
-        .login = {\"username\" = \""$2"\", \"password\" = \""$pw"\"}")"
-    echo "$pw" | ci
-}
-
-bwsearch () {
-    bw list items --search "$1" | jq 'del(.[].login.password)'
-}
-
-dadjoke() {
-   echo "\
-$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1
-$1$2$1$2$1$1$2$1$1$2$1$2$1$1$2$1$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$2$2$2$1$2$2$2$1$2$2$2$1$2$2$2$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1"
-}
-dadjoke4sam() {
-   echo "\
-$1$1$1$1$1$1$1$1$1$1$1$1$1
-$1$1$1$2$1$2$1$1$2$1$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$2$2$2$1$2$2$2$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$1$1$1$1$1$1$1$1$1$1"
-}
-
-##### GENERAL TEXT PROCESSING #####
-flushright() {
-    sed -e :a -e 's/^.\{1,78\}$/ &/;ta'
-}
-
-center() {
-    ncols=$(( $(tput cols) - 3 ))
-    sed  -e :a -e 's/^.\{1,'"$ncols"'\}$/ &/;ta' -e 's/\( *\)\1/\1/'
-}
-
-##### CONVERSION BETWEEN FORMATS #####
-rst2md() {
-    local filename=$1:t
-    local naked=$filename:r
-    local output=$naked.md
-    echo Converting $filename to $output
-    pandoc $filename \
-        --from rst \
-        --to gfm \
-        --output $output \
-        --standalone \
-        --toc \
-        --toc-depth 2
-}
-
-pandoc2pdf() {
-    local filename=$1:t
-    local from=$2
-    local naked=$filename:r
-    local output=$naked.pdf
-    echo Converting $filename to $output
-    pandoc $filename \
-        --from $from \
-        --output $output \
-        -V geometry:margin=1in \
-        --standalone \
-        --toc \
-        --toc-depth 2 \
-        --pdf-engine=xelatex \
-        --highlight-style=$HOME/.d/sarastango.theme \
-        --variable=documentclass:scrreprt \
-        --variable=fontsize:9pt \
-        --variable=fontenc:T1 \
-        --variable='mainfont:IBM Plex Sans' \
-        --variable='monofont:IBM Plex Mono Light' \
-        --variable=links-as-notes
-}
-
-rst2pdf() {
-    pandoc2pdf $1 rst
-}
-
-# md2pdf() {
-#     pandoc2pdf $1 gfm
-# }
-md2pdf() {
-   local tmp="tmp$1"
-   cat $1 | sed '/vim-markdown/,/vim-markdown/d' | # swap toc and remove dropdowns
-      sed '/details\|summary/d' > $tmp
-   pandoc2pdf $tmp gfm
-   rm $tmp
-}
-
-ns() {
-    notmuch search --sort=oldest-first $1 | tr -d '"' | bat -l msg
 }
 
 _with_color () {
@@ -225,11 +83,124 @@ man () {
         $1 $flag | bat -l man
     fi
 }
+# }}}
+
+dadjoke() {
+   echo "\
+$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1
+$1$2$1$2$1$1$2$1$1$2$1$2$1$1$2$1$1
+$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
+$1$2$2$2$1$2$2$2$1$2$2$2$1$2$2$2$1
+$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
+$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
+$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1"
+}
+dadjoke4sam() {
+   echo "\
+$1$1$1$1$1$1$1$1$1$1$1$1$1
+$1$1$1$2$1$2$1$1$2$1$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$2$2$2$1$2$2$2$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$2$1$2$1$2$1$2$1$1$1
+$1$1$1$1$1$1$1$1$1$1$1$1$1"
+}
+
+flushright() {
+    ncols=$(( $(tput cols) - 3 ))
+    sed -e :a -e "s/^.\{1,$ncols\}$/ &/;ta"
+}
+
+center() {
+    ncols=$(( $(tput cols) - 3 ))
+    sed  -e :a -e "s/^.\{1,$ncols\}$/ &/;ta" -e 's/\( *\)\1/\1/'
+}
+
+# {{{ Docs conversion
+rst2md() {
+    filename=$1:t
+    naked=$filename:r
+    output=$naked.md
+    echo Converting "$filename" to "$output"
+    pandoc "$filename" \
+        --from rst \
+        --to gfm \
+        --output "$output" \
+        --standalone \
+        --toc \
+        --toc-depth 2
+}
+
+pandoc2pdf() {
+    filename=$3
+    if [[ -z $filename ]]; then
+        filename=$1:t
+    fi
+    from=$2
+    naked=$filename:r
+    output=$naked.pdf
+    echo Converting "$filename" to "$output"
+    pandoc $1 \
+        --from "$from" \
+        --output "$output" \
+        -V geometry:margin=1in \
+        --standalone \
+        --toc \
+        --toc-depth 2 \
+        --pdf-engine=xelatex \
+        --highlight-style="$HOME/.d/sarastango.theme" \
+        --variable=documentclass:scrreprt \
+        --variable=fontsize:9pt \
+        --variable=fontenc:T1 \
+        --variable=mainfont:"Iosevka Fixed" \
+        --variable=monofont:"Iosevka Fixed Light" \
+        --variable=links-as-notes
+}
+
+rst2pdf() {
+    pandoc2pdf "$1" rst
+}
+
+__prepare_md() {
+    sed "/^<!-- vim-markdown/,/<!-- vim-markdown/d; # remove vim-markdown tags
+         /<\/\?details>\|<\/\?summary>/d;           # remove details/summary html tags" "$1"
+}
+
+md2pdf() {
+    pandoc2pdf <(__prepare_md "$1") gfm "$1:t"
+}
+
+upload2confluence() {
+    mark -f <(__prepare_md "$1")
+}
+
+testupload2confluence() {
+   uploadfile="_Test_Confluence_$1"
+   htmlfile="${uploadfile:r}.html"
+   mark -f <(__prepare_md "$1") --dry-run > "$htmlfile"
+   echo "$htmlfile has been generated"
+}
+# }}}
+
+# {{{ Media conversion
+
+ytdl () {
+    format=mp3
+    if [[ -n $2 ]]; then
+        format="$2"
+    fi
+    youtube-dl -x --audio-format "$format" -o "%(title)s.%(ext)s" "$1"
+}
+2flac () {
+    noext=$1:r
+    to=$noext.flac
+    ffmpeg -i "$1" -codec:a -o -codec flac "$to"
+}
 
 convertff () {
     input_format=$1:e
     output=$(basename "$1" "$input_format")$2
-    echo $output
+    echo "$output"
     ffmpeg -i "$1" "$output"
 }
 
@@ -239,9 +210,16 @@ convertbpm () {
     if [[ -z $output ]]; then
         output=$1
     fi
-    ffmpeg -yi "$1" -filter:a "atempo=$2" "$2x$output"
+    ffmpeg -y -i "$1" -filter:a "atempo=$2" "$2x$output"
 }
 
+flacaddpic () {
+    flac -f "$1" --picture "$2"
+}
+
+mp4compact() {
+    ffmpeg -i "$1" -vcodec libx265 -crf 2 "$2"
+}
 
 svg2png () {
     input=$1
@@ -251,27 +229,8 @@ svg2png () {
     if [[ -n $height ]]; then
         height=$width
     fi
-    convert -background transparent -resize ${height}x$width $input $output
+    convert -background transparent -resize "${height}x$width" "$input" "$output"
 }
-
-flacaddpic () {
-    flac -f $1 --picture=$2
-}
-
-__confluencify() {
-  sed '/^<!-- vim-markdown/,/<!-- vim-markdown/d;
-       /<\/\?details>\|<\/\?summary>/d; # remove html tags' "$1"
-}
-
-upload2confluence() {
-   mark -f <(__confluencify "$1") --debug --trace
-}
-
-testupload2confluence() {
-   uploadfile="_Test_Confluence_$1"
-   htmlfile="${uploadfile:r}.html"
-   mark -f <(__confluencify "$1") --dry-run > "$htmlfile"
-   echo "$htmlfile has been generated"
-}
+# }}}
 
 # vim:ft=bash

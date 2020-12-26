@@ -1,11 +1,11 @@
 #
-#  ███ ███ ██     ██ ███ ███ ███ ███
-#  ██   ██ ██     ██ ██   ██ ██
-#  ██   ██ ██     ██ ██   ██ ██
-#  ██   ██ ██     ██ ██   ██  ██ ██
-#  ███ ███ ██     ██ ███ ███      ██
-#  ██   ██ ██     ██ ██   ██      ██
-#  ██   ██ ███ ██ ██ ██   ██ ███ ███
+#  ███ ███ ██      ██ ███ ███ ███ ███
+#  ██   ██ ██      ██ ██   ██ ██
+#  ██   ██ ██      ██ ██   ██ ██
+#  ██   ██ ██      ██ ██   ██  ██ ██
+#  ███ ███ ██      ██ ███ ███      ██
+#  ██   ██ ██      ██ ██   ██      ██
+#  ██   ██ ███ ███ ██ ██   ██ ███ ███
 #
 
 for file in $(find $HOME/.d/.zsh/alias/*); do
@@ -16,7 +16,6 @@ for file in $(find $HOME/.d/.zsh/alias/*); do
     alias s$name="source $file"
 done
 
-# {{{ Quick access shortcuts
 local __make_alias () {
     # 1 - single letter prefix, 2 - alias
     # 3 - command / path prefix, 4 - file
@@ -26,6 +25,7 @@ local __make_alias () {
 local CONFIG_ALIAS=(
     "aw         awesome/rc.lua"
     "awt        awesome/themes/helohelo/theme.lua"
+    "beet       beets/config.yaml"
     "kitty      kitty/kitty.conf"
     "kittyd     kitty/default.conf"
     "mpd        mpd/mpd.conf"
@@ -57,11 +57,11 @@ for mapping in $EDIT_AND_SOURCE[@]; do
 done
 
 alias upd="szsh"
-alias ecl="vim $HOME/repo/sn-scriptville/changelog"
+alias ecl="vim $HOME/.d/bin/changelog"
+alias egitc="vim $HOME/.config/git/config"
+alias esetuppy="vim $VILLE/setuppy2pyproject"
 alias etool="vim $HOME/repo/sn-scriptville/tool"
-alias egitc="vim $HOME/.d/.gitconfig"
 alias evim="vim $HOME/.d/vimrc"
 alias evimc="vim $HOME/.vim/bundle/vim-deus/colors/deus.vim"
-# }}}
 
 # vim:ft=zsh

@@ -1,0 +1,39 @@
+#!/usr/bin/zsh
+
+_right8() {
+    if [[ -z $1 ]]; then
+        sed -e :a -e 's/^.\{1,8\}$/ &/;ta'
+    else
+        sed -e :a -e 's/^.\{1,8\}$/ &/;ta' <<< "$@"
+    fi
+}
+
+_right10() {
+    sed -e :a -e 's/^.\{1,10\}$/ &/;ta' <<< "$@"
+}
+
+_center() {
+    sed -e :a -e 's/^.\{1,30\}$/ &/;ta' -e 's/\( *\)\1/\1/'
+}
+
+y_t="$(notmuch count date:yesterday path:personal/new path:work/new)"
+p_u="$(notmuch count date:today path:personal/new | _right8)"
+p_t="$(notmuch count date:today "path:personal/**" | _right8)"
+w_u="$(notmuch count date:today path:work/new | _right8)"
+w_t="$(notmuch count date:today "path:work/**" | _right8)"
+
+[[ $p_u -eq "0" ]] && [[ $w_u -eq "0" ]] && exit 0
+
+header=$(_right10 box)$(_right10 unseen)$(_right8 total)
+person=$(_right10 Personal)$p_u$p_t
+work=$(_right10 Work)$w_u$w_t
+msg="\n\
+$header\t  .\n\
+\n\
+$person\n\
+$work\n\
+\n\
+Unread from yesterday:   $y_t\n"
+
+icon=$NOTMUCH_CONFIG:h/bubblemail.svg
+notify-send "New email mate" "$msg" -i $icon:A

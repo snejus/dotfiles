@@ -1,128 +1,70 @@
 # {{{ Mime types
 
 # Code
-alias -s desktop=bat
 alias -s c=bat
-alias -s cfg=bat
-alias -s conf=bat
 alias -s h=bat
 alias -s hook=bat
-alias -s hwdb='bat -l ini'
-alias -s ini=bat
 alias -s js=bat
 alias -s json=bat
-alias -s link='bat -l ini'
 alias -s log=bat
 alias -s lua=bat
-alias -s network='bat -l ini'
 alias -s py=bat
 alias -s rst=bat
-alias -s rules='bat -l dotenv'
-alias -s service='bat -l ini'
+alias -s rest=bat
 alias -s sql=bat
-alias -s socket=bat
-alias -s target=bat
-alias -s theme='bat -l ini'
 alias -s toml=bat
 alias -s txt=bat
 alias -s vim=bat
 alias -s xml=bat
+alias -s yml=bat
 alias -s zsh=bat
+
+# Config
+alias -s cfg=bat
+alias -s conf=bat
+alias -s desktop=bat
+alias -s hwdb='bat -l ini'
+alias -s ini=bat
+alias -s link='bat -l ini'
+alias -s rules='bat -l dotenv'
+alias -s network='bat -l ini'
+alias -s service='bat -l ini'
+alias -s socket=bat
+alias -s target=bat
+alias -s theme='bat -l ini'
 
 # Image
 alias -s bmp=feh
+alias -s gif=$BROWSER
 alias -s jpg=feh
 alias -s png=feh
-alias -s svg=qutebrowser
+alias -s svg=$BROWSER
 
 # Markdown
-alias -s md=glow -p
+alias -s md=glow
+alias -s MD=glow
 
 # Pdf
 alias -s pdf=zathura
 
 # Web
-alias -s html=qutebrowser
+alias -s html=$BROWSER
 
 # Video
 alias -s mp4=mpv
+alias -s m4v=mpv
+alias -s mkv=mpv
 # }}}
 
 # {{{ Global aliases
 
 alias -g cfg=~/.config
+alias -g misc='$REPODIR/misc'
 alias -g c='| wc -l'
 alias -g sf=--system
 alias -g u=--user
 alias -g help='--help | bat -l man'
 alias -g m='/media/music'
-# }}}
-
-# {{{ Generic aliases
-
-# ls
-alias lsl='lsd -lA --size short --date=relative'
-alias ls='lsd -lA --size short --date=relative --blocks="size,user,date,name"'
-alias lsn='ls -rt'
-alias lss='lsl -r --total-size --sizesort'
-alias lst='ls --tree'
-
-# Search
-alias sam='s -p amazon'
-alias sbc='s -p bandcamp'
-alias sdc='s -p discogs'
-alias sfb='s -p facebook'
-alias sgm='s -p googlemaps'
-alias ssc='s -p soundcloud'
-alias ssp='s -p spotify'
-alias syt='s -p youtube'
-
-# Default flags
-alias ag='ag --silent --color --pager bat'
-alias bw='bw --pretty'
-alias cdu='cdu -idh -s'
-alias dmesg='dmesg -H'
-alias free='free -hlt'
-alias fd='fd --xdev'
-alias feh='feh -F'
-alias gh='LESS=-RX gh'
-alias glow='glow -p'
-alias hue="hueadm -c $HOME/.config/hueadm/hueadm.json"
-alias mkdir='mkdir -pv'
-alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
-alias sudo='sudo '
-alias ytdl='youtube-dl -x --audio-format mp3 -o "%(title)s.%(ext)s"'
-
-alias calc='bc'
-alias ci='xclip -selection clipboard -r'
-alias cimg='xclip -selection clipboard -t image/png -i'
-alias co='xclip -selection clipboard -o'
-alias devdb='udevadm info --export-db | grep'
-alias env='env | sort | pygmentize -l bash -O style=fruity'
-alias kimg='kitty +kitten icat'
-alias listeners='sudo lsof -i -Pn | grep LISTEN'
-alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
-alias mimetype='cat /etc/mime.types | ag'
-alias nctl='networkctl'
-alias ncm='ncmpcpp'
-alias neo='neomutt'
-alias open=''  # let zsh handle it
-alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias printpath='echo $PATH | tr : "\n"'
-alias pss='ps aux | grep'
-alias rgbtxt='bat ~/repo/notes/rgb.txt'
-alias standup='git standup -m3 -d7'
-alias ta='task add'
-alias tpd='tool -pkg deps'
-alias vman='MANPAGER="vim -M +MANPAGER - " man'
-alias xwinall='xwininfo -root -children -tree'
-
-# fzf
-alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
-alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
-alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
-alias fe='fzf --bind "enter:execute(bat {})"'
-alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
 # }}}
 
 # {{{ System and journal
@@ -143,7 +85,7 @@ alias syluf="sy list-unit-files"
 alias syrel="sy daemon-reload"
 
 alias sstart='systemctl --user start awesomex-session.target'
-alias sstop='systemctl --user stop awesomex-session.target'
+alias  sstop='systemctl --user stop awesomex-session.target'
 
 # Journal
 alias     j='journalctl --no-hostname --merge'
@@ -156,40 +98,99 @@ alias   jmo='j --since=$(date -d "a month ago" -I)'
 alias jprio='jmo --priority'
 # }}}
 
-# {{{ Docker and vagrant
-# Docker
-# alias dockerdown="docker-machine stop $DOCKER_MACHINE_NAME && sudo systemctl stop docker.target"
-alias dockerup="sudo systemctl start docker.target"
-alias dockerdown="sudo systemctl stop docker.target"
-alias dps='docker ps'
-alias dco='docker-compose'
-alias docker_usage='docker system df'
-alias containerip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
-alias dockerip='eval $(docker-machine env default)'
+# {{{ Default flags
+alias ag='ag --silent --color --pager bat'
+alias beet='beet -vv'
+alias bw='bw --pretty'
+alias cdu='cdu -idh -s'
+alias diff='diff --color=auto'
+alias dmesg='dmesg -H'
+alias free='free -hlt'
+alias fd='fd --xdev'
+alias feh='feh -F'
+alias gh='LESS=-RX gh'
+alias glow='glow -p'
+alias grep='grep --color=auto'
+alias hue='hueadm -c $HOME/.config/hueadm/hueadm.json'
+alias ip='ip -color=auto'
+alias mkdir='mkdir -pv'
+alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
+alias sudo='sudo '
+# }}}
 
-dimg () {
-    docker images -a --format='{{ .Repository | printf "%.30s" | printf "%-30s" }} {{ .Tag | printf "%-20s" }} {{ .Size }}'  |
-        grep -v '<none>'
-}
+# {{{ Various
+alias ci='xclip -selection clipboard -r'
+alias cimg='xclip -selection clipboard -t image/png -i'
+alias co='xclip -selection clipboard -o'
+alias devdb='udevadm info --export-db | grep'
+alias env='env | sort | pygmentize -l bash -O style=fruity'
+alias exportenv='f(){ source <(cat $1 | sed "s/^/export &/") }; f'
+alias kimg='kitty +kitten icat'
+alias lad=lazydocker
+alias listeners='sudo lsof -i -Pn | grep LISTEN'
+alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
+alias lzd=lazydocker
+alias mimetype='cat /etc/mime.types | ag'
+alias nctl=networkctl
+alias ncm=ncmpcpp
+alias neo=neomutt
+alias openstats='qutebrowser https://wakatime.com/dashboard'
+alias printpath='echo $PATH && echo $PATH | tr : "\n"'
+alias pss='ps aux | grep'
+alias rgbtxt='bat ~/repo/notes/rgb.txt'
+alias standup='git standup -m3 -d7'
+alias tpd='tool -pkg deps'
+alias vman='MANPAGER="vim -M +MANPAGER - " man'
+alias ws=whatscli
+alias xwinall='xwininfo -root -children -tree'
+# }}}
 
-dockerstop () {
-    echo Killing every container which mentions $1
-    docker ps --filter name=$1 | xargs -i docker stop {}
-}
+# {{{ ls
 
-docker_noname_image_ids() {
-    docker images -a | grep "<none>" | tr -s ' ' | cut -d ' ' -f3
-}
+# ls
+alias lsl='lsd -lA --size short --date=relative --group-dirs first'
+alias ls='lsl --blocks="size,user,date,name"'
+alias lsn='ls -t'
+alias lsnr='lsn -r'
+alias lss='lsl -r --total-size --sizesort'
+alias lst='ls --tree'
+alias lsdir='lsd -d'
+# }}}
 
-docker_delete_noname_images() {
-    docker_noname_image_ids | xargs docker image rm
-}
+# {{{ web search
+alias sam='s -p amazon'
+alias sbc='s -p bandcamp'
+alias sdc='s -p discogs'
+alias sfb='s -p facebook'
+alias sgm='s -p googlemaps'
+alias sm='s -p musicbrainz'
+alias ssc='s -p soundcloud'
+alias ssp='s -p spotify'
+alias syt='s -p youtube'
+# }}}
 
-# Vagrant
+# {{{ fzf
+alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
+alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
+alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
+alias fe='fzf --bind "enter:execute(bat {})"'
+alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
+# }}}
+
+# {{{ taskwarrior
+alias t='task'
+alias ta='task add'
+alias td='task done'
+alias tl='task list'
+alias tlo='task long'
+# }}}
+
+# {{{ vagrant
+
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
 alias vgs="vagrant global-status"
 # }}}
 
-# vim:ft=zsh
+# vim:ft=bash

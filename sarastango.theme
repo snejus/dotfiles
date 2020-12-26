@@ -21,7 +21,7 @@
         "SpecialString": {
             "text-color": "#4e9a06",
             "background-color": null,
-            "bold": false,
+            "bold": true,
             "italic": false,
             "underline": false
         },
@@ -112,7 +112,7 @@
         "VerbatimString": {
             "text-color": "#4e9a06",
             "background-color": null,
-            "bold": false,
+            "bold": true,
             "italic": false,
             "underline": false
         },

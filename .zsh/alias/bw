@@ -1,0 +1,50 @@
+_newpassword () {
+    bw generate -uln --length 30
+}
+
+bwgenpw () {
+    _newpassword | ci
+}
+
+bwgetpw () {
+    bw get password "$1" | ci
+}
+
+bwcreate () {
+    bw create "$1" "$(echo "$2" | bw encode)"
+}
+
+bwcreatenote () {
+    bwcreate item "$(bw get template item | jq \
+       ".folderId = $(bw get folder Notes | jq .id) | \
+        .name = \"$1\" | \
+        .notes = \"$(cat "$2")\" | \
+        .login = \"\"")"
+}
+
+bwcreatesecret () {
+    bwcreate item "$(bw get template item | jq \
+       ".folderId = $(bw get folder Secrets | jq .id) | \
+        .name = \"$1\" | \
+        .notes = \"$(base64 -w 0 "$2")\" | \
+        .login = \"\"")" | jq
+}
+
+bwgetsecret () {
+    base64 --decode <(bw get item "$1" | jq '.notes' | tr -d \")
+}
+
+bwcreatelogin () {
+    pw="$(_newpassword)"
+    template="$(bw get template item)"
+    bwcreate item "$template | jq \
+       ".name = \""$1"\" | \
+        .login = {\"username\" = \""$2"\", \"password\" = \""$pw"\"}")"
+    echo "$pw" | ci
+}
+
+bwsearch () {
+    bw list items --search "$1" | jq 'del(.[].login.password)'
+}
+
+# vim:ft=bash

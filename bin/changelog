@@ -152,7 +152,7 @@ get_homepage() {
 }
 
 try_non_github_homepage() {
-    curl -s "$1" | grep -oPm1 "github.com/\K[^/]*/[^/\" ]*"
+    curl -s "$1" | grep -oPm1 "github.com/\K[^/]*/[^/\" ]*" | uniq
 }
 
 get_info_source() {
@@ -174,7 +174,7 @@ get_info_source() {
         exit 1
     fi
     speak '%s the readme\n' "$(good Found)"
-    export INFOSOURCE="$changelogurl"
+    export INFOSOURCE="$readmeurl"
 }
 
 changelog() {
@@ -201,9 +201,9 @@ changelog() {
             uhoh "pip and pypi failed to find the package"
             exit 1
         fi
-        happy "Home-page:" "$homepage"
-        projectname=$(sed -n "/github/s/.*\.com\///p" <<< "$homepage")
+        projectname="$(sed -n "/github/s/.*\.com\///p" <<< "$homepage")"
         if [[ -z $projectname ]]; then
+            happy "Home-page:" "$homepage"
             speak 'Sad, the home page is not a Github URL.\n'
             speak 'Lets just try something quick though ...\n'
             projectname=$(try_non_github_homepage "$homepage")

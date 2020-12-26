@@ -10,9 +10,8 @@ endif
 " {{{ Plugins, sorted by how much worse my life would be without them
 call plug#begin('~/.vim/bundle/')
 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-Plug 'w0rp/ale' ", { 'on': 'ALEToggle' }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } | Plug 'junegunn/fzf.vim'
+Plug 'w0rp/ale'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'chaoren/vim-wordmotion'
@@ -25,9 +24,12 @@ Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'aklt/plantuml-syntax', { 'for': 'plantuml' }
 Plug 'raimon49/requirements.txt.vim', { 'for': 'requirements' }
 Plug 'martinda/Jenkinsfile-vim-syntax', { 'for': 'Jenkinsfile' }
+Plug 'ekalinin/Dockerfile.vim', { 'for': 'Dockerfile' }
+Plug 'neomutt/neomutt.vim', { 'for': 'neomuttrc' }
+Plug 'fatih/vim-go', { 'for': 'go' }
 
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
+
 Plug 'moll/vim-bbye' " close buffer but leave window open
 
 Plug 'snejus/black', { 'for': 'python' }
@@ -35,7 +37,7 @@ Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'ervandew/supertab'
 Plug 'talek/obvious-resize'
 
-Plug 'snejus/vim-deus'
+Plug '~/.vim/bundle/vim-deus/'
 
 Plug 'godlygeek/tabular', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -146,7 +148,7 @@ colorscheme deus
 " Remap:
 function! g:Set_format_options()
   if &filetype ==# 'python'
-    nnoremap <Leader>f :ALEFix<CR> :Black<CR>
+    nnoremap <Leader>f :Black<CR>
   else
     nnoremap <Leader>f :ALEFix<CR>
   endif
@@ -165,10 +167,11 @@ augroup END
 augroup missingft
   au BufNewFile,BufRead *.rest setlocal filetype=rst
   au BufNewFile,BufRead *.conf setlocal filetype=conf
+  au Filetype dockerfile setlocal filetype=Dockerfile
   au Filetype html setlocal ts=2
   au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80 foldlevel=99
   au FileType requirements setlocal commentstring=#\ %s
-  au Filetype Jenkinsfile setlocal ts=2 sw=2
+  au Filetype Jenkinsfile setlocal ts=2 sw=2 commentstring=//\ %s
   au Filetype vim setlocal ts=2 sw=2
   au FileType xdefaults setlocal commentstring=!%s
   au Filetype yml setlocal ts=2 sw=2
@@ -199,7 +202,7 @@ nmap <silent> <Leader>i  :Buffers<CR>
 nmap <silent> <Leader>u  :History<CR>
 nmap <silent> <Leader>cs :Commits<CR>
 nmap <silent> <Leader>cb :BCommits<CR>
-" nmap <silent>         \  :Files ~/Documents/projects<CR>
+nmap <silent>         \  :Files ~/repo<CR>
 " nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
 " nmap <silent> <Leader>=  :Files ~/stubs<CR>
 " nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
@@ -209,7 +212,7 @@ nmap <silent> <Leader>cb :BCommits<CR>
 let g:ale_linters = {
 \   'ansible':    ['ansible-lint'],
 \   'bash':       ['shellcheck'],
-\   'dockerfile': ['hadolint'],
+\   'Dockerfile': ['hadolint'],
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
@@ -230,20 +233,24 @@ let g:ale_fixers = {
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['fixjson', 'prettier'],
-\   'python':     ['isort'],
 \   'markdown':   ['prettier'],
 \   'vue':        ['eslint'],
 \}
 let g:ale_python_flake8_options = '--jobs 2'
 let g:ale_python_pylint_options = '--jobs 2'
+let g:ale_linters_ignore = ['pylint']
+let g:ale_python_mypy_options = '--config-file $XDG_CONFIG_HOME/mypy/config'
+let g:ale_python_isort_executable = '$HOME/.local/bin/isort'
+" let g:ale_python_mypy_executable = '$HOME/.local/bin/realmypy'
+" let g:ale_python_isort_options = '--settings $HOME/.config/isort/config'
 " let g:ale_javascript_prettier_options = '--tab-width 4'
 
-let g:ale_disable_lsp=1
+let g:ale_disable_lsp=0
 let g:ale_sign_highlight_linenrs=1
 
 let g:ale_linters_explicit=1
-let g:ale_warn_about_trailing_whitespace=0
-let g:ale_warn_about_trailing_blank_lines=0
+let g:ale_warn_about_trailing_whitespace=1
+let g:ale_warn_about_trailing_blank_lines=1
 
 let g:ale_set_loclist=0
 let g:ale_set_quickfix=0
@@ -256,7 +263,7 @@ let g:ale_lint_on_filetype_changed=0
 
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
+" let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
 let g:ale_sign_error = 'x'
 let g:ale_sign_warning = '- '
 
@@ -269,6 +276,7 @@ nmap <Leader>Y :execute "let g:ale_linters_ignore = []"
 nmap <Leader>at :ALEToggle<CR>
 nmap <Leader>ai :ALEInfo<CR>
 nmap <Leader>aj :ALELint<CR>
+nmap <Leader>f :ALEFix<CR>
 " }}}
 " {{{ Plugin: Black
 
@@ -380,11 +388,10 @@ let g:Unicode_no_default_mappings = v:true
 "}}}
 "{{{ Syntax: rst
 let g:rst_syntax_code_list = {
-\ 'bash': ['bash'],
 \ 'dockerfile': ['dockerfile'],
 \ 'json': ['json'],
 \ 'python': ['python'],
-\ 'sh': ['sh', 'shell'],
+\ 'sh': ['sh', 'shell', 'bash'],
 \ 'sql': ['sql'],
 \ 'vim': ['vim'],
 \ 'xhtml': ['xhtml'],
