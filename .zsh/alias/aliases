@@ -58,13 +58,13 @@ alias -s mkv=mpv
 
 # {{{ Global aliases
 
-alias -g cfg=~/.config
-alias -g misc='$REPODIR/misc'
 alias -g c='| wc -l'
-alias -g sf=--system
-alias -g u=--user
+alias -g cn='| grep "." -o | cat -n -'
 alias -g help='--help | bat -l man'
 alias -g m='/media/music'
+alias -g misc='$REPODIR/misc'
+alias -g sf=--system
+alias -g u=--user
 # }}}
 
 # {{{ System and journal
@@ -73,12 +73,14 @@ alias cleankcache='zsh -c "sync; echo 1 > /proc/sys/vm/drop_caches"'
 # Systemctl
 alias    sy="systemctl --user"
 alias   syc="sy cat"
+alias   syf="sy --failed"
 alias   sys="sy status"
 alias  syen="sy enable"
 alias sydis="sy disable"
 alias systa="sy start"
 alias systo="sy stop"
 alias syres="sy restart"
+alias  syrf="sy reset-failed"
 alias  syld="sy list-dependencies"
 alias syldr="sy list-dependencies --reverse"
 alias syluf="sy list-unit-files"

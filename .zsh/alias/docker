@@ -4,6 +4,7 @@ alias dockerdown='sudo systemctl stop docker.service docker.socket containerd.se
 alias docker_usage='docker system df'
 alias dps='docker ps'
 alias dcls='docker container ls'
+alias dcrm='docker container prune -f'
 alias dcip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"'
 alias dils='docker image ls'
 alias dvls='docker volume ls'

@@ -160,14 +160,6 @@ PRIORITY[High]=3
 PRIORITY[Highest]=4
 
 declare -A STATUS
-STATUS[Backlog]=10
-STATUS[To-Do]=11
-STATUS[In-Progress]=12
-STATUS[Review]=13
-STATUS[Testing]=14
-STATUS[Ready-for-UAT]=15
-STATUS[UAT]=16
-STATUS[Done]=17
 
 __fetch_issues () {
 # fetch goodies

@@ -25,6 +25,7 @@ alias pflist='yay -Fl'
 alias pfcmp='pacfile --check'
 
 alias paclogg='paclog --grep'
+alias paudit='arch-audit -C=always -r'
 
 __showdeps () {
     if [[ -z $3 ]]; then   # render in the term with kitty

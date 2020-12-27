@@ -30,8 +30,12 @@ bwcreatesecret () {
         .login = \"\"")" | jq
 }
 
+bwprintsecret () {
+    bw get item "$1" | jq .notes | xargs printf
+}
+
 bwgetsecret () {
-    base64 --decode <(bw get item "$1" | jq '.notes' | tr -d \")
+    bwprintsecret "$1" | base64 --decode
 }
 
 bwcreatelogin () {
