@@ -17,9 +17,7 @@ ctrl-]:toggle-preview,
 ctrl-\\:toggle-preview-wrap,
 ctrl-d:preview-page-down,
 ctrl-u:preview-page-up,
-ctrl-a:select-all+accept,
-ctrl-y:execute-silent
-(echo {+} | xclip | -sel clipboard)'
+ctrl-a:select-all+accept
 EOF
 }
 

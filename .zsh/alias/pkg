@@ -1,18 +1,14 @@
 # {{{ Single package
 pi () {
-    pkgs=$(pacman -Qiil $1 2> /dev/null)
-    if [[ -z $pkgs ]]; then
-        pkgs=$(yay -Sii $1)
-    fi
-    sed "s/^$1 //; # remove pkg name from file list
-         /Querying/d;
-          /: None\|(none)\|Backup F\|Architecture/d;
-         s/Deps *: \(.*\)/Deps:\n\t\t\1/;
-         s/^ \+\([^ :]*:.*\)$/\t\t\1/" <<< $pkgs \
+    (pacman -Qiil $1 2> /dev/null || yay -Sii $1) \
+    | sed "s/^$1 //; # remove pkg name from file list
+            /Querying\|: None\|(none)\|Backup F\|Architecture/d;
+           s/Deps *: \(.*\)/Deps:\n\t\t\1/;
+           s/^ \+\([^ :]*:.*\)$/\t\t\1/" \
     | bat -l yml
 }
-alias pins='echo "install $1" >> ~/.d/archsetup; yay -S'
-alias pdel='echo "remove $1" >> ~/.d/archsetup; yay -Rsu'
+alias pins='yay -S'
+alias pdel='yay -Rsu'
 # }}}
 
 # {{{ List / graph
@@ -62,8 +58,8 @@ plogs () {
 }
 # }}}
 # {{{ Searching
-alias pfdo='yay -Qo'  # search file owner
-alias pfdf='yay -Fx'  # search all files with regex
+alias pfdf='yay -Qo'  # search file owner
+alias pfdfs='yay -Fx'  # search all files with regex
 alias pfd='pq -SAs --rsort r'  # search foreign packages
 alias pfdn='pfd --nameonly'  # search foreign packages
 alias pfdi='pq -Qs'  # search installed packages

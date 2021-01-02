@@ -213,8 +213,12 @@ flacaddpic () {
     flac -f "$1" --picture "$2"
 }
 
-mp4compact() {
+mp4compact () {
     ffmpeg -i "$1" -vcodec libx265 -crf 2 "$2"
+}
+
+convertresize () {
+    convert -background transparent -resize $1 $2 $3
 }
 
 svg2png () {
@@ -225,7 +229,7 @@ svg2png () {
     if [[ -n $height ]]; then
         height=$width
     fi
-    convert -background transparent -resize "${height}x$width" "$input" "$output"
+    convertresize "${height}x$width" "$input" "$output"
 }
 # }}}
 
