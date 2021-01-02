@@ -19,17 +19,13 @@
 *color14:       #19cfce
 *color15:       #ddccaa
 
-*VT100.colorBD:         red
-*VT100.colorBDMode:     true
-*VT100.colorUL:         cyan
-*VT100.colorULMode:     true
-*VT100.veryBoldColors:  6
+*VT100.veryBoldColors:  4
 
 Xcursor.size:           30
 Xcursor.theme:          Neutral
 
 XTerm.*.faceName:       Iosevka Fixed
-XTerm.*.faceSize:       12
+XTerm.*.faceSize:       13
 XTerm.*.openIm:         false
 XTerm.termName:         xterm-256color
 XTerm.VT100.locale:     false

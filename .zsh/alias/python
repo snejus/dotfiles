@@ -1,8 +1,6 @@
 #!/usr/bin/env zsh
-###################################
-####     DOCUMENTS PREVIEW     ####
-###################################
 
+# {{{ Rendering rst / md
 alias restme='restview README.rst'  # rST server
 alias restshow='restview --css ~/.shed/github.css'
 
@@ -17,6 +15,7 @@ render () {
     fi
     return 0
 }
+# }}}
 
 
 ####################################
@@ -47,11 +46,11 @@ compdef _heroku hrk
 alias py36='pyenv global 3.6.12'
 alias pys='pyenv global system'
 alias tpd='tool -pkg deps'
+alias ipy=ipython
 
 alias ms='make shell'
 alias ma='python manage.py'
 alias clog='changelog -p'
-alias print_settings='python manage.py print_settings | pygmentize -l bash -O style=fruity | less -XLR'
 
 # Dephell
 alias dp='dephell package'
@@ -72,18 +71,22 @@ alias pov='poetry version'
 
 # Linting
 _srcdir() {
-    dirname $(fd __init__ -1 src)
+    if [[ -n $1 ]]; then
+        echo "$1"
+    else
+        echo "$(dirname $(fd __init__ -1 src))"
+    fi
 }
 
 lint_pylint() {
-    pylint -j 4 -f colorized $(_srcdir)
+    pylint -f colorized $(_srcdir $1)
 }
 
 lint_mypy() {
     if [[ -n $1 ]]; then
         src="$1"
     else
-        src=$(_srcdir)
+        src=$(_srcdir $1)
     fi
     $PIPX_VENVS_PATH/mypy/bin/mypy --sqlite-cache --pretty --show-traceback "$src"
 }

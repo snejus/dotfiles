@@ -10,15 +10,16 @@ endif
 " {{{ Plugins, sorted by how much worse my life would be without them
 call plug#begin('~/.vim/bundle/')
 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } | Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'dir': '~/repo/misc/fzf', 'do': './install --bin' } | Plug 'junegunn/fzf.vim'
 Plug 'w0rp/ale'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'chaoren/vim-wordmotion'
-Plug 'Valloric/YouCompleteMe', { 'for': 'python' }
+Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'tpope/vim-commentary'
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
+Plug 'vim-test/vim-test'
 
 Plug 'cespare/vim-toml', { 'for': 'toml' }
 Plug 'aklt/plantuml-syntax', { 'for': 'plantuml' }
@@ -26,18 +27,17 @@ Plug 'raimon49/requirements.txt.vim', { 'for': 'requirements' }
 Plug 'martinda/Jenkinsfile-vim-syntax', { 'for': 'Jenkinsfile' }
 Plug 'ekalinin/Dockerfile.vim', { 'for': 'Dockerfile' }
 Plug 'neomutt/neomutt.vim', { 'for': 'neomuttrc' }
-Plug 'fatih/vim-go', { 'for': 'go' }
 
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
 
 Plug 'moll/vim-bbye' " close buffer but leave window open
-
 Plug 'snejus/black', { 'for': 'python' }
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'ervandew/supertab'
 Plug 'talek/obvious-resize'
 
 Plug '~/.vim/bundle/vim-deus/'
+" Plug 'ayu-theme/ayu-vim' " or other package manager
 
 Plug 'godlygeek/tabular', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -50,7 +50,6 @@ Plug 'itchyny/calendar.vim'
 
 call plug#end()
 " }}}
-
 " {{{ Options: if has
 if has('nvim')
   let g:python3_host_prog = '~/.local/pipx/venvs/black/bin/python'
@@ -134,6 +133,7 @@ let mapleader = "\<Space>"
 let g:deus_italic=1
 let g:deus_sign_column='bg0'  " same colour as the primary bg - potentially move to the theme
 let g:deus_termcolors=256
+" let ayucolor='mirage'
 colorscheme deus
 
 " colourscheme - options must be set before loading it
@@ -145,10 +145,10 @@ colorscheme deus
 " this beauty remembers where the cursor was when file was closed and returns to the same position
 " }}}
 " {{{ Options: automation groups
-" Remap:
 function! g:Set_format_options()
   if &filetype ==# 'python'
     nnoremap <Leader>f :Black<CR>
+    set completeopt=menu,longest,preview
   else
     nnoremap <Leader>f :ALEFix<CR>
   endif
@@ -187,7 +187,6 @@ let NERDTreeMinimalUI=1
 let g:NERDTreeDirArrowExpandable = ''
 let g:NERDTreeDirArrowCollapsible = ''
 
-" Remap: nerdtree toggle
 nmap <Leader>ng :NERDTreeToggleVCS<CR>
 nmap <Leader>nt :NERDTreeToggle<CR>
 " }}}
@@ -195,22 +194,20 @@ nmap <Leader>nt :NERDTreeToggle<CR>
 let g:fzf_preview_window = ''
 let g:fzf_buffers_jump = 1
 
-" Remap:
 nmap <silent> <Leader>o  :Files<CR>
 nmap <silent> <Leader>;  :Ag<CR>
 nmap <silent> <Leader>i  :Buffers<CR>
 nmap <silent> <Leader>u  :History<CR>
 nmap <silent> <Leader>cs :Commits<CR>
 nmap <silent> <Leader>cb :BCommits<CR>
-nmap <silent>         \  :Files ~/repo<CR>
-" nmap <silent> <Leader>\  :Files ~/Documents/misc<CR>
+nmap <silent>         \  :Files $REPODIR<CR>
+nmap <silent> <Leader>\  :Files $REPODIR/misc<CR>
 " nmap <silent> <Leader>=  :Files ~/stubs<CR>
 " nmap <silent> <Leader>+  :Files ~/.ref/puml/stdlib<CR>
 " }}}
 " {{{ Plugin: ALE
 
 let g:ale_linters = {
-\   'ansible':    ['ansible-lint'],
 \   'bash':       ['shellcheck'],
 \   'Dockerfile': ['hadolint'],
 \   'html':       ['tidy'],
@@ -238,10 +235,7 @@ let g:ale_fixers = {
 \}
 let g:ale_python_flake8_options = '--jobs 2'
 let g:ale_python_pylint_options = '--jobs 2'
-let g:ale_linters_ignore = ['pylint']
-let g:ale_python_mypy_options = '--config-file $XDG_CONFIG_HOME/mypy/config'
 let g:ale_python_isort_executable = '$HOME/.local/bin/isort'
-" let g:ale_python_mypy_executable = '$HOME/.local/bin/realmypy'
 " let g:ale_python_isort_options = '--settings $HOME/.config/isort/config'
 " let g:ale_javascript_prettier_options = '--tab-width 4'
 
@@ -263,11 +257,10 @@ let g:ale_lint_on_filetype_changed=0
 
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
-" let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
+let g:ale_echo_msg_format = '[%linter%] %code%: %s [%severity%]'
 let g:ale_sign_error = 'x'
 let g:ale_sign_warning = '- '
 
-" Remap: navigate between errors
 nmap <silent> <Leader>ek <Plug>(ale_previous_wrap)
 nmap <silent> <Leader>ej <Plug>(ale_next_wrap)
 nmap <Leader>y :execute "let g:ale_linters_ignore = ['pylint']"
@@ -282,17 +275,16 @@ nmap <Leader>f :ALEFix<CR>
 
 let g:black_virtualenv='~/.local/pipx/venvs/black/'
 " }}}
-" {{{ Plugin: YouCompleteMe
-
-let g:ycm_server_python_interpreter='python3'
-let g:ycm_autoclose_preview_window_after_completion=1
-let g:ycm_min_num_of_chars_for_completion = 2
-let g:ycm_auto_hover = 'CursorHold'
-
-" Remap:
-nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
-nmap <leader>ht :YcmCompleter GetType<CR>
-nmap <leader>hg <plug>(YCMHover)
+" {{{ Plugin: jedi
+let g:jedi#popup_on_dot = 0
+let g:jedi#goto_assignments_command = ''
+let g:jedi#goto_command = '<Leader>g'
+let g:jedi#goto_stubs_command = '<Leader>js'
+let g:jedi#goto_definitions_command = ''
+let g:jedi#documentation_command = 'K'
+let g:jedi#usages_command = '<Leader>ju'
+let g:jedi#completions_command = ''
+let g:jedi#rename_command = '<Leader>jr'
 " }}}
 " {{{ Plugin: lightline / airline
 
@@ -307,7 +299,6 @@ let g:airline#extensions#branch#enabled = 1
 " {{{ Plugin: obvious-resize
 let g:obvious_resize_default = 2
 
-" Remap:
 map <silent> <C-Up> :<C-U>ObviousResizeUp<CR>
 map <silent> <C-Down> :<C-U>ObviousResizeDown<CR>
 map <silent> <C-Left> :<C-U>ObviousResizeLeft<CR>
@@ -316,7 +307,8 @@ map <silent> <C-Right> :<C-U>ObviousResizeRight<CR>
 " {{{ Plugin: Bbye
 " Bdelete - closes, but leaves <C-O> available
 " Bwipeout - closes properly
-" Remap: close buffer, leave window open
+
+" close buffer, leave window open
 nmap <Leader>bq :Bwipeout<CR>
 " }}}
 " {{{ Plugin: requirements.txt syntax
@@ -325,8 +317,6 @@ let g:requirements#detect_filename_pattern = 'requirementsfrompoetry'
 " {{{ Plugin: plantuml-syntax
 
 let g:plantuml_executable_script='java -jar ~/.shed/puml/plantuml.jar $@'
-
-" Remap:
 nnoremap <F5> :w<CR> :make<CR>
 " }}}
 " {{{ Plugin: vim-gitgutter
@@ -348,8 +338,9 @@ let g:gitgutter_map_keys = 0
 
 " }}}
 " {{{ Plugin: Supertab
-
 let g:SuperTabDefaultCompletionType = 'context'
+let g:SuperTabMappingForward = '<C-J>'
+let g:SuperTabMappingBackward = '<C-K>'
 " }}}
 " {{{ Plugin: Tabular and vim-markdown
 
@@ -386,6 +377,13 @@ let g:calendar_google_client_secret = $CAL_CLIENT_SECRET
 " {{{ Plugin: Unicode
 let g:Unicode_no_default_mappings = v:true
 "}}}
+" {{{ Plugin: vim-test
+nmap <silent> <Leader>tt :TestNearest<CR>
+nmap <silent> <Leader>tf :TestFile<CR>
+nmap <silent> <Leader>ts :TestSuite<CR>
+nmap <silent> <Leader>tl :TestLast<CR>
+nmap <silent> <Leader>tg :TestVisit<CR>
+" }}}
 "{{{ Syntax: rst
 let g:rst_syntax_code_list = {
 \ 'dockerfile': ['dockerfile'],
@@ -456,9 +454,9 @@ nmap <silent> gb :<C-U>tabprevious<CR>
 
 " show highlighting group for a word under cursor
 nmap <silent> <Leader>cc
-  \ :echo 'hi<'.synIDattr(synID(line('.'), col('.'), 1), 'name')
-  \ . '> trans<'.synIDattr(synID(line('.'), col('.'), 0), 'name') . '> lo<'
-  \ . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
+  \ :echo 'hi<' . synIDattr(synID(line('.'), col('.'), 1), 'name')
+  \ . '> trans<' . synIDattr(synID(line('.'), col('.'), 0), 'name')
+  \ . '> lo<' . synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name') . '>'<CR>
 
 " navigation in the quickfix window
 nmap <Leader>ne :cn<CR>

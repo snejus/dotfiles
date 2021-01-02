@@ -1,60 +1,89 @@
-alias pins='yay -S'
-alias pdel='yay -Rsuv'
-alias pup='yay -Syuv'
+# {{{ Single package
+pi () {
+    pkgs=$(pacman -Qiil $1 2> /dev/null)
+    if [[ -z $pkgs ]]; then
+        pkgs=$(yay -Sii $1)
+    fi
+    sed "s/^$1 //; # remove pkg name from file list
+         /Querying/d;
+          /: None\|(none)\|Backup F\|Architecture/d;
+         s/Deps *: \(.*\)/Deps:\n\t\t\1/;
+         s/^ \+\([^ :]*:.*\)$/\t\t\1/" <<< $pkgs \
+    | bat -l yml
+}
+alias pins='echo "install $1" >> ~/.d/archsetup; yay -S'
+alias pdel='echo "remove $1" >> ~/.d/archsetup; yay -Rsu'
+# }}}
 
-alias pfind='yay -Ss'
-alias pfindf='yay -Fx'
-alias pfindi='yay -Q | ag'
-
-alias pinfo='yay -Siiv'
-alias pshow='yay -Siiv'
-
-alias pstats='yay -P --stats -v'
-
-alias pqSlc='package-query -Sl core'
-alias pqSg='package-query -Sg'
-alias pqQtsd='package-query -Qtt --sort 1'
-alias pqQtss='package-query -Qtt --sort 2 --show-size'
-
-alias pqpro='package-query --qprovides'
-alias pqrep='package-query --qreplaces'
-alias pqreq='package-query --qrequires'
-alias pqdep='package-query --qdepends'
-
-alias pflist='yay -Fl'
-alias pfcmp='pacfile --check'
-
-alias paclogg='paclog --grep'
-alias paudit='arch-audit -C=always -r'
-
+# {{{ List / graph
 __showdeps () {
     if [[ -z $3 ]]; then   # render in the term with kitty
-        pactree $2 $1 | dot -Tpng | kimg
-    else  # raise
-        pactree $2 $1 | dot -Tpng | feh -
+        pactree $1 $2 | dot -Tpng | kimg
+    else  # or with feh if there's a 2nd arg
+        pactree $1 $2 | dot -Tpng | feh -
     fi
 }
 
-pdeps () {
-    __showdeps $1 -g $2
+pgd () {
+    __showdeps -g $1 $2
 }
+pgrd () {
+    __showdeps -gr $1 $2
+}
+alias pq='package-query'
+alias plsf='yay -Ql'  # files
+alias plsfs='yay -Fl'  # remote files
+alias plsg='pq -Sg'  # groups
+alias plsr='pq -Sl'  # repo packages
+alias plsl='pq -Qm'  # foreign / local packages
+alias plse-d='pq -Qtt --sort 1'  # explicit, by date
+alias plse-s='pq -Qtt --sort 2 --show-size'  # explicit, by size
+alias plsi-d='pq -Q --sort 1'  # all installed, by date
+alias plsi-s='pq -Q --sort 2 --show-size'  # all installed, by size
+alias pd='pactree -c'
+alias pd1='pd -d1'
+alias pds='pd -s'
+alias pds1='pds -d1'
+alias prd='pactree -rc'
+alias prd1='prd -d1'
+alias prds='prd -s'
+alias prds1='prds -d1'
+# }}}
+# {{{ Logs
+__logfmt () {
+    sed "/transaction\|synchronizing\|30-systemd/d; s/\(\[[^ ]* \)\(\[[^ ]* \)\(.\?.\?installed.*\|upgraded.*\)\?\(removed.*\|warning.*\)\?\(Running.*\)\?\(starting full.*\)\?\(.*.hook.*\)\?\(downgraded.*\)\?/$(yellow '\1')$(magenta '\2')$(green '\3')$(red '\4')$(white '\5')$(redbg '\6')$(grayit '\7')$(yellow '\8')/"
+}
+__logfile=/var/log/pacman.log
+alias plog="cat $__logfile | __logfmt"
+alias plogd="grep removed $__logfile | __logfmt"
+alias plogi="grep installed $__logfile | __logfmt"
+plogs () {
+    \grep $@ $__logfile --color=never | __logfmt
+}
+# }}}
+# {{{ Searching
+alias pfdo='yay -Qo'  # search file owner
+alias pfdf='yay -Fx'  # search all files with regex
+alias pfd='pq -SAs --rsort r'  # search foreign packages
+alias pfdn='pfd --nameonly'  # search foreign packages
+alias pfdi='pq -Qs'  # search installed packages
+alias pfdprovides='pq --qprovides -SA'
+alias pfdreplaces='pq --qreplaces -SA'
+# }}}
 
-pdepr () {
-    __showdeps $1 -gr $2
-}
+# {{{ Misc
+alias paudit='arch-audit -C=always -r'
+alias pst='yay -Pv --stats'
+alias pup='yay -Syu'  # all packages upgrade
 
-nonewline () {
-    sed 's/-[0-9].*$/ /' | tr -d '\n' | sed 's/==>/\n&/g'
+po () {
+    $BROWSER $(pfd -f "%U" -Qs $1)
 }
-good() {
-    printf "\e[1;3;32m$1\e[0m"
-}
-
-okay() {
-    printf "\e[1;33m$1\e[0m"
-}
-
 pcleancheck () {
+    nonewline () {
+        sed 's/-[0-9].*$/ /' | tr -d '\n' | sed 's/==>/\n&/g'
+    }
+
     echo "\n\n\n\e[1;5;31mpaccache -dvuk0 : Not installed, if keeping 0 backups:\e[0m"
     paccache -duvk0 | nonewline
     echo "\n\n\n\e[1;5;31mpaccache -dvk1 : Installed, if keeping 1 backup:\e[0m"
@@ -70,4 +99,5 @@ pclean () {
     paccache -rk1
     yay -Y -c
 }
+# }}}
 # vim:ft=zsh

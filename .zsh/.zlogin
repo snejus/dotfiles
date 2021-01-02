@@ -2,9 +2,8 @@
 
 if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]] && [[ $(systemctl --user is-system-running) == running ]]; then
     export DISPLAY=:0
-    export XAUTHORITY=$HOME/.Xauthority
-    dbus-update-activation-environment DISPLAY XAUTHORITY
-    systemctl --user import-environment DISPLAY XAUTHORITY PATH
+    dbus-update-activation-environment DISPLAY
+    systemctl --user import-environment DISPLAY PATH
     systemctl --user start awesomex-session.target
 else
     doge

@@ -1,5 +1,6 @@
-# {{{ Mime types
+#!/usr/bin/zsh
 
+# {{{ Mime types
 # Code
 alias -s c=bat
 alias -s h=bat
@@ -8,6 +9,7 @@ alias -s js=bat
 alias -s json=bat
 alias -s log=bat
 alias -s lua=bat
+alias -s Makefile=bat
 alias -s py=bat
 alias -s rst=bat
 alias -s rest=bat
@@ -16,7 +18,7 @@ alias -s toml=bat
 alias -s txt=bat
 alias -s vim=bat
 alias -s xml=bat
-alias -s yml=bat
+alias -s {yml,yaml}=bat
 alias -s zsh=bat
 
 # Config
@@ -49,6 +51,7 @@ alias -s pdf=zathura
 
 # Web
 alias -s html=$BROWSER
+alias -s xhtml=$BROWSER
 
 # Video
 alias -s mp4=mpv
@@ -57,34 +60,37 @@ alias -s mkv=mpv
 # }}}
 
 # {{{ Global aliases
-
 alias -g c='| wc -l'
 alias -g cn='| grep "." -o | cat -n -'
-alias -g help='--help | bat -l man'
-alias -g m='/media/music'
-alias -g misc='$REPODIR/misc'
+alias -g h='--help 2>&1 | bat -l man'
+alias -g hl='highlight -O xterm256 -s base16/phd'
+alias -g m=/media/music
+alias -g misc=\$REPODIR/misc
 alias -g sf=--system
 alias -g u=--user
+alias -g by='| grep ": [^ ]" | bat -l yml'
 # }}}
 
 # {{{ System and journal
 alias cleankcache='zsh -c "sync; echo 1 > /proc/sys/vm/drop_caches"'
 
 # Systemctl
-alias    sy="systemctl --user"
-alias   syc="sy cat"
-alias   syf="sy --failed"
-alias   sys="sy status"
-alias  syen="sy enable"
-alias sydis="sy disable"
-alias systa="sy start"
-alias systo="sy stop"
-alias syres="sy restart"
-alias  syrf="sy reset-failed"
-alias  syld="sy list-dependencies"
-alias syldr="sy list-dependencies --reverse"
-alias syluf="sy list-unit-files"
-alias syrel="sy daemon-reload"
+alias    sy='systemctl --user'
+alias sycat='sy cat'
+alias   syf='sy --failed'
+alias   sys='sy status --with-dependencies'
+alias  syen='sy enable'
+alias sydis='sy disable'
+alias systa='sy start'
+alias systo='sy stop'
+alias syres='sy restart'
+alias  syrf='sy reset-failed'
+alias  syld='sy list-dependencies'
+alias syldr='sy list-dependencies --reverse'
+alias syluf='sy list-unit-files'
+alias syrel='sy daemon-reload'
+alias sylss='sy --show-types --all list-sockets'
+alias sylst='sy --all list-timers'
 
 alias sstart='systemctl --user start awesomex-session.target'
 alias  sstop='systemctl --user stop awesomex-session.target'
@@ -102,9 +108,9 @@ alias jprio='jmo --priority'
 
 # {{{ Default flags
 alias ag='ag --silent --color --pager bat'
-alias beet='beet -vv'
 alias bw='bw --pretty'
 alias cdu='cdu -idh -s'
+alias df='df -h'
 alias diff='diff --color=auto'
 alias dmesg='dmesg -H'
 alias free='free -hlt'
@@ -112,48 +118,52 @@ alias fd='fd --xdev'
 alias feh='feh -F'
 alias gh='LESS=-RX gh'
 alias glow='glow -p'
-alias grep='grep --color=auto'
-alias hue='hueadm -c $HOME/.config/hueadm/hueadm.json'
+alias grep='grep --color=auto --exclude-dir pipx --exclude-dir node_modules --exclude-dir share --exclude-dir Slack --exclude-dir chromium --exclude-dir "python*" --exclude "EFX_DB*" --exclude "*.svg"'
+alias hueadm='hueadm -c $XDG_CONFIG_HOME/hueadm/hueadm.json'
 alias ip='ip -color=auto'
+alias lsmod='lsmod | grep -v "^Module" | sort | column -td --table-right 1'
 alias mkdir='mkdir -pv'
+alias ncmpcpp='ncmpcpp -q'
 alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
 alias sudo='sudo '
 # }}}
 
-# {{{ Various
+# {{{ Misc
+alias hue=hueadm
+alias lad=lazydocker
+alias ncm=ncmpcpp
+alias nctl=networkctl
+alias neo=neomutt
+alias ws=whatscli
+
 alias ci='xclip -selection clipboard -r'
 alias cimg='xclip -selection clipboard -t image/png -i'
+alias cls='comm -12 <(cheat -l | cut -f1 -d " " | sort) <(find /usr/bin -maxdepth 1 -printf "%f\n" | sort)'
 alias co='xclip -selection clipboard -o'
 alias devdb='udevadm info --export-db | grep'
-alias env='env | sort | pygmentize -l bash -O style=fruity'
+alias e='exit'
+alias env='env | sort | hl -S qmake'
 alias exportenv='f(){ source <(cat $1 | sed "s/^/export &/") }; f'
+alias files='find . -maxdepth 1'
+alias gbi='go build && go install'
+alias grepr='grep -RIH'
 alias kimg='kitty +kitten icat'
-alias lad=lazydocker
 alias listeners='sudo lsof -i -Pn | grep LISTEN'
-alias lsmod='lsmod | sed "1,$!d" | sort | column -td --table-right 1'
-alias lzd=lazydocker
+alias lscolors='bat ~/repo/notes/rgb.txt'
 alias mimetype='cat /etc/mime.types | ag'
-alias nctl=networkctl
-alias ncm=ncmpcpp
-alias neo=neomutt
 alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias printpath='echo $PATH && echo $PATH | tr : "\n"'
+alias ppath='echo $PATH && echo $PATH | tr : "\n"'
 alias pss='ps aux | grep'
-alias rgbtxt='bat ~/repo/notes/rgb.txt'
-alias standup='git standup -m3 -d7'
+alias sup='git standup -m3 -d7'
 alias tpd='tool -pkg deps'
-alias vman='MANPAGER="vim -M +MANPAGER - " man'
-alias ws=whatscli
-alias xwinall='xwininfo -root -children -tree'
+alias xwin='xwininfo -root -children -tree'
 # }}}
 
 # {{{ ls
-
-# ls
 alias lsl='lsd -lA --size short --date=relative --group-dirs first'
 alias ls='lsl --blocks="size,user,date,name"'
-alias lsn='ls -t'
-alias lsnr='lsn -r'
+alias lsnr='ls -t'
+alias lsn='lsnr -r'
 alias lss='lsl -r --total-size --sizesort'
 alias lst='ls --tree'
 alias lsdir='lsd -d'
@@ -171,20 +181,50 @@ alias ssp='s -p spotify'
 alias syt='s -p youtube'
 # }}}
 
+# {{{ beet
+alias pybeet="$PIPX_VENVS_PATH/beets/bin/python"
+alias bil='beet info -l'
+alias bil='beet info -l'
+alias bimp='beet -vv import'
+alias blsb='beet list -a -f "\$added | \$mb_albumid" | grep bandcamp --color=always | column -s "|" -t'
+alias blsbp='beet list -f "\$added | \$mb_albumid" | grep Beatport | column -s "|" -t'
+# list vinyls
+alias blsv='beet list -f "\$track_alt | \$album | \$title | \$data_source" | grep -v track | grep "^[A-Z]" | column -s "|" -t'
+
+bcmeta () {
+    if [[ -n $1 ]]; then
+        grep datePubl $1 | jq --color-output | less
+    else
+        grep datePubl /dev/stdin | jq --color-output | less
+    fi
+}
+# }}}
+
 # {{{ fzf
 alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
 alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
 alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
 alias fe='fzf --bind "enter:execute(bat {})"'
-alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | less)"'
+alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | bat -l yml)"'
 # }}}
 
 # {{{ taskwarrior
 alias t='task'
-alias ta='task add'
-alias td='task done'
-alias tl='task list'
-alias tlo='task long'
+
+alias ta='t add'
+alias tat='ta due:today'
+alias tatm='ta due:tomorrow'
+
+alias tca='t calendar'
+alias td='t done'
+alias te='t edit'
+alias tl='t list'
+
+alias tlo='t long'
+alias to='tlo +OVERDUE'
+
+alias tn='t next'
+alias tst='t stats'
 # }}}
 
 # {{{ vagrant
@@ -195,4 +235,4 @@ alias vh="vagrant halt"
 alias vgs="vagrant global-status"
 # }}}
 
-# vim:ft=bash
+# vim:ft=zsh
