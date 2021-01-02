@@ -1,6 +1,0 @@
-== TODOs ==
-
-  * [ ] `Vimwiki`
-    * [ ] Tagbar
-    * [ ] Organise myself
-    * [ ] Unmap uneeded keybindings
