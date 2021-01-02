@@ -1,5 +1,5 @@
 # {{{ Generic
-h() {
+hd() {
     howdoi "$@" -c -n 5
 }
 
@@ -23,98 +23,94 @@ unzip2folder () {
 ns() {
     notmuch search --sort=oldest-first "$1" | tr -d '"' | bat -l msg
 }
+
+flushright() {
+    ncols=$(( COLS - 3 ))
+    sed -e :a -e "s/^.\{1,$ncols\}$/ &/;ta"
+}
+
+center() {
+    ncols=$(( COLS - 3 ))
+    sed  -e :a -e "s/^.\{1,$ncols\}$/ &/;ta" -e 's/\( *\)\1/\1/'
+}
 # }}}
 
 # {{{ Color
+pcolors () {
+    line_count=$(( LINES - 1 ))
+    if [[ $1 == align ]]; then
+        line_count=36
+    fi
+    color_count=255
+    need_cols=$(( (color_count / line_count) + 1 ))
+    width=$(( COLUMNS / need_cols - 1 ))
+    left_padding=$(( width / 2 + 6 ))
+    for (( lineno=1 ; lineno <= $line_count; lineno++ )) do
+        line=
+        for (( col=0 ; col < $need_cols; col++ )) do
+            color=$(( col * line_count + lineno ))
+            if (( color <= color_count )) then
+                code="1;38;5;$color"
+                if (( col == 0 )) then
+                    padding=$left_padding
+                else
+                    padding=$width
+                fi
+                _say $code "$color abc" $padding
+            fi
+        done
+        echo
+    done
+}
+
 show_mouse_color() {
     if [[ -n $1 ]]; then sleep $1; fi
 
     scrot --overwrite /tmp/copycolor.png
-    eval "$(xdotool getmouselocation --shell)"
-
-    img=$(convert /tmp/copycolor.png -depth 8 -crop 1x1+$X+$Y txt:-)
-    color=$(echo $img | grep -om1 '#\w\+')
-
-    xclip -selection clipboard <<< "$color"
+    $(xdotool getmouselocation --shell) 2> /dev/null
+    img=$(convert /tmp/copycolor.png -depth 8 -crop "1x1+$X+$Y" txt:-)
+    color=$(grep -om1 '#\w\+' <<< "$img")
+    xclip -selection clipboard <<< $color
 
     awesome-client "\
-    naughty = require(\"naughty\")\
+    naughty = require('naughty')\
     naughty.notify({\
-    title=\"\tHello, wannabe designer\t\t \",\
-    text=\"\tYour chosen color: $color\",\
+    title='\tHello, wannabe designer\t\t ',\
+    text='\tYou are pointing at: $color',\
     timeout=10,\
-    fg=\"$color\",\
-    bg=\"#FFFFFF\",\
+    fg='$color',\
+    bg='#FFFFFF',\
     border_width=0,\
-    position=\"bottom_middle\"})"
+    position='bottom_middle'})"
 }
 
 _with_color () {
     command env \
         LESS_TERMCAP_mb=$(printf "\e[1;32m") \
-        LESS_TERMCAP_md=$(printf "\e[1;31m") \
+        LESS_TERMCAP_md=$(printf "\e[1;36m") \
         LESS_TERMCAP_me=$(printf "\e[0m") \
         LESS_TERMCAP_se=$(printf "\e[0m") \
         LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+        LESS_TERMCAP_uo=$(printf "\e[1;37;33m") \
         LESS_TERMCAP_ue=$(printf "\e[0m") \
         LESS_TERMCAP_us=$(printf "\e[1;35m") \
         PAGER=/usr/bin/less _NROFF_U=1 "$@"
 }
 
-hub () {
-    _with_color "$0" "$@"
-}
-alias git=hub
-
 man () {
+    cmd=$1
     if [[ ! ${#@} == 1 ]]; then
-        /usr/bin/man "$@"
-        return
+        if [[ $cmd =~ ^- ]]; then  # first arg is a flag
+            command -p man "$@"
+            return
+        fi
     fi
 
-    exists=$(fd "^$1" /usr/share/man -1)
-    if [[ -n $exists ]]; then
-        _with_color "$0" "$@"
-    else
-        flag=--help
-        if [[ $2 == "long" ]]; then
-            flag=--long-help
-        fi
-        $1 $flag | bat -l man
-    fi
+    cmd=${cmd/ *}
+    _with_color $0 $cmd 2> /dev/null && return
+    $cmd --help 2>&1 | bat -l man
 }
 # }}}
-
-dadjoke() {
-   echo "\
-$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1
-$1$2$1$2$1$1$2$1$1$2$1$2$1$1$2$1$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$2$2$2$1$2$2$2$1$2$2$2$1$2$2$2$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1$2$1
-$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1"
-}
-dadjoke4sam() {
-   echo "\
-$1$1$1$1$1$1$1$1$1$1$1$1$1
-$1$1$1$2$1$2$1$1$2$1$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$2$2$2$1$2$2$2$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$2$1$2$1$2$1$2$1$1$1
-$1$1$1$1$1$1$1$1$1$1$1$1$1"
-}
-
-flushright() {
-    ncols=$(( $(tput cols) - 3 ))
-    sed -e :a -e "s/^.\{1,$ncols\}$/ &/;ta"
-}
-
-center() {
-    ncols=$(( $(tput cols) - 3 ))
-    sed  -e :a -e "s/^.\{1,$ncols\}$/ &/;ta" -e 's/\( *\)\1/\1/'
-}
 
 # {{{ Docs conversion
 rst2md() {
@@ -128,7 +124,7 @@ rst2md() {
         --output "$output" \
         --standalone \
         --toc \
-        --toc-depth 2
+        --toc-depth 3
 }
 
 pandoc2pdf() {
@@ -141,14 +137,14 @@ pandoc2pdf() {
     output=$naked.pdf
     echo Converting "$filename" to "$output"
     pandoc $1 \
-        --from "$from" \
-        --output "$output" \
+        --from $from \
+        --output $output \
         -V geometry:margin=1in \
         --standalone \
         --toc \
-        --toc-depth 2 \
-        --pdf-engine=xelatex \
-        --highlight-style="$HOME/.d/sarastango.theme" \
+        --toc-depth 3 \
+        --pdf-engine xelatex \
+        --highlight-style $HOME/.d/sarastango.theme \
         --variable=documentclass:scrreprt \
         --variable=fontsize:9pt \
         --variable=fontenc:T1 \
@@ -233,4 +229,4 @@ svg2png () {
 }
 # }}}
 
-# vim:ft=bash
+# vim:ft=zsh

@@ -1,6 +1,5 @@
-alias -g csu="--compact-summary"
+alias -g csu=--compact-summary
 
-alias git=hub
 alias ga='git add'
 alias gac='git add $(gf)'
 alias gau='git add -u'
@@ -64,7 +63,6 @@ prmsg() {
 
     patlogin='[^-][a-z-]\+'
     pname=$(git remote get-url origin | sed -n "s/.*:\(.*\)\..*\|$/\1/p")
-    echo $pname
     prurl="https://api.github.com/repos/$pname/pulls/$pr_index"
     paste -sz <(curl -s -u "username:$GITHUB_TOKEN" "$prurl/reviews") \
               <(curl -s -u "username:$GITHUB_TOKEN" "$prurl/comments") |
