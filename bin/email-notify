@@ -9,31 +9,63 @@ _right8() {
 }
 
 _right10() {
-    sed -e :a -e 's/^.\{1,10\}$/ &/;ta' <<< "$@"
+    if [[ -z $1 ]]; then
+        sed -e :a -e 's/^.\{1,10\}$/ &/;ta'
+    else
+        sed -e :a -e 's/^.\{1,10\}$/ &/;ta' <<< "$@"
+    fi
 }
 
 _center() {
     sed -e :a -e 's/^.\{1,30\}$/ &/;ta' -e 's/\( *\)\1/\1/'
 }
 
-y_t="$(notmuch count date:yesterday path:personal/new path:work/new)"
-p_u="$(notmuch count date:today path:personal/new | _right8)"
-p_t="$(notmuch count date:today "path:personal/**" | _right8)"
-w_u="$(notmuch count date:today path:work/new | _right8)"
-w_t="$(notmuch count date:today "path:work/**" | _right8)"
+NC=notmuch
+CNT=count
 
-[[ $p_u -eq "0" ]] && [[ $w_u -eq "0" ]] && exit 0
+PERS=folder:personal
+WORK=folder:work
 
-header=$(_right10 box)$(_right10 unseen)$(_right8 total)
-person=$(_right10 Personal)$p_u$p_t
-work=$(_right10 Work)$w_u$w_t
+YD=date:yesterday
+TD=date:today
+
+UNR=tag:unread
+
+BC=from:bandcamp
+GH=from:github
+
+y_t=$($NC $CNT $YD $UNR)
+p_tot=$($NC $CNT $PERS $UNR | _right10)
+p_u=$($NC $CNT $PERS $UNR $TD | _right8)
+p_t=$($NC $CNT $PERS $TD | _right8)
+w_tot=$($NC $CNT $WORK $UNR | _right10)
+w_u=$($NC $CNT $WORK $UNR $TD | _right8)
+w_t=$($NC $CNT $WORK $TD | _right8)
+bc_tot=$($NC $CNT $BC | _right10)
+bc_t=$($NC $CNT $BC $UNR | _right8)
+bc_u=$($NC $CNT $BC $TD $UNR | _right8)
+gh_tot=$($NC $CNT $GH | _right10)
+gh_t=$($NC $CNT $GH $UNR | _right8)
+gh_u=$($NC $CNT $GH $TD $UNR | _right8)
+
+header=$(_right10 box)$(_right10 "U today")$(_right10 "U tot")$(_right8 total)
+person=$(_right10 Personal)$p_u$p_t$p_tot
+work=$(_right10 Work)$w_u$w_t$w_tot
+bandcamp=$(_right10 Bandcamp)$bc_u$bc_t$bc_tot
+github=$(_right10 Github)$gh_u$gh_t$gh_tot
+
 msg="\n\
 $header\t  .\n\
 \n\
 $person\n\
 $work\n\
 \n\
+$bandcamp\n\
+$github\n\
+\n\
 Unread from yesterday:   $y_t\n"
 
 icon=$NOTMUCH_CONFIG:h/bubblemail.svg
-notify-send "New email mate" "$msg" -i $icon:A
+expire=3000
+[[ -n $1 ]] && expire=$1
+notify-send "New email mate" "$msg" -i $icon:A -t $expire

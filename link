@@ -29,9 +29,7 @@ link_homeroot () {
 }
 
 link_bindir () {
-    scripts="$(fd -a . bin)"
-
-    for script in $scripts; do
+    for script in $(fd -a . bin); do
         link "$script" "$USER_BINDIR"
     done
 }

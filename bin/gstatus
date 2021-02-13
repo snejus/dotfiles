@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/bin/env bash
 
 # Based on https://github.com/Aire-One/gstatus
 
 RES=$'\e[0m'
+BOLD=$'\e[1m'
 RED=$'\e[1;31m'
 GREEN=$'\e[1;32m'
 YELLOW=$'\e[1;33m'
@@ -10,57 +11,62 @@ BLUE=$'\e[1;34m'
 CYAN=$'\e[1;36m'
 
 STYLE_CURRENT_BRANCH="$BLUE%s$RES"
-STYLE_REMOTE_BRANCH="\n\t$YELLOW  %s$RES"
+STYLE_REMOTE_BRANCH="\n\t$YELLOW  %15s$RES"
 STYLE_EVEN_COMMITS=" $GREEN  $RES"
-STYLE_AHEAD_COMMITS=" $CYAN\t \ue726 %2s behind$RES"
-STYLE_BEHIND_COMMITS=" $RED\t   %2s in front$RES"
+STYLE_AHEAD_COMMITS=" $CYAN\ue726 %2s behind$RES"
+STYLE_BEHIND_COMMITS=" $RED  %2s in front$RES"
 
 print_remote_branch () {
     remote=$1
     printf "$STYLE_REMOTE_BRANCH" "$remote"
 
-    add=$(git cherry "$remote" | wc -l)
-    sub=$(git log --oneline "HEAD..$remote" | wc -l)
-
-    if [[ $add == 0 && $sub == 0 ]]; then
-        printf "$STYLE_EVEN_COMMITS"
+    status=$(git branch -vv | sed -rn '\/^\*/s/.*: (.*)\].*/\1/p')
+    # status=$(git rev-list --count --left-right master...HEADgit branch -vv | sed -rn '/^\*/s/.*: (.*)\].*/\1/p')
+    number="${status//[a-z ]/}"
+    status="${status//[0-9 ]/}"
+    if [[ $status == ahead ]]; then
+        style="$STYLE_AHEAD_COMMITS"
+    elif [[ $status == behind ]]; then
+        style="$STYLE_BEHIND_COMMITS"
     else
-        [ "$add" != 0 ] && printf "$STYLE_AHEAD_COMMITS" "$add"
-        [ "$sub" != 0 ] && printf "$STYLE_BEHIND_COMMITS" "$sub"
+        style="$STYLE_EVEN_COMMITS"
     fi
+    printf "$style" "$number"
 }
 
 git_branching_status () {
     current=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD --sq)
     printf "$STYLE_CURRENT_BRANCH" "$current"
     for i in $( (\
-        git show-ref "$current" | grep -oP "refs/remotes/\K.*/$current" && \
-        git branch -r --contains | sed -n "/HEAD/!s/ *//p") | sort -u); do
+            git show-ref "$current" | grep -oP "refs/remotes/\K.*/$current" && \
+            git branch -r --contains | sed -n "/HEAD/!s/ *//p") | sort -u); do
         print_remote_branch "$i"
     done
     echo
 }
 
 git_status () {
-    echo && git status -s -unormal --column
+    echo ${BOLD}STAGED$RES
+    git diff --compact-summary --staged "$@"
+    echo
+    echo ${BOLD}WORKTREE$RES
+    git diff --compact-summary --dirstat "$@"
 }
 
 git_ci_status () {
-    hub ci-status > /dev/null
-    status=$?
-    if [[ $status == 0 ]]; then
-        report=happy
-    elif [[ $status == 1 ]]; then
-        report=angry
-    else
-        report=busy
-    fi
+    case $(hub ci-status > /dev/null) in
+        0) report=happy;;
+        1) report=angry;;
+        *) report=busy;;
+    esac
     kitty +kitten icat --align left ~/.d/images/${report}jenkins.png
 }
 
 git_branching_status
-git_status "$@"
 
 if [[ $1 == "ci" ]]; then
     git_ci_status
+    git_status "${@:2}"
+else
+    git_status "$@"
 fi

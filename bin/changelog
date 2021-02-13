@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #   Try finding the changelog of a Python package and render it with glow (markdown) or
-#   pygments (md and rst), if they are installed.
+#   bat (md and rst), if they are installed.
 #
 #   Tested with bash and zsh. It isn't POSIX-compatible however.
 #
@@ -31,19 +31,18 @@
 #
 #       $ export GITHUB_TOKEN=<your github token>
 #
-#   Would recommend installing glow (go) and pygments (python) for pretty output and having
+#   Would recommend installing glow (go) or bat for pretty output and having
 #
-#       $ alias clog='changelog -p'
+#       $ alias clog='changelog'
 #
 
 # flake8: https://gitlab.com/pycqa/flake8/-/tree/master/docs/source/release-notes - non-standard
 declare -A PROJECTS
 # repos that contain CHANG* file in their root (anything that starts with `CHANG`, case-insensitive)
-
 PROJECTS[docker-compose]=docker/compose
 PROJECTS[feh]=derf/feh
+PROJECTS[fzf]=junegunn/fzf
 PROJECTS[httpie]=httpie/httpie
-PROJECTS[interaction]=yobota/interaction
 PROJECTS[poetry]=python-poetry/poetry
 PROJECTS[prettier]=prettier/prettier
 
@@ -53,42 +52,82 @@ LINKS[djangorestframework]=encode/django-rest-framework/master/docs/community/re
 LINKS[pytest]=pytest-dev/pytest/master/doc/en/changelog.rst
 LINKS[pytz]=stub42/pytz/master/tz/NEWS
 LINKS[whitenoise]=evansd/whitenoise/master/docs/changelog.rst
+LINKS[factory-boy]=FactoryBoy/factory_boy/master/docs/changelog.rst
 
 VERBOSE=1
-PAGER=0
-PLAIN=0
-DEFAULT_PIP="$(pass show main-repo-pip)"  # path to the default venv pip for private packages
+PAGER=1
+PLAIN=
 
-speak() {
-    # - printf speak - (or polite-speak) - mind the VERBOSE flag
-    if [[ -n $VERBOSE ]]; then
-        printf "$@"
+# {{{ Colors
+tput sgr0
+RESET="$(tput sgr0)"
+BOLD="$(tput bold)"
+IT="$(tput sitm)"
+RED="$(tput setaf 1)"
+GREEN="$(tput setaf 2)"
+YELLOW="$(tput setaf 3)"
+BLUE="$(tput setaf 4)"
+MAGENTA="$(tput setaf 5)"
+CYAN="$(tput setaf 6)"
+WHITE="$(tput setaf 7)"
+GREY="$(tput setaf 15)"
+
+_say () {
+    if [[ -n $PLAIN ]]; then
+        printf "%$3s" "$2"
+    else
+        printf "%$3s" "$1$2$RESET"
     fi
 }
 
-good() {  # bold green
-    printf $'\e[1;32m%s\e[0m' "$1"
+bold () {
+    printf '%s' "$BOLD$*$RESET"
 }
 
-okay() {  # bold orange
-    printf $'\e[1;33m%s\e[0m' "$1"
+red () {
+    _say "$BOLD$RED" "$@"
 }
 
-oh() {  # bold red
-    printf $'\e[1;31m%s\e[0m' "$1"
+green () {
+    _say "$BOLD$GREEN" "$@"
 }
 
-happy() {
-    speak '%s %s\n' "$(good "$1")" "$2"
+yellow () {
+    _say "$YELLOW" "$@"
 }
 
-hmmm() {
-    printf >&2 '%s %s\n' "$(okay WARNING:)" "$1"
+blue () {
+    _say "$BOLD$BLUE" "$@"
 }
 
-uhoh() {
-    printf >&2 '%s %s\n' "$(oh ERROR:)" "$1"
+magenta () {
+    _say "$MAGENTA" "$@"
 }
+
+cyan () {
+    _say "$BOLD$CYAN" "$@"
+}
+
+white () {
+    _say "$BOLD$WHITE" "$@"
+}
+
+grey () {
+    _say "$BOLD$GREY" "$@"
+}
+
+_stderr () {
+    printf >&2 '%s\n' "$*"
+}
+
+warning() {
+    _stderr "$(bold "$(yellow WARNING:)")" "$1"
+}
+
+error() {
+    _stderr "$(red ERROR:) $1"
+}
+# }}}
 
 get() {
     url=$1
@@ -96,8 +135,8 @@ get() {
 }
 
 show() {
-# Markdown: glow -> pygments -> plain
-# Restructured text: pygments -> plain
+# Markdown: glow -> bat -> plain
+# Restructured text: bat -> plain
     url="$1"
     if [[ $PLAIN -eq 1 ]]; then
         get "$url"
@@ -110,8 +149,8 @@ show() {
         get "$url" | glow -s dark - && return
     fi
 
-    if command -v pygmentize &> /dev/null; then
-        get "$url" | pygmentize -l "$format" -O style=monokai
+    if command -v bat &> /dev/null; then
+        get "$url" | bat -l rst --color always
     else
         get "$url"
     fi
@@ -128,7 +167,7 @@ render() {
 }
 
 try_with_pypi() {
-    pypi info "$pkg" 2> /dev/null | sed -n "/github\|pypi/s/.* //p; s/\/tree\/master//"
+    pypi info "$pkg" 2> /dev/null | sed -n "/github.com\|pypi/s/.* //p; s/\/tree\/master//"
 }
 
 get_homepage() {
@@ -139,114 +178,107 @@ get_homepage() {
             printf '%s' "$details"
             return
         fi
-        hmmm "pypi didn't find the package: Trying pip"
+        warning "pypi didn't find the package: Trying pip"
     else
-        hmmm "pypi executable not found: Using pip"
+        warning "pypi executable not found: Using pip"
     fi
 
-    pipbin=$DEFAULT_PIP
-    if [[ -z $pipbin ]]; then
-        pipbin=pip
+    pip=$BASE_PIP
+    if [[ -z $pip ]]; then
+        error "\$INTEGRATIONS_PIP is not found in the environment."
+        exit 1
     fi
-    $pipbin show "$pkg" 2> /dev/null | sed -n "/Home/s/.*: //p"
+    $pip show "$pkg" 2> /dev/null | sed -n "/Home/s/.*: //p"
 }
 
 try_non_github_homepage() {
-    curl -s "$1" | grep -oPm1 "github.com/\K[^/]*/[^/\" ]*" | uniq
+    curl -s "$1" | grep -oPm1 "github.com/\K[^/]*/[^/\" ]*"
 }
 
 get_info_source() {
     repo_name=$1
-    repofilelist=$(get "https://api.github.com/repos/$repo_name/contents" |
-        jq '.[] | [.name, .download_url] | @tsv')
+    url="https://api.github.com/repos/$repo_name/contents"
+    repofilelist=$(get "$url" | jq '.[] | [.name, .download_url] | @tsv' 2> /dev/null) || {
+        error "Failed to fetch $repo_name github url: $url"
+        exit 1
+    }
 
     changelogurl=$(grep -i -oPm1 '(history.*|news.*|chang.*).*\Khttps[^ "]*"' <<< "$repofilelist")
     if [[ -n $changelogurl ]]; then
-        speak '%s the changelog\n' "$(good Found)"
+        printf '%s the changelog\n' "$(green Found)"
         export INFOSOURCE="$changelogurl"
         return
     fi
 
-    hmmm "Failed to find the changelog in the repository root. Looking for a readme instead."
+    warning "Failed to find the changelog in the repository root. Looking for a readme instead."
     readmeurl=$(grep -i -oPm1 "readme.*\Khttps[^\"]*" <<< "$repofilelist")
     if [[ -z $readmeurl ]]; then
-        uhoh "$pkg doesn't have a readme"
+        error "$pkg doesn't have a readme"
         exit 1
     fi
-    speak '%s the readme\n' "$(good Found)"
+    printf '%s the readme\n' "$(green Found)"
     export INFOSOURCE="$readmeurl"
 }
 
 changelog() {
     pkg=$1
-    speak 'Looking for %s changelog\n' "$(good "$pkg")"
+    printf 'Looking for %s changelog\n' "$(green "$pkg")"
     if [[ -z $GITHUB_TOKEN ]]; then
-        hmmm "GITHUB_TOKEN is not found in the environment"
+        warning "GITHUB_TOKEN is not found in the environment"
     fi
 
     directlink="${LINKS[$pkg]}"
     if [[ -n $directlink ]]; then
-        happy "Link to the changelog is already defined"
+        green $'Link to the changelog is already defined\n'
         render "https://raw.githubusercontent.com/$directlink"
         exit 0
     fi
 
     predefined="${PROJECTS[$pkg]}"
     if [[ -n $predefined ]]; then
-        speak '%s the package repo in the defined list\n' "$(good Found)"
+        printf '%s the package repo in the defined list\n' "$(green Found)"
         projectname=$predefined
     else
         homepage="$(get_homepage "$pkg")"
         if [[ -z $homepage ]]; then
-            uhoh "pip and pypi failed to find the package"
+            error "pip and pypi failed to find the package"
             exit 1
         fi
         projectname="$(sed -n "/github/s/.*\.com\///p" <<< "$homepage")"
         if [[ -z $projectname ]]; then
-            happy "Home-page:" "$homepage"
-            speak 'Sad, the home page is not a Github URL.\n'
-            speak 'Lets just try something quick though ...\n'
+            green "Home-page: " && echo "$homepage"
+            printf 'Sad, the home page is not a Github URL. '
+            printf 'Lets just try something quick though ...\n'
             projectname=$(try_non_github_homepage "$homepage")
             if [[ -n $projectname ]]; then
-                happy Bingo
+                green $'Bingo\n'
             else
-                uhoh "Could not find $pkg github repository. Check out its home page instead: $homepage"
+                error "Could not find $pkg github repository. Check out its home page instead: $homepage"
                 exit 1
             fi
         fi
     fi
-    happy "Github project:" "$projectname"
+    printf '%s\n' "$(green "Github project:") $projectname"
     get_info_source "$projectname"
     render "$INFOSOURCE"
     exit 0
 }
 
-chill() {
-    printf $'\e[1;34m%s\e[0m' "$1"
-}
-
-comment() {
-    printf $'\e[1;38m%s\e[0m' "$1"
-}
-
 show_help() {
     cat <<-EOF
 
-  » $(chill changelog) $(okay "[options]") $(good package) $(okay "[options]")
+  $(green changelog) $(yellow "[options]") $(magenta package) $(yellow "[options]")
 
-    ╰─ $(okay "-p, --pager")       $(comment "# page the output")
-    ╰─ $(okay "-P, --plain")       $(comment "# do not apply post-processing (keep it ugly)")
-    ╰─ $(okay "-s, --silent")      $(comment "# only print errors and the output")
-    ╰─ $(okay "-h, --help")        $(comment "# display help")
+     $(yellow "-P, --no-pager")    $(grey "# do not page the output")
+     $(yellow "    --no-color")    $(grey "# do not apply post-processing (keep it ugly)")
+     $(yellow "-h, --help")        $(grey "# display help")
 
 EOF
     exit 0
 }
 
-unhappy_input() {
-    uhoh "$1\n"
-    chill "    changelog"
-    oh " package\n\n"
+_commandstring () {
+    printf '\n  %s\n' "$(bold "$(cyan changelog && yellow " [options]" && magenta " <arg>")")"
 }
 
 if test $# -eq 0; then
@@ -254,21 +286,21 @@ if test $# -eq 0; then
 else
     while test $# -ne 0; do
         case $1 in
-            -p|--pager) PAGER=1 ;;
-            -P|--plain) PLAIN=1 ;;
-            -s|--silent) VERBOSE= ;;
+            -P|--no-pager) PAGER=0 ;;
+            --no-color) PLAIN=1 ;;
+            # -s|--silent) VERBOSE= ;;
             -h|--help) show_help; exit ;;
             *)
             if [[ -z $pkg ]]; then
                 pkg="$1"
             else
-                unhappy_input "Please provide a single package name"
+                error "Please provide a single package name"
                 exit 1
             fi; ;;
         esac
         shift
     done
-    [[ -z $pkg ]] && unhappy_input "Please provide a package name"  && exit 1
+    [[ -z $pkg ]] && error "Please provide a package name"  && exit 1
     changelog "$pkg"
 fi
 # vim:ft=sh

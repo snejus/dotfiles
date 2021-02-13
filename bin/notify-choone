@@ -8,7 +8,6 @@ notify() {
     filepath="$musicdir/$(head -1 <<< "$1")"
     albumdir="$(dirname "$filepath")"
 
-    coverpic=
     coverpic="$(fd -e png -e jpg -d1 -1 ^cover "$albumdir")"
 
     # if the cover is found in the album dir, use it
@@ -20,12 +19,17 @@ notify() {
     fi
 }
 
-format='%file%\n%title% \n%artist% \n%album%'
+format='%file%\n%title% \n%artist% \n%album% \n%genre%'
 notify "$(mpc --format "$format" current)"
 
 if [[ ! $1 == now ]]; then
     while true; do
-        notify "$(nice -n 19 mpc --format "$format" current --wait)" || exit 1
+        out="$(nice -n 19 mpc --format "$format" current --wait)"
+        if [[ ! $? -eq 0 ]]; then
+            exit 1
+        else
+            notify "$out"
+        fi
     done
 fi
 
