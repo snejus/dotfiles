@@ -13,20 +13,17 @@
 # -> /etc/zsh/zlogout
 # -> $ZDOTDIR/.zlogout
 
-skip_global_compinit=1
-
 export -U PATH=$HOME/go/bin:$HOME/.pyenv/bin:$PATH
 export NO_AT_BRIDGE=1
 export LANG=en_US.UTF-8
 export EDITOR=nvim
 export SHELL=/usr/bin/zsh
 export BROWSER=qutebrowser
-
+export XDG_CONFIG_HOME=$HOME/.config
 export MPD_HOST=$XDG_RUNTIME_DIR/mpd/socket
 
-export ZDOTDIR=$HOME/.zsh
 export CACHEDIR=$HOME/.cache
-export XDG_CONFIG_HOME=$HOME/.config
-
+export FONTCONFIG_PATH=/etc/fonts
 export NOTMUCH_CONFIG=$XDG_CONFIG_HOME/notmuch/config
-source $ZDOTDIR/locale.sh
+export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
+export ZDOTDIR=$HOME/.zsh

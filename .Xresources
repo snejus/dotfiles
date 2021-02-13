@@ -1,5 +1,5 @@
 *foreground:    #ffd8b5
-*background:    #2c323b
+*background:    #212733
 
 *color0:        #1b212a
 *color1:        #ff557f
@@ -28,5 +28,5 @@ XTerm.*.faceName:       Iosevka Fixed
 XTerm.*.faceSize:       13
 XTerm.*.openIm:         false
 XTerm.termName:         xterm-256color
-XTerm.VT100.locale:     false
-XTerm.VT100.utf8:       true
+XTerm.VT100.locale:     true
+XTerm.*.utf8:           2
