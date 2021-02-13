@@ -58,7 +58,6 @@ alias -s mp4=mpv
 alias -s m4v=mpv
 alias -s mkv=mpv
 # }}}
-
 # {{{ Global aliases
 alias -g c='| wc -l'
 alias -g cn='| grep "." -o | cat -n -'
@@ -68,9 +67,7 @@ alias -g m=/media/music
 alias -g misc=\$REPODIR/misc
 alias -g sf=--system
 alias -g u=--user
-alias -g by='| grep ": [^ ]" | bat -l yml'
 # }}}
-
 # {{{ System and journal
 alias cleankcache='zsh -c "sync; echo 1 > /proc/sys/vm/drop_caches"'
 
@@ -78,7 +75,7 @@ alias cleankcache='zsh -c "sync; echo 1 > /proc/sys/vm/drop_caches"'
 alias    sy='systemctl --user'
 alias sycat='sy cat'
 alias   syf='sy --failed'
-alias   sys='sy status --with-dependencies'
+alias   sys='sy status'
 alias  syen='sy enable'
 alias sydis='sy disable'
 alias systa='sy start'
@@ -105,29 +102,28 @@ alias   jwk='j --since=$(date -d "a week ago" -I)'
 alias   jmo='j --since=$(date -d "a month ago" -I)'
 alias jprio='jmo --priority'
 # }}}
-
 # {{{ Default flags
 alias ag='ag --silent --color --pager bat'
 alias bw='bw --pretty'
 alias cdu='cdu -idh -s'
 alias df='df -h'
-alias diff='diff --color=auto'
+alias diff='git diff --unified=0 --no-index'
 alias dmesg='dmesg -H'
 alias free='free -hlt'
 alias fd='fd --xdev'
-alias feh='feh -F'
 alias gh='LESS=-RX gh'
 alias glow='glow -p'
-alias grep='grep --color=auto --exclude-dir pipx --exclude-dir node_modules --exclude-dir share --exclude-dir Slack --exclude-dir chromium --exclude-dir "python*" --exclude "EFX_DB*" --exclude "*.svg"'
+alias grep='grep --ignore-case --color=auto --exclude-dir pipx --exclude-dir node_modules --exclude-dir share --exclude-dir Slack --exclude-dir chromium --exclude-dir "python*" --exclude "EFX_DB*" --exclude "*.svg" --exclude "*.html"'
 alias hueadm='hueadm -c $XDG_CONFIG_HOME/hueadm/hueadm.json'
 alias ip='ip -color=auto'
+alias info='info --vi-keys --init-file $XDG_CONFIG_HOME/info/infokey'
 alias lsmod='lsmod | grep -v "^Module" | sort | column -td --table-right 1'
 alias mkdir='mkdir -pv'
 alias ncmpcpp='ncmpcpp -q'
 alias s3cmd='s3cmd -c $XDG_CONFIG_HOME/s3cmd/s3cfg'
+alias slack='slack -g warning'
 alias sudo='sudo '
 # }}}
-
 # {{{ Misc
 alias hue=hueadm
 alias lad=lazydocker
@@ -144,21 +140,20 @@ alias devdb='udevadm info --export-db | grep'
 alias e='exit'
 alias env='env | sort | hl -S qmake'
 alias exportenv='f(){ source <(cat $1 | sed "s/^/export &/") }; f'
-alias files='find . -maxdepth 1'
 alias gbi='go build && go install'
 alias grepr='grep -RIH'
 alias kimg='kitty +kitten icat'
 alias listeners='sudo lsof -i -Pn | grep LISTEN'
 alias lscolors='bat ~/repo/notes/rgb.txt'
+alias lspath='echo $PATH && echo && echo $PATH | tr : "\n"'
+alias mans='command -p man --global-apropos'
 alias mimetype='cat /etc/mime.types | ag'
-alias openstats='qutebrowser https://wakatime.com/dashboard'
-alias ppath='echo $PATH && echo $PATH | tr : "\n"'
-alias pss='ps aux | grep'
-alias sup='git standup -m3 -d7'
-alias tpd='tool -pkg deps'
+alias usbmount='udisksctl mount -b /dev/sda'
+alias usbunmount='udisksctl unmount -b /dev/sda && udisksctl power-off -b /dev/sda'
+alias pss='___abc(){ ps aux | grep $1 | grep -v grep }; ___abc'
+alias vimp='DJANGO_CONFIGURATION=Command xterm -name vimproject nvim &'
 alias xwin='xwininfo -root -children -tree'
 # }}}
-
 # {{{ ls
 alias lsl='lsd -lA --size short --date=relative --group-dirs first'
 alias ls='lsl --blocks="size,user,date,name"'
@@ -168,7 +163,6 @@ alias lss='lsl -r --total-size --sizesort'
 alias lst='ls --tree'
 alias lsdir='lsd -d'
 # }}}
-
 # {{{ web search
 alias sam='s -p amazon'
 alias sbc='s -p bandcamp'
@@ -180,16 +174,39 @@ alias ssc='s -p soundcloud'
 alias ssp='s -p spotify'
 alias syt='s -p youtube'
 # }}}
-
 # {{{ beet
 alias pybeet="$PIPX_VENVS_PATH/beets/bin/python"
-alias bil='beet info -l'
-alias bil='beet info -l'
-alias bimp='beet -vv import'
+alias pybeet39="$CACHEDIR/pypoetry/virtualenvs/beets-Aa8bLWH0-py3.9/bin/python"
+alias beet39="$CACHEDIR/pypoetry/virtualenvs/beets-Aa8bLWH0-py3.9/bin/beet"
+alias beet='beet39'
+alias beets=beet
+alias bi='beet -vv import'
+alias be='beet -vv edit --all'
+alias brm='beet -vv rm'
 alias blsb='beet list -a -f "\$added | \$mb_albumid" | grep bandcamp --color=always | column -s "|" -t'
-alias blsbp='beet list -f "\$added | \$mb_albumid" | grep Beatport | column -s "|" -t'
-# list vinyls
 alias blsv='beet list -f "\$track_alt | \$album | \$title | \$data_source" | grep -v track | grep "^[A-Z]" | column -s "|" -t'
+alias bspl='beet -vv splupdate'
+alias bst='beet stats -e'
+# releases from email
+alias lsreleases='notmuch new && notmuch show "just released" | grep "just released" | sed -r "s/(^[^\"]+) (just released )(\"[^\"]*\")( by )?([^,]*)?,.*/\1 | \3 | \5/" | sort | column -s "|" -t -T 2 -c 120'
+alias lsrelc='lsreleases c'
+alias lsreleaselabels='lsreleases | cut -f1-3 -d " " | uniq -c | sort -r'
+
+bil () {
+    beet info -l $1 | grep -v ': $' | bat -l yml
+}
+
+bls () {
+    format=
+    args=()
+    [[ $1 == -a ]] && args+=(-a) && shift
+    for arg in $@; do
+        field=${arg/[:+]*/}
+        [[ ! $field == $arg ]] && args+=$arg
+        format+=" \$$field %"
+    done
+    beet list $args[@] -f $format | column -s % -t
+}
 
 bcmeta () {
     if [[ -n $1 ]]; then
@@ -199,15 +216,13 @@ bcmeta () {
     fi
 }
 # }}}
-
 # {{{ fzf
 alias fproc='ps axjf | fzf --bind "ctrl-r:reload(ps axjf)" --header-lines=1 --tac'
 alias firq='cat /proc/interrupts | fzf --bind "ctrl-r:reload(cat /proc/interrupts)" --header-lines=1 --tac'
 alias fmem='cat /proc/meminfo | fzf --bind "ctrl-r:reload(cat /proc/meminfo)"'
 alias fe='fzf --bind "enter:execute(bat {})"'
-alias fpkg='pacman -Qq | fzf --preview "pacman -Qil {}" --layout=reverse --bind "enter:execute(pacman -Qil {} | bat -l yml)"'
+alias fpkg="pacman -Qq | fzf --preview 'pacman -Qil {}' --layout=reverse --bind 'enter:execute(pacman -Qil {1} | bat -l yml),ctrl-s:execute(xterm -e /bin/zsh -c \"yay -Rsuv {1}\")'"
 # }}}
-
 # {{{ taskwarrior
 alias t='task'
 
@@ -215,24 +230,63 @@ alias ta='t add'
 alias tat='ta due:today'
 alias tatm='ta due:tomorrow'
 
-alias tca='t calendar'
+alias tcal='t calendar'
+alias thome='task context home'
+alias twork='task context work'
 alias td='t done'
 alias te='t edit'
+alias th='t history'
 alias tl='t list'
 
 alias tlo='t long'
 alias to='tlo +OVERDUE'
 
 alias tn='t next'
+alias tsum='t summary'
 alias tst='t stats'
 # }}}
-
 # {{{ vagrant
-
 alias vu="vagrant up"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"
 alias vgs="vagrant global-status"
 # }}}
+# {{{ tool
+alias cleanup='tool cleanup'
+alias dbuild='tool dbuild'
+alias dbshell='tool dbshell'
+alias dclean='tool dclean'
+alias ddown='tool ddown'
+alias dexec='tool dexec'
+alias dlogs='tool dlogs'
+alias dps='tool dps'
+alias dres='tool dres'
+alias drm='tool drm'
+alias drun='tool drun'
+alias drunnd='tool drunnd'
+alias dsto='tool dstop'
+alias dsta='tool dstart'
+alias dup='tool dup'
+alias dupbg='tool dupbg'
+alias django='tool django'
 
-# vim:ft=zsh
+alias dtest='tool test'
+alias dretest='tool retest'
+
+alias changes='tool changes'
+alias lint='tool lint'
+alias deps='tool deps'
+alias clog='tool changelog'
+alias relpkg='tool relpkg'
+alias relhub='tool relhub'
+
+alias openpr='tool openpr'
+alias openj='tool openjenkins'
+alias openr='tool openrepo'
+alias opencov='tool opencov'
+
+alias ufile='tool update-file --nobackup'
+alias urepo='tool update-repo --nobackup'
+
+alias webapp='tool webapp'
+# }}}

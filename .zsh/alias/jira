@@ -4,203 +4,207 @@
 # TODO: Apply plain style for Done
 # TODO: curl -s -n '$SITE/rest/api/2/search?jql=assignee=currentuser()+AND+resolution=Unresolved'
 
-RED=$'\e[1;31m&\e[0m'
-RED_=$'\e[1;31m\\1\e[0m'
-GREEN=$'\e[1;38;5;150m&\e[0m'
-YELLOW=$'\e[1;33m&\e[0m'
-YELLOW_=$'\e[1;33m\\1\e[0m'
-BLUE=$'\e[1;34m&\e[0m'
-BLUE0=$'\e[0;34m&\e[0m'
-MAGENTA_=$'\e[1;35m\\1\e[0m'
-MAGENTA=$'\e[1;35m&\e[0m'
-CYAN=$'\e[1;36m&\e[0m'
-GREY=$'\e[1;38m&\e[0m'
-GREY_IT=$'\e[1;38m&\e[0m'
-WHITE=$'\e[1;37m&\e[0m'
-WHITE__=$'\e[1;37m\\2\e[0m'
-
-_format () {
-    printf '\\e[%%sm%%%ss\\e[0m' $1
-}
-
-_say () {
-    printf "$(_format $3)" $1 $2
-}
-
-black () {
-    _say '1;30' "$@"
-}
-
-red () {
-    _say '1;31' "$@"
-}
-
-green () {
-    _say '1;32' "$@"
-}
-
-greenit () {
-    _say '1;3;32' "$@"
-}
-
-yellow () {
-    _say '1;33' "$@"
-}
-
-blue () {
-    _say '1;34' "$@"
-}
-
-magenta () {
-    _say '1;35' "$@"
-}
-
-white () {
-    _say '1;37' "$@"
-}
-
-grayit () {
-    _say '1;3;38' "$@"
-}
-
-redbg () {
-    _say '1;41' "$@"
-}
-
-TICKETPAT='[A-Z]\+-[0-9]\+'
+# {{{ Colorfilter
+TICKETPAT='[A-Z]+-[0-9]+'
 _colorfilter() {
-    sed 's/^/    &/' |  # spacing on the left
-    sed "s/\($TICKETPAT\)_\($TICKETPAT\)/${MAGENTA_}_${WHITE__}/;
-          /__$TICKETPAT/s/$TICKETPAT/$WHITE/;
-         s/Epic/$MAGENTA/;
-         s/Story/$GREEN/;
-         s/Question/$CYAN/;
-         s/Task/$BLUE/;
-         s/Sub-task/$BLUE0/;
-         s/Bug/$RED /; # additional space for tab-based alignment
-         s/Incident/$YELLOW/;
-         s/Highest/$WHITE/;
-         s/High$/$WHITE/;
-         s/Medium/$WHITE/;
-         s/Backlog/ $WHITE/;
-         s/To[ -]Do/ $WHITE/;
-         s/Investigating/ $YELLOW/;
-         s/In[ -]Progress/ $WHITE/;
-         s/UAT/ $WHITE/;
-         s/Review/ $WHITE/;
-         s/Testing/ $WHITE/;
-         s/Done/ $GREY/;
-          /_[^_]*$/s/[^_]*$/$GREY_IT/"
-           xargs -I{} echo -e {}
+    sed -r "s/^([A-Z])[a-z]+ ([A-Z])[a-z]+ /$BOLD\1\2$RESET /
+            /relates to/s//$(bold '&')/
+            /is blocked by/s//$(red '&')/
+            /created by/s//$(cyan '&')/
+            /split from/s//$(yellow '&')/
+            /is tested by/s//$(green '&')/
+            s/Epic/$MAGENTA&$RESET/
+            s/Story/$GREEN&$RESET/
+            s/Question/$YELLOW&$RESET/
+            s/Task/$BOLD$BLUE&$RESET/
+            s/Sub-task/$BLUE&$RESET/
+            s/Bug/$BOLD$RED&$RESET/
+            s/Incident/$YELLOW&$RESET/
+            s/High[^e]/$RED&$RESET/
+            s/Highest/$BOLD$RED&$RESET/
+            s/Medium/$WHITE&$RESET/
+            s/Backlog/$WHITE&$RESET/
+            s/Low/$WHITE&$RESET/
+            s/To[ -]Do/$WHITE&$RESET/
+            s/Investigating/$YELLOW&$RESET/
+            s/In[ -]Progress/$BOLD$CYAN&$RESET/
+            s/UAT/$WHITE&$RESET/
+            s/(In )?Review/$GREEN&$RESET/
+            s/Testing/$BOLD$GREEN&$RESET/"
 }
-
-
-_position_nicely() {
-    sed 's/^/      &/' |  # spacing on the left
-    sed '1i \\a' |      # top padding
-    sed '$a \\n'        # bottom padding
-}
-
-_beautify() {
-    sed -n "s/^\(| \+[A-Z].* |\)$/\1/p" |
-    tr -s " " |    # multiple spaces -> single space
-    tr -d "'" |    # remove single quotes
-    sed '2i \\a' | # separation between the headers and the data
-    _colorfilter |
-    sed 's/| \([A-Z]\)[a-z]\+ \([A-Z]\)[a-z]\+ /| \1\2 /g' |  # make initials
-    column -s "|" -t -o "       " |
-    _position_nicely
-}
-
-_printissues() {
-    jira list --template table --query "$1" | _beautify
-}
-
-_printepics() {
-    jira list --template table --query "$1" | _beautify
-}
-
+# }}}
+# {{{ Filters
 __ISSUEORDER="ORDER BY status, type ASC, description"
 __ORDERING="ORDER BY status DESC, priority DESC, created DESC"
 __NOTDONE="resolution=unresolved"
 __EPIC="type=Epic"
 __NOTEPIC="type!=Epic"
 __MINE="assignee=currentuser()"
-
-jlsea() { # list all epics
-    _printepics "$__EPIC and $__NOTDONE and project=COR $__ORDERING"
-}
-
-jlse() { # list my epics
-    _printepics "$__EPIC and $__NOTDONE and $__MINE $__ORDERING"
-}
-
-jls() { # list my issues
-    _printissues "$__NOTEPIC and $__NOTDONE and $__MINE $__ISSUEORDER"
-}
-
-jlsa() { # list all issues (jls gives more results though :|)
-    _printissues "$__MINE $__ORDERING"
-}
-
-jels() { # list issues in epic
-    jira epic list -t table "$1" | _beautify
+# }}}
+__format() {
+    xsv table -c 60 | sed '1d; s/^/\t&/' | _colorfilter
 }
 
 _to_table() {
-    ncols=$(( $(tput cols) - 3 ))
-    jq -r '.[] | ({ key: .key}) + { nature: (.links | keys)} + .links[] | flatten | @sh' |
-        sed "s/' \+'/'%'/g" |
-            column -t -s "%" -T 3 -c $ncols -o '    ' |
-            tr -d "'" | _colorfilter | _position_nicely
+    ncols=$(( COLUMNS - 3 ))
+    jq -r '.[] | ({ key: .key}) + { nature: (.links | keys)} + .links[] | flatten | @csv'
 }
 
 _links () {
-    querystart=$1
-    jira list --queryfields=issuelinks -t json --query "$querystart $__NOTDONE and $__MINE" |
-            jq '[ .issues[] |
-                { key, links: .fields.issuelinks[] |
-                    { (.type.inward): (.inwardIssue // .outwardIssue |
-                        { ticket: (.key + " " + .fields.summary),
-                          type: .fields.issuetype.name,
-                          priority: .fields.priority.name,
-                          status: .fields.status.name } ) } } ]' | _to_table
+    jira list --queryfields=issuelinks -t json --query "$1 $__NOTDONE and $__MINE" \
+        | jq '[ .issues[] | {
+        key, links:
+            .fields.issuelinks[] | {
+                (.type.inward): (
+                     .inwardIssue // .outwardIssue | {
+                         ticket: (.key + " " + .fields.summary),
+                         type: .fields.issuetype.name,
+                         priority: .fields.priority.name,
+                         status: .fields.status.name } ) } } ]' | _to_table
 }
+alias jlselinks='_links "type = Epic and"'  # list epic links
+alias jlslinks=_links  # list all links
 
-jlselinks () {  # list epic links
-    _links 'type = Epic and'
-}
-
-jlslinks () { # list all links
-    _links
-}
-
-jtr () { # transition ticket <transition> <ticket>
-    jira transition "$1" "$2"
-}
-
+# {{{ Aliases
 jio () { # open in $BROWSER
-    xdg-open "$SUBDOMAIN/browse/${1/#[0-9]*/COR-$1}"
+    xdg-open "$JIRA_ENDPOINT/browse/${1/#[0-9]*/COR-$1}"
 }
-
-jfields () { # print all available fields
-    jira fields | jq '.[] | [.key, .name]' | bat -l json
-}
-
 jshow() { # print issue details
-    jira view "$1" | bat -l yml
+    jira view $1 | bat -l yml
 }
-
 alias {jinfo,jsh}=jshow
-
+alias jfields='jira fields | jq ".[] | [.key, .name]" | bat -l json'
+alias jtr='jira transition --noedit'
+alias jtrb='jtr backlog'
+alias jtrip='jtr progress'
+alias jtrr='jtr review'
+alias jtrt='jtr testing'
+# }}}
+# {{{ Caching
 __CACHE=$HOME/.cache/jiratool
 __ISSUECACHE=$__CACHE/issues
 
+__fetch_issues () {
+    file=$1
+    queryfields="key,created,priority,assignee,issuetype,customfield_10004,status,summary,updated"
+    printf 'Issue,Created,Priority,Assignee,Type,Epic,Status,Summary,Updated\n' > $file
+    jira list --queryfields="$queryfields" -t json --query $filter | jq -r "\
+        .issues[] | \
+        [ .key, .fields.created, .fields.priority.name, \
+          .fields.assignee.displayName, .fields.issuetype.name, .fields.customfield_10004, \
+          .fields.status.name, .fields.summary[:60], .fields.updated ] | @csv" >> $file
+    xsv index $file
+}
+
+__cache_file_name () {
+    if [[ ! -d $__ISSUECACHE ]]; then
+        mkdir -p $__ISSUECACHE
+    fi
+    echo "$__ISSUECACHE/$(date --iso).csv"
+}
+
+_cache_file () {  # list my issues
+    cache=$(__cache_file_name)
+    if [[ -a $cache ]]; then  # cache found
+        if [[ ! $1 == sync ]]; then  # not syncing, bye
+            echo $cache
+            return
+        else  # syncing - rename old file
+            mv $cache $cache.old
+            mv $cache.idx $cache.old.idx 2> /dev/null
+        fi
+    fi
+    __fetch_issues $cache
+    echo $cache
+}
+
+jsync () {
+    _cache_file sync
+}
+
+jdiff () {
+    cache=$(__cache_file_name)
+    old=$cache.old
+    if [[ ! -a $old ]]; then
+        old="$(find "$__ISSUECACHE" -maxdepth 1 -not -path "$cache" -name "*.csv" -print0 |
+            xargs -0 stat --format "%W %n" |
+            sort -rh |
+            sed -n '1s/^.* //p')"
+    fi
+    diff $old $cache --color=always
+}
+# }}}
+# {{{ Cached lists
+
+jlsby() {  # group issues by header
+    by=$1
+    cache=$(_cache_file "${@:2}")
+    unique=$(xsv search -s 4 runas $cache | xsv select $by | sed 1d | sort -u)
+    while read -r param; do
+        echo "$BOLD  $by: $param$RESET"
+        echo
+        xsv search -s 4 runas $cache \
+            | xsv search -s $by $param \
+            | xsv select 5,1,3,7,8 \
+            | __format
+        echo
+    done <<< $unique
+    if [[ $by == "Epic" ]]; then
+        echo "$BOLD  Sub-tasks$RESET"
+        xsv search -s 4 runas $cache \
+        | xsv select 5,1,3,7,8 \
+        | xsv search -s 1 "Sub-task" \
+        | __format
+    fi
+    echo
+}
+
+jls() {  # list my issues
+    cache=$(_cache_file "${@:2}")
+    echo
+    xsv search -s Assignee runas $cache \
+        | xsv select 5,1,3,7,8 \
+        | xsv sort -s Issue -N \
+        | __format
+    echo
+}
+
+jlse() {  # list epics
+    cache=$(_cache_file "${@:2}")
+    echo
+    xsv search -s Type Epic $cache \
+        | xsv select 1,3,4,7,8 \
+        | __format
+    echo
+}
+
+jels() {  # list issues in epic
+    epic=$1
+    if [[ -z $epic ]]; then
+        error "Epic issue number is required"
+        return 1
+    fi
+    cache=$(_cache_file "${@:2}")
+    echo
+    xsv search -s Issue $epic $cache \
+        | xsv select 1,4,7,8 \
+        | xsv flatten \
+        | grep -o '  [A-Z].*' --color=no \
+        | sed "s/.*/$BOLD&$RESET/"
+    echo
+    xsv search -s Epic $epic $cache \
+        | xsv select 4,5,1,3,7,8 \
+        | xsv sort -s Issue -N \
+        | __format
+    echo
+}
+# }}}
+# {{{ tree
 declare -A PRIORITY
-PRIORITY[Low]=1
-PRIORITY[Medium]=2
-PRIORITY[High]=3
-PRIORITY[Highest]=4
+PRIORITY[Low]=4
+PRIORITY[Medium]=3
+PRIORITY[High]=2
+PRIORITY[Highest]=1
 
 declare -A STATUS
 STATUS[Backlog]=10
@@ -210,75 +214,24 @@ STATUS[Review]=13
 STATUS[Testing]=14
 STATUS[Done]=17
 
-__fetch_issues () {
-# fetch goodies
-    file=$1
-    queryfields="key,created,priority,assignee,issuetype,customfield_10004,status,summary,updated"
-    printf 'Issue,Created,Priority,Assignee,Type,Epic,Status,Summary,Updated\n' > "$file"
-    jira list --queryfields="$queryfields" -t json --query "$filter" | jq -r "\
-        .issues[] | \
-        [ .key, .fields.created, .fields.priority.name, \
-          .fields.assignee.displayName, .fields.issuetype.name, .fields.customfield_10004, \
-          .fields.status.name, .fields.summary[:60], .fields.updated ] | @csv" >> "$file"
-    xsv index "$file"
-}
-
-__cache_file_name () {
-    if [[ ! -d $__ISSUECACHE ]]; then
-        mkdir -p "$__ISSUECACHE"
-    fi
-    echo "$__ISSUECACHE/$(date --iso).csv"
-}
-
-_cache_file () {  # list my issues
-    cache=$(__cache_file_name)
-    if [[ -a $cache ]]; then  # cache found
-        if [[ ! $1 == "sync" ]]; then  # not syncing, bye
-            echo "$cache"
-            return
-        else  # syncing - rename old file
-            mv "$cache" "$cache.old"
-            mv "$cache.idx" "$cache.old.idx" 2> /dev/null
-        fi
-    fi
-    __fetch_issues "$cache"
-    echo "$cache"
-}
-
-jdiff () {
-    cache=$(__cache_file_name)
-    old="$cache.old"
-    if [[ ! -a $old ]]; then
-        old="$(find "$__ISSUECACHE" -maxdepth 1 -not -path "$cache" -name "*.csv" -print0 |
-            xargs -0 stat --format "%W %n" |
-            sort -rh |
-            sed -n '1s/^.* //p')"
-    fi
-    diff "$old" "$cache" --color=always | less -XLR
-}
-
 jtree () {
     headers="Issue,Priority,Status,Type,Epic,Issue,Summary"
     skipepics=true
+    filt=
     if [[ "$*" =~ epic ]]; then
         skipepics=false
+    elif [[ ! "$*" =~ sync ]]; then
+        filt=$1
     fi
 
-    filt=
-    val=
-    flag=
-    if [[ $1 == "f" ]]; then read -r <<< "$@" thrash filt val flag; fi
-    text=$(
-        # "-i$flag" -s "$filt" a trick to provide -v flag for inversion when given
-        xsv search "-i$flag" -s "$filt" "$val" "$(_cache_file "$1")" |
-        xsv search -s  Assignee runas |
-        xsv search -vs Status Done |
-        if $skipepics; then xsv search -vs Type Epic; else tee /dev/null; fi |
-        xsv select $headers |
-        tr -d '_' |
-        xsv fmt -t _ |
-        sed 1d |
-        sed 's/To Do/To-Do/;s/In Pro/In-Pro/')
+    text=$(\
+        grep "^[^\"]\|$filt" "$(_cache_file "$1")" \
+        | xsv search -s Assignee runas \
+        | if $skipepics; then xsv search -vs Type Epic; else tee /dev/null; fi \
+        | xsv select $headers \
+        | tr -d '_' \
+        | xsv fmt -t _ \
+        | sed '1d; s/To Do/To-Do/;s/In Pro/In-Pro/')
 
     # accumulate a sed pattern to replace the priority and status with their ids in the issue rows
     word2index=
@@ -303,24 +256,31 @@ jtree () {
         # the children, replace priority and status names with ids
         word2index="$word2index;s/_${line}_/%$combined_id%/"
     done <<< "$prio_statuses"
-    echo "$used_parents\n$(sed "$word2index" <<< "$text")" |
-        sort -u |
-        column -s '%' --tree-id 1 --tree-parent 2 --tree 3 -H 1,2 |
-        sed '/^[0-9]/s/[0-9]/ /g' |
-        tr -d "'" |
-        sed 's/[A-Za-z-]*_/ &/' |
-        _colorfilter |
-        column -s '_' -t
+    echo "$used_parents\n$(sed "$word2index" <<< "$text")" \
+        | sort -u \
+        | column -s '%' --tree-id 1 --tree-parent 2 --tree 3 -H 1,2 \
+        | sed '/^[0-9]/s/[0-9]/ /g' \
+        | tr -d "'" \
+        | sed 's/[A-Za-z-]*_/ &/' \
+        | sed -r "s/($TICKETPAT)_($TICKETPAT)/$MAGENTA\1${RESET}_$WHITE\2$RESET/;
+                   /__$TICKETPAT/s/$TICKETPAT/$BLUE&$RESET/;
+                   /_[^_]*$/s/[^_]*$/$BOLD$CYAN&$RESET/" \
+        | _colorfilter \
+        | column -s '_' -t
 }
-
+# }}}
+# {{{ fzf
 _j_with_fzf () {
-    jira list -t fls --queryfields=key,summary,assignee,issuetype --query "$1" \
-        | grep -v '^$' \
-        | fzf --color 16 \
-              --ansi \
-              --preview "jira view {1} | bat -l yml" \
-              --layout=reverse \
-              --bind "enter:execute(jira view {1} | bat -l yml)"
+    PAGER="less -XLR"
+    xsv select Issue,Epic,Status,Assignee,Summary $(_cache_file $1) \
+        | xsv sort -Ns 1 \
+        | column -s , -t \
+        | fzf --layout=reverse \
+              --color 16 \
+              --preview "jira view {1} | bat --paging=always -l yml" \
+              --bind "\
+enter:execute(jira view {1} | bat --paging=always -l yml),\
+ctrl-e:execute(jira edit {1})"
 }
 
 fjls () {
@@ -332,5 +292,5 @@ fjlsa () {
     query='project IN ("COR", "IN")'
     _j_with_fzf "$query"
 }
-
-# vim:ft=zsh
+# }}}
+# vim:ft=zsh foldlevel=0

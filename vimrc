@@ -36,8 +36,9 @@ Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'ervandew/supertab'
 Plug 'talek/obvious-resize'
 
-Plug '~/.vim/bundle/vim-deus/'
-" Plug 'ayu-theme/ayu-vim' " or other package manager
+" Plug '~/.vim/bundle/vim-deus'
+Plug 'ayu-theme/ayu-vim'
+" Plug 'snejus/gruvbox'
 
 Plug 'godlygeek/tabular', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -92,10 +93,10 @@ set autoread
 set background=dark
 set backspace=eol,indent,start
 set belloff=all
-set clipboard=unnamedplus
-set cursorline
+" set clipboard=unnamedplus
+set nocursorline
 set expandtab
-set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:-
+set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:—
 set foldmethod=marker
 set foldlevel=0
 set history=1000
@@ -116,7 +117,7 @@ set sidescroll=1          " in nowrap mode, scroll horizontally by 1 char, not h
 set spelllang=en_gb
 set splitbelow
 set splitright
-set synmaxcol=1000
+set synmaxcol=2000
 set tabstop=4
 set termguicolors
 set termencoding=utf-8
@@ -126,23 +127,12 @@ set wildmenu              " tab autocomplete in command mode
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store  " Ignore compiled files
 " }}}
 " {{{ Options: misc
+let g:sh_no_error = 1
 
 let mapleader = "\<Space>"
-" comments in italics
-" highlight Comment cterm=italic
-let g:deus_italic=1
-let g:deus_sign_column='bg0'  " same colour as the primary bg - potentially move to the theme
-let g:deus_termcolors=256
-" let ayucolor='mirage'
-colorscheme deus
 
-" colourscheme - options must be set before loading it
-" let g:gruvbox_contrast_dark='medium'
-" let g:gruvbox_sign_column='bg0'
-" let g:gruvbox_hls_highlight='blue'
-" colorscheme gruvbox
-
-" this beauty remembers where the cursor was when file was closed and returns to the same position
+let ayucolor='mirage'
+colorscheme ayu
 " }}}
 " {{{ Options: automation groups
 function! g:Set_format_options()
@@ -169,9 +159,10 @@ augroup missingft
   au BufNewFile,BufRead *.conf setlocal filetype=conf
   au Filetype dockerfile setlocal filetype=Dockerfile
   au Filetype html setlocal ts=2
-  au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=80 foldlevel=99
+  au Filetype markdown setlocal ts=2 sw=2 spell wrap lbr tw=90 foldlevel=99
   au FileType requirements setlocal commentstring=#\ %s
   au Filetype Jenkinsfile setlocal ts=2 sw=2 commentstring=//\ %s
+  au Filetype taskrc setlocal commentstring=#\ %s
   au Filetype vim setlocal ts=2 sw=2
   au FileType xdefaults setlocal commentstring=!%s
   au Filetype yml setlocal ts=2 sw=2
@@ -209,12 +200,10 @@ nmap <silent> <Leader>\  :Files $REPODIR/misc<CR>
 
 let g:ale_linters = {
 \   'bash':       ['shellcheck'],
-\   'Dockerfile': ['hadolint'],
 \   'html':       ['tidy'],
 \   'javascript': ['eslint'],
 \   'json':       ['jsonlint'],
 \   'lua':        ['luacheck'],
-\   'markdown':   ['mdl'],
 \   'php':        ['phpstan', 'phpcs'],
 \   'python':     ['flake8', 'mypy', 'pylint'],
 \   'rst':        ['rstcheck', 'vale'],
@@ -234,8 +223,9 @@ let g:ale_fixers = {
 \   'vue':        ['eslint'],
 \}
 let g:ale_python_flake8_options = '--jobs 2'
-let g:ale_python_pylint_options = '--jobs 2'
+let g:ale_python_mypy_options = '--sqlite-cache --incremental'
 let g:ale_python_isort_executable = '$HOME/.local/bin/isort'
+let g:ale_javascript_prettier_options = '--print-width 90'
 " let g:ale_python_isort_options = '--settings $HOME/.config/isort/config'
 " let g:ale_javascript_prettier_options = '--tab-width 4'
 
@@ -292,9 +282,13 @@ let g:airline_theme='deus'
 let g:airline_symbols_ascii = 1
 let g:airline_powerline_fonts = 1
 let g:airline_highlighting_cache = 1
-let g:airline_skip_empty_sections = 1
+" let g:airline_skip_empty_sections = 1
 let g:airline#extensions#fzf#enabled = 1
 let g:airline#extensions#branch#enabled = 1
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
+
 " }}}
 " {{{ Plugin: obvious-resize
 let g:obvious_resize_default = 2
@@ -323,7 +317,7 @@ nnoremap <F5> :w<CR> :make<CR>
 
 nmap <Leader>hd <Plug>(GitGutterPreviewHunk)
 nmap <Leader>hn <Plug>(GitGutterNextHunk)<Plug>(GitGutterPreviewHunk)
-nmap <Leader>hp <Plug>(GitGutterPrevHunk)
+nmap <Leader>hm <Plug>(GitGutterPrevHunk)<Plug>(GitGutterPreviewHunk)
 nmap <Leader>ha <Plug>(GitGutterStageHunk)
 nmap <Leader>hu <Plug>(GitGutterUndoHunk)
 
@@ -339,11 +333,9 @@ let g:gitgutter_map_keys = 0
 " }}}
 " {{{ Plugin: Supertab
 let g:SuperTabDefaultCompletionType = 'context'
-let g:SuperTabMappingForward = '<C-J>'
-let g:SuperTabMappingBackward = '<C-K>'
+let g:SuperTabMappingBackward = '<S-Tab>'
 " }}}
-" {{{ Plugin: Tabular and vim-markdown
-
+" {{{ Plugin: Markdown
 inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 
 function! s:align()
@@ -357,27 +349,33 @@ function! s:align()
   endif
 endfunction
 
-" let g:vim_markdown_folding_style_pythonic = 1
-let g:vim_markdown_strikethrough = 1
-let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_auto_insert_bullets = 0
+let g:vim_markdown_emphasis_multiline = 0
 let g:vim_markdown_no_default_key_mappings = 1
+let g:vim_markdown_strikethrough = 1
+let g:vmt_cycle_list_item_markers = 1
 " }}}
 " {{{ Plugin: Calendar
 let g:calendar_google_calendar = 1
 let g:calendar_google_task = 0
-
-
 let g:calendar_view = 'week'
 let g:calendar_first_day = 'monday'
-
 let g:calendar_google_api_key = '...'
-let g:calendar_google_client_id = $CAL_CLIENT_ID
-let g:calendar_google_client_secret = $CAL_CLIENT_SECRET
+let g:calendar_google_client_id = system('getsecret cal_client_id')
+let g:calendar_google_client_secret = system('getsecret cal_client_secret')
 " }}}
 " {{{ Plugin: Unicode
 let g:Unicode_no_default_mappings = v:true
 "}}}
 " {{{ Plugin: vim-test
+let test#strategy = 'basic'
+let test#enabled_runners = ['python#pytest', 'python#pytest']
+let g:test#preserve_screen = 1
+if filereadable('docker-compose.yml')
+  let g:test#python#pytest#executable = 'tool test -f'
+  let g:test#python#djangotest#executable = 'tool retest -f'
+endif
+
 nmap <silent> <Leader>tt :TestNearest<CR>
 nmap <silent> <Leader>tf :TestFile<CR>
 nmap <silent> <Leader>ts :TestSuite<CR>
@@ -406,18 +404,15 @@ nnoremap q <Nop>
 
 nnoremap <Leader>G :Git<CR>
 
-" match parens with backspace
-xmap <BS> %
-nmap <BS> %
-
 " easier navigation between splits
 nmap <C-J> <C-W><C-J>
 nmap <C-K> <C-W><C-K>
 nmap <C-L> <C-W><C-L>
+nmap <BS> <C-W><C-H>
 nmap <C-H> <C-W><C-H>
 
 " Folds
-nmap <Leader>- za
+nmap <Space>j za
 nmap <Leader><CR> zMzvzt
 
 " line-wise movement
@@ -426,6 +421,12 @@ nmap gl g$
 
 " yank till the end of line
 nmap Y y$
+
+nmap <Leader>p "+p
+nmap <Leader>P "+P
+vmap <Leader>y "+y
+nmap <Leader>y "+y
+nmap <Leader>Y "+Y
 
 " re-select block after indenting in visual mode
 xmap < <gv

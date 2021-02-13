@@ -14,17 +14,21 @@ function mappings_arg() {
     cat <<- EOF
 'f3:execute(bat --style=numbers {} || less -f {}),
 ctrl-]:toggle-preview,
+J:down,
+K:up,
+]:preview-page-down,
+[:preview-page-up,
 ctrl-\\:toggle-preview-wrap,
-ctrl-d:preview-page-down,
-ctrl-u:preview-page-up,
-ctrl-a:select-all+accept
+ctrl-a:select-all+accept,
+enter:accept-non-empty,
+ctrl-y:execute-silent(echo {+} | xclip | -sel clipboard)'
 EOF
 }
 
-local misc="--no-mouse --height 60% -1 --reverse --multi --inline-info"
+local misc="--no-mouse --height 80% -1 --reverse --multi --inline-info"
 local FD_OPTIONS="--follow --hidden -E \*.html -E .git -E node_modules -E .heroku"
 
-export FZF_DEFAULT_OPTS="--color 16 $misc --preview=$(preview_arg | tr -d  '\n') --preview-window=$(preview_window_arg) --bind=$(mappings_arg | tr -d '\n')"
+export FZF_DEFAULT_OPTS="$misc --preview=$(preview_arg | tr -d  '\n') --preview-window=$(preview_window_arg) --bind=$(mappings_arg | tr -d '\n')"
 export FZF_DEFAULT_COMMAND="git ls-files --cached --others --exclude-standard | fd --type f --type l $FD_OPTIONS"
 
 f() {
@@ -54,15 +58,19 @@ fzf-down() {
     fzf --height 50% "$@" --border
 }
 
-is_in_git_repo() {
-    git rev-parse HEAD > /dev/null 2>&1
-}
-
 gf() {  # files
   is_in_git_repo || return
   git -c color.status=always status --short |
   fzf-down -m --ansi --nth 2..,.. \
     --preview '(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -500' |
+  cut -c4- | sed 's/.* -> //'
+}
+
+gfs() {  # staged files
+  is_in_git_repo || return
+  git -c color.status=always status --short |
+  fzf-down -m --ansi --nth 2..,.. \
+    --preview '(git diff --staged --color=always -- {-1} | sed 1,4d; cat {-1}) | head -500' |
   cut -c4- | sed 's/.* -> //'
 }
 
@@ -91,10 +99,6 @@ gr() {  # remotes
     --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {1} | head -200' |
   cut -d$'\t' -f1
 }
-
-fzf-gt-widget() LBUFFER+=$(gt | join-lines)
-zle -N fzf-gt-widget
-bindkey '^g^t' fzf-gt-widget
 
 unfunction preview_arg
 unfunction preview_window_arg

@@ -8,7 +8,7 @@
 #  ██   ██ ███ ███ ██ ██   ██ ███ ███
 #
 
-for file in $(find $HOME/.d/.zsh/alias/*); do
+for file in $(find ~/.d/.zsh/alias/*); do
     source $file
 
     name=$(basename "$file")
@@ -27,11 +27,9 @@ __CONFIG_ALIAS=(
     "awt        awesome/themes/helohelo/theme.lua"
     "beet       beets/config.yaml"
     "kitty      kitty/kitty.conf"
-    "kittyd     kitty/default.conf"
     "mpd        mpd/mpd.conf"
     "ncmc       ncmpcpp/config"
     "ncmb       ncmpcpp/bindings"
-    "nf         neofetch/config.conf"
     "neo        neomutt/neomuttrc"
     "neob       neomutt/bindings"
     "neom       neomutt/mailcap"
@@ -53,17 +51,19 @@ __EDIT_AND_SOURCE=(
     "zsh    .zshrc"
 )
 for mapping in "${__EDIT_AND_SOURCE[@]}"; do
-    __make_alias e $(echo $mapping) "vim $HOME/.d/.zsh"
-    __make_alias s $(echo $mapping) "source $HOME/.d/.zsh"
+    __make_alias e $(echo $mapping) "vim ~/.d/.zsh"
+    __make_alias s $(echo $mapping) "source ~/.d/.zsh"
 done
 
 alias upd=szsh
-alias ecl="vim $HOME/.d/bin/changelog"
-alias egitc="vim $XDG_CONFIG_HOME/git/config"
 alias egitl="vim $XDG_CONFIG_HOME/git/aliaspretty"
-alias esetuppy="vim $VILLE/setuppy2pyproject"
-alias etool="vim $VILLE/tool"
-alias evim="vim $HOME/.d/vimrc"
-alias evimc="vim $HOME/.vim/bundle/vim-deus/colors/deus.vim"
+alias egitc="vim $XDG_CONFIG_HOME/git/config"
+alias egiti="vim $XDG_CONFIG_HOME/git/ignore"
+alias epygit="vim $ZDOTDIR/pygit-prompt.zsh"
+alias esetuppy="vim $(realpath $(which setuppy2pyproject))"
+alias etool="vim $(realpath $(which tool))"
+alias ecl="vim $(realpath $(which changelog))"
+alias evim='vim ~/.d/vimrc'
+alias evimc='vim ~/.vim/bundle/ayu-vim/colors/ayu.vim'
 
 # vim:ft=zsh

@@ -1,54 +1,78 @@
-_newpassword () {
+alias bw='bw --session "$(decrypt ~/.enc/bw_key)"'
+
+__genpassword () {
     bw generate -uln --length 30
+}
+__folderid () {
+    bw get folder "$1" | jq .id
+}
+__item () {
+    bw get item "$1"
+}
+__template () {
+    bw get template "$1"
+}
+_encode () {
+    echo "$1" | base64 -w0
 }
 
 bwgenpw () {
-    _newpassword | ci
+    __genpassword | ci
 }
 
 bwgetpw () {
     bw get password "$1" | ci
 }
 
-bwcreate () {
-    bw create "$1" "$(echo "$2" | bw encode)"
+_bwcreate () {
+     _encode "$2" | bw create "$1"
+}
+
+_bwcreatenote () {
+    _bwcreate item "$(__template item | jq '
+        .folderId = '"$(__folderid "$2")"' |
+        .name = "'"$1"'" |
+        .notes = "'"$3"'" |
+        .login = ""')" | jq .id
 }
 
 bwcreatenote () {
-    bwcreate item "$(bw get template item | jq \
-       ".folderId = $(bw get folder Notes | jq .id) | \
-        .name = \"$1\" | \
-        .notes = \"$(cat "$2")\" | \
-        .login = \"\"")"
+    _bwcreatenote "$1" Notes "$(<"$2")"
 }
 
 bwcreatesecret () {
-    bwcreate item "$(bw get template item | jq \
-       ".folderId = $(bw get folder Secrets | jq .id) | \
-        .name = \"$1\" | \
-        .notes = \"$(base64 -w 0 "$2")\" | \
-        .login = \"\"")" | jq
-}
-
-bwprintsecret () {
-    bw get item "$1" | jq .notes | xargs printf
-}
-
-bwgetsecret () {
-    bwprintsecret "$1" | base64 --decode
+    _bwcreatenote "$1" Secrets "$(encrypt "$2")"
 }
 
 bwcreatelogin () {
-    pw="$(_newpassword)"
-    template="$(bw get template item)"
-    bwcreate item "$template | jq \
-       ".name = \""$1"\" | \
-        .login = {\"username\" = \""$2"\", \"password\" = \""$pw"\"}")"
-    echo "$pw" | ci
+    bwgenpw
+    _bwcreate item "$(__template item | jq '
+        .folderId = '"$(__folderid Logins)"' |
+        .name = "'"$1"'" |
+        .login = {
+            "username": "'"$2"'",
+            "password": "'"$(co)"'"}')" | jq .id
+}
+
+bwgetsecret () {
+    __item "$1" | jq .notes --raw-output
+}
+
+bwprintsecret () {
+    secret=$(bwgetsecret "$1")
+    decrypt "$secret" 2> /dev/null || base64 -d <<< "$secret"
 }
 
 bwsearch () {
     bw list items --search "$1" | jq 'del(.[].login.password)'
 }
 
+bwdelete () {
+    id=
+    if ! __item "$1"; then
+        return
+    fi | jq .id --raw-output | read -r id \
+        && bw delete item "$id" \
+        && green $'Deleted\n'
+}
 # vim:ft=bash

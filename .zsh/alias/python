@@ -1,5 +1,3 @@
-#!/usr/bin/env zsh
-
 # {{{ Rendering rst / md
 alias restme='restview README.rst'  # rST server
 alias restshow='restview --css ~/.shed/github.css'
@@ -16,41 +14,18 @@ render () {
     return 0
 }
 # }}}
-
-
-####################################
-####           Heroku           ####
-####################################
-
-hec () {
-    dir=$2
-    [[ ! -n $dir ]] && dir=.heroku
-    heroku git:clone -a $1 $dir
-}
-
-hrk () {
-    if [[ -d ./.heroku ]]; then
-        cd ./.heroku
-        heroku $@
-        cd ..
-    else
-        heroku $@
-    fi
-}
-compdef _heroku hrk
-
 ###################################
 ####           PYTHON          ####
 ###################################
 
 alias py36='pyenv global 3.6.12'
+alias py39='pyenv global 3.9.1'
 alias pys='pyenv global system'
 alias tpd='tool -pkg deps'
 alias ipy=ipython
 
 alias ms='make shell'
 alias ma='python manage.py'
-alias clog='changelog -p'
 
 # Dephell
 alias dp='dephell package'
@@ -61,13 +36,14 @@ alias act='source $(poetry env info --path)/bin/activate'
 alias deact=deactivate
 alias peotry=poetry
 alias poa='poetry add -vv'
-alias pob='poetry build -f wheel'
+alias pob='poetry build'
 alias psh='poetry shell'
 alias pou='poetry update -vv'
 alias poi='poetry install -vv'
 alias pop='poetry publish -r yopy'
 alias pos='poetry show'
 alias pov='poetry version'
+alias pb='poetry version prerelease'
 
 # Linting
 _srcdir() {
@@ -100,15 +76,6 @@ lint_flake8() {
     flake8 -j 4 --show-source --benchmark --statistics "$src"
 }
 
-lint() {
-    echo flake8
-    lint_flake8
-    echo mypy
-    lint_mypy
-    echo pylint
-    lint_pylint
-}
-
 cache_purge() {
     remove_file_folder f .coverage $1
     remove_file_folder d __pycache__ $1
@@ -133,50 +100,42 @@ remove_file_folder() {
     fi
 }
 
-depopen() {
-    echo Opening $1 repository in the browser
-    xdg-open $(pip show $1 | sed -n 's/^.*\(.*github\)/\1/p')
-}
-
-deps() {
+pydeps() {
     echo "Generating pydeps dependencies graph for $1"
-    pydeps --include-missing --reverse -T png --display feh "$1/*"
+    command pydeps --include-missing --reverse -T png --display feh $1
 }
 
 depscirc() {
     echo "Looking for circular dependencies for $1"
-    pydeps --show-cycles "$1/*"
+    command pydeps --show-cycles $1
 }
 
-
-# runmypy() {
-#     mypy --sqlite-cache --html-report mypy --show-traceback --pretty
-# }
-
 search_skipped() {
-    ag --nogroup --color --color-path $AQUA $1 tests src | \
-        tee /dev/null | \
-        sed 's/:.*//' | \
-        tee >(wc -l) >(printf '\n\e[%smTOTAL: ' "$YELLOW") | \
-        sort | uniq -c | sort -r
+    grep -RIH "$1" tests src \
+        | grep -o '^[^:]*' \
+        | tee >(wc -l) >(printf $'\n\e[1;36mTOTAL: \e[0m') \
+        | sort | uniq -c | sort -nr \
+        | sed $'/ tests/s/.*/\e[1;33m&\e[0m/;
+                / src/s/.*/\e[1;31m&\e[0m/'
 }
 
 skipped_flake() {
-    search_skipped 'noqa|flake8'
+    search_skipped 'noqa\|flake8'
 }
 skipped_pylint() {
-    search_skipped 'pylint: ?d'
+    search_skipped 'pylint: \?d'
 }
 skipped_mypy() {
-    search_skipped 'type: ignore'
+    search_skipped 'type:\ ignore'
 }
 
 skipped_pylint_by_error() {
-    ag --nogroup --color --color-path '1;36' 'pylint: ?dis' tests src |
-    tee /dev/null |
-    sed 's/.*able\ \?=\ \?//' | tr , '\n' | tr -d ' ' |
-    tee >(wc -l) >(printf '\e[%smTOTAL: \e[%sm' $MAGENTA $GREY) |
-    sort | uniq -c | sort -rh
+    grep -RIH 'pylint: \?dis' tests src \
+        | sed 's/.*able\ \?=\ \?//' \
+        | tr , '\n' \
+        | tr -d ' ' \
+        | tee >(wc -l) >(printf '\e[1;34mTOTAL: \e[1;35m') \
+        | sort | uniq -c | sort -rh
 }
 
 compose2plantuml () {

@@ -25,13 +25,13 @@ ns() {
 }
 
 flushright() {
-    ncols=$(( COLS - 3 ))
-    sed -e :a -e "s/^.\{1,$ncols\}$/ &/;ta"
+    ncols=$(( COLUMNS - 3 ))
+    sed -er :a -e "s/^.{1,$ncols}$/ &/;ta"
 }
 
 center() {
-    ncols=$(( COLS - 3 ))
-    sed  -e :a -e "s/^.\{1,$ncols\}$/ &/;ta" -e 's/\( *\)\1/\1/'
+    ncols=$(( COLUMNS - 3 ))
+    sed  -r -e :a -e "s/^.{1,$ncols}$/ &/;ta" -e 's/( +)\1/\1/'
 }
 # }}}
 
@@ -50,13 +50,12 @@ pcolors () {
         for (( col=0 ; col < $need_cols; col++ )) do
             color=$(( col * line_count + lineno ))
             if (( color <= color_count )) then
-                code="1;38;5;$color"
                 if (( col == 0 )) then
                     padding=$left_padding
                 else
                     padding=$width
                 fi
-                _say $code "$color abc" $padding
+                _say "$(tput setaf $color)abc" $padding
             fi
         done
         echo
@@ -67,7 +66,7 @@ show_mouse_color() {
     if [[ -n $1 ]]; then sleep $1; fi
 
     scrot --overwrite /tmp/copycolor.png
-    $(xdotool getmouselocation --shell) 2> /dev/null
+    eval "$(xdotool getmouselocation --shell)" 2> /dev/null
     img=$(convert /tmp/copycolor.png -depth 8 -crop "1x1+$X+$Y" txt:-)
     color=$(grep -om1 '#\w\+' <<< "$img")
     xclip -selection clipboard <<< $color
@@ -132,11 +131,12 @@ pandoc2pdf() {
     if [[ -z $filename ]]; then
         filename=$1:t
     fi
-    from=$2
+    from=$2 && shift && shift && shift
     naked=$filename:r
     output=$naked.pdf
     echo Converting "$filename" to "$output"
     pandoc $1 \
+        $@ \
         --from $from \
         --output $output \
         -V geometry:margin=1in \
@@ -148,7 +148,7 @@ pandoc2pdf() {
         --variable=documentclass:scrreprt \
         --variable=fontsize:9pt \
         --variable=fontenc:T1 \
-        --variable=mainfont:"Iosevka Fixed" \
+        --variable=mainfont:"IBM Plex Sans" \
         --variable=monofont:"Iosevka Fixed Light" \
         --variable=links-as-notes
 }
@@ -158,12 +158,19 @@ rst2pdf() {
 }
 
 __prepare_md() {
-    sed "/^<!-- vim-markdown/,/<!-- vim-markdown/d; # remove vim-markdown tags
-         /<\/\?details>\|<\/\?summary>/d;           # remove details/summary html tags" "$1"
+    sed -r '
+        # remove vim-markdown TOC
+          \/^<!-- vim-markdown/,/<!-- vim-markdown/d;
+        # remove details/summary html tags
+          /<\/?details>|<\/?summary>/d;' "$1"
+}
+
+latex2pdf() {
+    pandoc2pdf $1 latex "$1:t"
 }
 
 md2pdf() {
-    pandoc2pdf <(__prepare_md "$1") gfm "$1:t"
+    pandoc2pdf <(__prepare_md "$1") gfm "$1:t" --from=markdown+abbreviations+tex_math_single_backslash
 }
 
 upload2confluence() {
@@ -179,42 +186,31 @@ testupload2confluence() {
 # }}}
 
 # {{{ Media conversion
-
 ytdl () {
     format=mp3
-    if [[ -n $2 ]]; then
-        format="$2"
-    fi
-    youtube-dl -x --audio-format "$format" -o "%(title)s.%(ext)s" "$1"
+    [[ -n $2 ]] && format=$2
+    youtube-dl -x --audio-format $format -o '%(title)s.%(ext)s' $1
 }
-2flac () {
-    noext=$1:r
-    to=$noext.flac
-    ffmpeg -i "$1" -codec:a -o -codec flac "$to"
+convertff () {
+    ffmpeg -i $1 $1:r.$2
 }
 
-convertff () {
-    input_format=$1:e
-    output=$(basename "$1" "$input_format")$2
-    echo "$output"
-    ffmpeg -i "$1" "$output"
+2flac () {
+    convertff $1 flac
 }
 
 convertbpm () {
-    input_format=$1:e
+    scale=$2
     output=$3
-    if [[ -z $output ]]; then
-        output=$1
-    fi
-    ffmpeg -y -i "$1" -filter:a "atempo=$2" "$2x$output"
+    ffmpeg -y -i $1 -filter:a atempo=$scale ${scale}x${output:=$1}
 }
 
 flacaddpic () {
-    flac -f "$1" --picture "$2"
+    flac -f $1 --picture $2
 }
 
 mp4compact () {
-    ffmpeg -i "$1" -vcodec libx265 -crf 2 "$2"
+    ffmpeg -i $1 -vcodec libx265 -crf 2 $2
 }
 
 convertresize () {
@@ -225,12 +221,26 @@ svg2png () {
     input=$1
     width=$2
     height=$3
-    output=$(basename "$input" .svg).png
-    if [[ -n $height ]]; then
-        height=$width
-    fi
-    convertresize "${height}x$width" "$input" "$output"
+    output=$input:r.png
+    [[ -n $height ]] && height=$width
+    convertresize ${height}x$width $input $output
 }
 # }}}
+
+wal-tile() {
+    # sexy-invisibone
+    opts=(-n -b 212733 --saturate 0.6)
+    wal "$opts" -i "$@"
+
+    img=$(sed q1 $CACHEDIR/wal/wal)
+    resolution=2560x1440
+    if ! $(file $img | grep -q $resolution); then
+        oldimg=$img
+        img=$img:r-fixedres.$img:e
+        echo Converting to $img
+        convertresize !$resolution $oldimg $img
+    fi
+    feh --bg-tile $img
+}
 
 # vim:ft=zsh

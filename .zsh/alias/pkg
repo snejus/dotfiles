@@ -1,11 +1,13 @@
 # {{{ Single package
 pi () {
     (pacman -Qiil $1 2> /dev/null || yay -Sii $1) \
-    | sed "s/^$1 //; # remove pkg name from file list
-            /Querying\|: None\|(none)\|Backup F\|Architecture/d;
-           s/Deps *: \(.*\)/Deps:\n\t\t\1/;
-           s/^ \+\([^ :]*:.*\)$/\t\t\1/" \
-    | bat -l yml
+    | sed -r '
+        # remove pkg name from file list
+        s/Deps *: (.*)/Deps:\n\t\t\1/;
+        s/^ +([^ :]*:.*)$/\t\t\1/;
+        s/^'"$1"' //;
+         /Querying|: None|(none)|Backup F|Architecture/d;' \
+    | hl -S conf | less -XLR
 }
 alias pins='yay -S'
 alias pdel='yay -Rsu'
@@ -40,19 +42,21 @@ alias pd='pactree -c'
 alias pd1='pd -d1'
 alias pds='pd -s'
 alias pds1='pds -d1'
-alias prd='pactree -rc'
-alias prd1='prd -d1'
-alias prds='prd -s'
-alias prds1='prds -d1'
+alias prd='pd -r'
+alias prd1='pd1 -r'
+alias prds='pds -r'
+alias prds1='pds1 -r'
 # }}}
 # {{{ Logs
 __logfmt () {
-    sed "/transaction\|synchronizing\|30-systemd/d; s/\(\[[^ ]* \)\(\[[^ ]* \)\(.\?.\?installed.*\|upgraded.*\)\?\(removed.*\|warning.*\)\?\(Running.*\)\?\(starting full.*\)\?\(.*.hook.*\)\?\(downgraded.*\)\?/$(yellow '\1')$(magenta '\2')$(green '\3')$(red '\4')$(white '\5')$(redbg '\6')$(grayit '\7')$(yellow '\8')/"
+    sed "/transaction\|synchronizing\|30-systemd/d;
+         s/\(\[[^ ]* \)\(\[[^ ]* \)\(.\?.\?installed.*\|upgraded.*\)\?\(removed.*\|warning.*\)\?\(Running.*\)\?\(starting full.*\)\?\(.*.hook.*\)\?\(downgraded.*\)\?/$(yellow '\1')$(magenta '\2')$(green '\3')$(red '\4')$(white '\5')$(redbg '\6')$(grayit '\7')$(yellow '\8')/"
 }
 __logfile=/var/log/pacman.log
 alias plog="cat $__logfile | __logfmt"
 alias plogd="grep removed $__logfile | __logfmt"
 alias plogi="grep installed $__logfile | __logfmt"
+
 plogs () {
     \grep $@ $__logfile --color=never | __logfmt
 }
@@ -60,11 +64,13 @@ plogs () {
 # {{{ Searching
 alias pfdf='yay -Qo'  # search file owner
 alias pfdfs='yay -Fx'  # search all files with regex
-alias pfd='pq -SAs --rsort r'  # search foreign packages
+alias pfd='pq -SAs --rsort p'  # search foreign packages
 alias pfdn='pfd --nameonly'  # search foreign packages
-alias pfdi='pq -Qs'  # search installed packages
-alias pfdprovides='pq --qprovides -SA'
-alias pfdreplaces='pq --qreplaces -SA'
+alias pfdi='yay -Qs'  # search installed packages
+
+po () {
+    pfd -f "%U" -Qs $1 | xargs $BROWSER
+}
 # }}}
 
 # {{{ Misc
@@ -72,9 +78,6 @@ alias paudit='arch-audit -C=always -r'
 alias pst='yay -Pv --stats'
 alias pup='yay -Syu'  # all packages upgrade
 
-po () {
-    $BROWSER $(pfd -f "%U" -Qs $1)
-}
 pcleancheck () {
     nonewline () {
         sed 's/-[0-9].*$/ /' | tr -d '\n' | sed 's/==>/\n&/g'
@@ -86,14 +89,14 @@ pcleancheck () {
     paccache -dvk1 | nonewline
     echo "\n\n\n\e[1;5;31mpaccache -dvk2 : Installed, if keeping 2 backups:\e[0m"
     paccache -dvk2 | nonewline
-    echo "\n\n\n\e[1;5;31mpaccache -dvk2 : Installed, if keeping 3 backups:\e[0m"
+    echo "\n\n\n\e[1;5;31mpaccache -dvk3 : Installed, if keeping 3 backups:\e[0m"
     paccache -dvk3 | nonewline
     echo
 }
 pclean () {
     paccache -ruk0
-    paccache -rk1
+    paccache -rk2
     yay -Y -c
 }
 # }}}
-# vim:ft=zsh
+# vim:ft=sh
