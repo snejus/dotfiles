@@ -1,0 +1,97 @@
+#!/usr/bin/zsh
+
+# {{{ Color config
+RESET="$(tput sgr0)"
+BOLD="$(tput bold)"
+IT="$(tput sitm)"
+UL="$(tput smul)"
+
+RED="$(tput setaf 1)"
+GREEN="$(tput setaf 2)"
+YELLOW="$(tput setaf 3)"
+BLUE="$(tput setaf 4)"
+MAGENTA="$(tput setaf 6)"
+CYAN="$(tput setaf 6)"
+WHITE="$(tput setaf 7)"
+GREY="$(tput setaf 15)"
+NOCOLOR="$(tput setaf 15)"
+
+REDBG="$(tput setb 1)"
+# }}}
+# {{{ Color functions
+_say () {
+    printf "%$3s" "$1$2$RESET"
+}
+
+_cmd () {
+    _say "$cmdcolor" "$@"
+}
+
+_title () {
+    _say "$titlecolor" "$@"
+}
+
+_arg () {
+    _say "$argcolor" "$@"
+}
+
+_opt () {
+    _say "$optioncolor" "$@"
+}
+
+_kw () {
+    _say "$keywordcolor" "$@"
+}
+
+_cmt () {
+    _say "$commentcolor" "$@"
+}
+
+bold () {
+    printf '%s' "$BOLD$*$RESET"
+}
+
+green () {
+    _say "$BOLD$GREEN" "$@"
+}
+
+red () {
+    _say "$BOLD$RED" "$@"
+}
+
+yellow () {
+    _say "$BOLD$YELLOW" "$@"
+}
+
+grayit () {
+    _say "$IT$GREY" "$@"
+}
+
+magenta () {
+    _say "$BOLD$MAGENTA" "$@"
+}
+
+cyan () {
+    _say "$BOLD$CYAN" "$@"
+}
+
+white () {
+    _say "$BOLD$WHITE" "$@"
+}
+
+redbg () {
+    _say "$REDBG" "$@"
+}
+
+_stderr () {
+    printf >&2 '%s\n' "$@"
+}
+
+warning() {
+    _stderr "$(yellow WARNING:) $1"
+}
+
+error() {
+    _stderr "$(red ERROR:) $1"
+}
+# }}}
