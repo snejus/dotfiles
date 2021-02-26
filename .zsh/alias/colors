@@ -13,9 +13,9 @@ BLUE="$(tput setaf 4)"
 MAGENTA="$(tput setaf 6)"
 CYAN="$(tput setaf 6)"
 WHITE="$(tput setaf 7)"
-GREY="$(tput setaf 15)"
+# GREY="$(tput setaf 15)"
 NOCOLOR="$(tput setaf 15)"
-
+GREY=$'\033[38;5;240m'
 REDBG="$(tput setb 1)"
 # }}}
 # {{{ Color functions
