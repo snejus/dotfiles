@@ -7,30 +7,58 @@ alias dcip='docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAdd
 alias dils='docker image ls'
 alias dvls='docker volume ls'
 alias dlogin='bwgetsecret packages-token | docker login https://docker.pkg.github.com -u snejus --password-stdin'
-alias dinit='sed -ri "/^\s\s[a-z-]+:/s//&\n    init: true/; /3.6/s//3.7/" docker-compose.yml'
+alias dinit='! grep -q "init: true" docker-compose.yml && sed -ri "/<<-:|^\s\s[a-z-]+:/s//&\n    init: true/; /3.6/s//3.7/" docker-compose.yml'
+alias nodinit='sed -i "/init: true/d" docker-compose.yml'
 
-dbash () {
-    docker exec -ti "$1" bash
-}
+# dsh a24 opens shell in the container which id starts with a24
+dsh () { docker exec -ti "$1" sh; }
 
 __drm () {
-    docker "$1" ls | grep "$2" | tr -s ' ' | cut -d' ' -f3 | xargs docker "$1" rm
+    case $1 in
+        image) args=(-a '--format={{.Repository}} {{.ID}}');;
+        volume) args=("--format={{.Name}} {{.Name}}");;
+        container) args=(-a '--format={{.Names}} {{.ID}}');;
+    esac
+    docker "$1" ls "${args[@]}" | sed "\/$2/!d; s/.* //" | xargs docker "$1" rm
 }
 
+# dirm hello will remove images that contain hello in their names
 alias dirm='__drm image'
 alias dvrm='__drm volume'
 alias dcrm='__drm container'
 
 _EXT='(postgres|redis|python|localstack)'
 
+# dimg shows a quick images list without <none>s and with psychedelics
+# dimg -v shows full images list including shared size info and psychedelics
+# dimg -v hello, dimg hello filters the list
 dimg () {
-    # dils | sed q | sed -n '\/REPO.*/s///p' | wc -c
-    docker images -a --format='table {{ .CreatedSince }}\t{{ .Size }}\t{{ .SharedSize }}\t{{ .Tag }}\t{{ .Repository }}'  |
-        grep -v '<none>' |
-        sed -r '\/ig_/s/.*/'"$BOLD$MAGENTA&$RESET"'/
-             /github/s/.*/'"$BOLD$GREEN&$RESET"'/
-             /'"$_EXT"'/s/.*/'"$BOLD&$RESET"'/
-             /'"$YOPKGPAT"'/s/.*/'"$BOLD$RED&$RESET"'/'
+    verbose=
+    filter=
+    for arg in "$@"; do
+        if [[ $arg == -v ]]; then
+            verbose=1
+        else
+            filter=$arg
+        fi
+    done
+    if [[ -n $verbose ]]; then
+        shift
+        docker system df -v | sed -n '\/IMAGE ID/,/^$/p;' | tac | sed '$d;' |
+            if [[ -n $filter ]]; then grep "$filter" /dev/stdin; else tee /dev/null; fi |
+            sed -r 's/^docker.pkg.github.com\///; s/  +/,/g' |
+            sort --field-separator=, -hsk6 |
+            column -ts,
+    else
+        docker images -a --format='table {{ .CreatedSince }}\t{{ .Size }}\t{{ .SharedSize }}\t{{ .Tag }}\t{{ .Repository }}' |
+            tac |
+            if [[ -n $filter ]]; then grep "$filter" /dev/stdin; else tee /dev/null; fi |
+            grep -v '<none>\|SIZE'
+    fi | sed -r '\/ig_/s/.*/'"$BOLD$MAGENTA&$RESET"'/
+                  /yodo/s/.*/'"$BOLD$GREEN&$RESET"'/
+                  /'"$_EXT"'/s/.*/'"$BOLD&$RESET"'/
+                  /'"$_YOPKG"'/s/.*/'"$BOLD$RED&$RESET"'/
+                  /<none>/s/.*/'"$IT$GREY&$RESET"'/'
 }
 # }}}
 # {{{ docker-compose
