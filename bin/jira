@@ -9,12 +9,12 @@ LINKSHEADERS=Assignee,Source,Link,Issue,Type,Priority,Status
 QUERYFIELDS=key,created,priority,assignee,issuetype,customfield_10004,status,summary,updated,issuelinks
 ME=runas
 BATOPTS=(-l yml --style=plain --theme=zenburn --paging=always)
+HELP_COMMENT_WIDTH=75
 
 #  {{{ Color config
 R=$'\033[m'
 
 B=$'\033[1m'  # bold
-U=$'\033[4m'  # underline
 S=$'\033[9m'  # strikethrough
 
 RED=$'\033[31m'
@@ -23,13 +23,14 @@ YELLOW=$'\033[33m'
 BLUE=$'\033[34m'
 MAGENTA=$'\033[35m'
 CYAN=$'\033[36m'
+WHITE=$'\033[37m'
 GREY=$'\033[38;5;243m'
 DARKGREY=$'\033[38;5;240m'
 
 CCMD=$B$CYAN
 COPT=$B$YELLOW
 CARG=$B$MAGENTA
-CTIT=$U$BOLD
+CTIT=$B$GREY
 CKWD=$GREEN
 CCOM=$GREY
 
@@ -58,8 +59,8 @@ _colorfilter() {
             /Bug/s//'"$B$RED&$R"'/
             /Incident/s//'"$B$RED&$R"'/
           # Priority
+            /High([^e]|$)/s//'"$RED&$R"'/
             /Highest/s//'"$B$RED&$R"'/
-            /High[^e]/s//'"$RED&$R"'/
             /Medium/s//'"$WHITE&$R"'/
             /Low(est)?/s//'"$GREY&$R"'/
             /Backlog/s//'"$WHITE&$R"'/
@@ -69,8 +70,8 @@ _colorfilter() {
             /In Progress/s//'"$B$CYAN&$R"'/
             /(In )?Review/s//'"$GREEN&$R"'/
             /(Done|Testing|UAT|Backlog|To Do)/{
-                s/[^ a-z]+[0-9[]m//g
-                /(Done|Testing|UAT)/s/.*/'"$S$B$GREEN&$R"'/
+                s/[^ a-zA-Z]+[0-9[]m//g
+                /(Done|Testing|Ready for )/s/.*/'"$S$GREEN&$R"'/
                 /(Backlog|To Do)/s/.*/'"$DARKGREY&$R"'/
             }'
 }
@@ -168,8 +169,8 @@ _diff () {
 _ticket () { printf %s "${1/#[0-9]*/COR-$1}"; }
 _open () { xdg-open "$SUBDOMAIN/browse/$(_ticket "$1")"; }
 _show() { command -p jira view "$1" | sed 's/{noformat}/\n&\n/' | LESS=-XR bat "${BATOPTS[@]}"; }
-_fields () { command -p jira fields | jq ".[] | [.key, .name]" | bat -l json; }
-_tr () { command -p jira transition --noedit "${1/todo/To\ Do}" "$(_ticket "$2")"; }
+_fields () { command -p jira fields | jq ".[] | [ .key, .name ] | @csv" --raw-output | tr -d '"' | sort | column -ts,; }
+_mv () { command -p jira transition --noedit "${1/todo/To\ Do}" "$(_ticket "$2")"; }
 _new () { command -p jira create; }
 _link () {
     if [[ $1 == -l ]]; then
@@ -180,6 +181,7 @@ _link () {
 }
 _edit () { command -p jira edit "$(_ticket "$1")"; }
 _eadd () { command -p jira epic add "$1" "$2"; }
+_eadd () { command -p jira epic remove "$1"; }
 _urls () { for id in "$@"; do printf '%s\n' "$SUBDOMAIN/browse/$(_ticket "$id")"; done; }
 _com () { command -p jira comment "$1"; }
 # }}}
@@ -193,21 +195,26 @@ _grp () {  # group issues by header
         xsv headers "$cache"
         return
     fi
-    by=${1@u}
-    unique=$(xsv search -s 4 runas "$cache" | xsv select "$by" | sed 1d | sort -u)
+    if [[ -z $1 ]]; then
+        error "Field is required. One of:"
+        xsv headers "$cache" && echo
+        return 101
+    else
+        field=${1@u} && shift
+    fi
     {
         while read -r param; do
-            echo "$B  $by: $param$R"
-            echo
-            xsv search -s 4 runas "$cache" \
-                | xsv search -s "$by" "$param" \
+            printf '\n  %s: %s\n\n' "$B$field$R" "$param"
+            xsv search -s 4 "$ME" "$cache" \
+                | if [[ -n $1 ]]; then xsv search "$1" /dev/stdin; else tee /dev/null; fi \
+                | xsv search -s "$field" "$param" \
                 | xsv select 1,5,3,7,8 \
                 | _format
             echo
-        done <<< "$unique"
-        if [[ $by == Epic ]]; then
+        done < <(xsv search -s 4 "$ME" "$cache" | xsv select "$field" | sed 1d | sort -u)
+        if [[ $field == Epic ]]; then
             echo "$BOLD  Sub-tasks$R"
-            xsv search -s 4 runas "$cache" \
+            xsv search -s 4 "$ME" "$cache" \
                 | xsv select 1,5,3,7,8 \
                 | xsv search -s 1 Sub-task \
                 | _format
@@ -263,7 +270,7 @@ _lse () {  # list epics
 }
 _lsl () {  # list issue links
     FILE=$LINKSCACHE/$(_filename)
-    COLS=7,4,3,2
+    COLS=4,3,2,7
     _get "$@"
 }
 
@@ -272,6 +279,8 @@ _els () {  # list issues in epic
     if [[ -z $epic ]]; then
         error "Epic issue number is required"
         return 1
+    else
+        epic=$1 && shift
     fi
     cache=$CACHE/$(_filename)
     echo
@@ -283,13 +292,14 @@ _els () {  # list issues in epic
     echo
     xsv search -s Epic "$epic" "$cache" \
         | xsv select 4,5,1,3,7,8 \
+        | if [[ -n $1 ]]; then xsv search "$1" /dev/stdin; else tee /dev/null; fi \
         | xsv sort -s Issue -N \
         | __format
     echo
 }
 # }}}
 _lsrel () {
-    if [[ $1 == -s ]]; then
+    if [[ $1 == -q ]]; then
         opts=('reverse | .[].name' --raw-output)
     else
         opts=(reverse --color-output)
@@ -311,71 +321,130 @@ ctrl-e:execute(jira jira edit {1})"
 }
 
 # }}}
-# {{{ Help
-colorize () {
-    sed -r '\/.*/{
-        /-- .*$/s//'"$CCOM&$R"'/g}
-        /^([A-Z].+[A-Z]).*$/s//'"$CTIT\1$R"'/;
-        /^  [a-z|][^ ]+/s//'"$CCMD&$R"'/;
-        / [A-Z-]+[A-Z] /s//'"$CARG&$R"'/g;
-        / \[(-?-[-a-z]+)?([^]]+\])| -?-[-a-z]+/s//'"$COPT&$R"'/g;
-        /_\(([^)]+)\)/s//'"$CKWD\1$CCOM"'/g;'
-}
-
-show_help () {
-    declare -A ARGMS
-    ARGMS=(
-        [ls]="-a -r -s HEADER  [PATTERN]"
-        [lse]="-a -r -s HEADER  [PATTERN]"
-        [lsl]="-a -r -s HEADER  [PATTERN]"
-        [lsrel]="-s"
-        [tr]="STATE  ID"
-        [els]=ID
-        [grp]="-l | FIELD"
-        [open]=ID
-        [edit]=ID
-        [eadd]="EPIC-ID  ISSUE-ID"
-        [show]=ID
-        [link]="-l | SOURCE-ID  ACTION  RECEIVER-ID"
-        [tree]="[PATTERN]"
-        [urls]="ID ..."
-        [com]="ID  [-m COMMENT]"
-    )
-    declare -A NOTES
-    NOTES=(
-        [ls]="list issues"
-        [lse]="list epics"
-        [lsl]="list issue links"
-        [lsrel]="list project _(IN) releases. List only versions with _(-s)"
-        [tr]="transition issue state: _(todo) (in-)_(progress) _(testing) _(review) _(done) _(backlog)"
-        [diff]="show changes between current and previous data"
-        [els]="list issues in epic"
-        [fields]="show all available jira fields"
-        [grp]="group issues by a header. List available headers with _(-l)"
-        [fls]="open issues interactively with fzf"
-        [new]="create new ticket"
-        [link]="link two issues, for example _(ABC-1 fixes XYZ-2). _(-l) lists possible links"
-        [open]="open a ticket in the browser"
-        [edit]="edit issue"
-        [eadd]="add issue to epic"
-        [show]="show ticket details"
-        [sync]="download the latest data"
-        [tree]="show tree view of the issues"
-        [urls]="print URLs for the given tickets"
-        [com]="add a comment under an issue"
-    )
-    CMDLIST=${!NOTES[*]}
-    printf '\n  %s\n\n' "${BOLD}jira$R"
-    for cmd in ${CMDLIST[*]}; do
-        len_cmd=${#cmd}
-        max_len_cmd=$(( len_cmd > max_len_cmd ? len_cmd : max_len_cmd ))
-        cmdflags=$cmd${ARGMS[$cmd]}
-        len_both=${#cmdflags}
-        max_len_both=$(( len_both > max_len_both ? len_both : max_len_both ))
+# {{{ Help helpers
+_fold () {
+    # edit `note` in place to avoid spinning this in a subshell
+    _wordsarr=()
+    _words=()
+    for _word in ${note[*]}; do
+        _newwords=("${_words[@]}" "$_word")
+        _newwordstr=${_newwords[*]}
+        if [[ ${#_newwordstr} -gt $1 ]]; then
+            _wordsarr+=("$_wordstr")
+            _words=("$_word")
+            _wordstr=$_word
+        else
+            _words=("${_newwords[@]}")
+            _wordstr="${_words[*]}"
+        fi
     done
-    for cmd in ${CMDLIST[*]}; do
-        note=${NOTES[$cmd]}
-        printf '  %-*s %-*s-- %s\n' $max_len_cmd "$cmd" $max_len_both "${ARGMS[$cmd]}" "$note"
+    [[ -n $_wordstr ]] && _wordsarr+=("$_wordstr")
+    note=("${_wordsarr[@]}")
+}
+colorize () {
+    sed -r '
+        /(^    +|-- ).*$/s//'"$CCOM&$R"'/g
+        /^([A-Z].+[A-Z]).*$/s// '"$CTIT\1$R"'/
+        /^   [a-z|][^ ]+/s//'"$CCMD&$R"'/
+        / [A-Z-]+[A-Z] /s//'"$CARG&$R"'/g
+        / \[(-?-[-a-z]+)?([^]]+\])| -?-[-a-z]+/s//'"$COPT&$R"'/g
+        /_\(([^)]+)\)/s//'"$CKWD\1$R$CCOM"'/g'
+}
+# }}}
+# {{{ Help
+show_help () {
+    declare -A CMDLIST NOTES ARGMS
+    HEADINGS=(cache list action epic misc)
+    CMDLIST[cache]="diff sync" &&
+        NOTES+=(
+            [diff]="show changes between current and previous data versions"
+            [sync]="synchronise the data"
+        ) &&
+        ARGMS+=()
+
+    CMDLIST[list]="grp ls lse lsl lsrel" &&
+        NOTES+=(
+            [grp]="group issues by field. List available fields with _(-l)"
+            [ls]="list my issues. _(-a) all issues, _(-r) reverse sort, _(-s) sort by field"
+            [lse]="list my epics"
+            [lsl]="list my issue links"
+            [lsrel]="list project _(IN) releases. List just versions with _(-q)"
+            # [tree]="show tree view of the issues")
+        ) &&
+        ARGMS+=(
+            [grp]="-l | FIELD  [PATTERN]"
+            [ls]="-a -r -s FIELD  [PATTERN]"
+            [lse]="-a -r -s FIELD  [PATTERN]"
+            [lsl]="-a -r -s FIELD  [PATTERN]"
+            [lsrel]="-q"
+            # [tree]="[PATTERN]"
+        )
+
+    CMDLIST[epic]="eadd els erm" &&
+        NOTES+=(
+            [eadd]="add issue to epic"
+            [els]="list issues in epic"
+            [erm]="remove epic from issue"
+        ) &&
+        ARGMS+=(
+            [els]=EPIC
+            [eadd]="EPIC  ISSUE"
+            [erm]=ISSUE
+        )
+
+    CMDLIST[action]="com edit link new open show mv" &&
+        NOTES+=(
+            [com]="add a comment under an issue"
+            [edit]="edit an issue"
+            [link]="link two issues, e.g. _(12 fixes 34). List possible links with _(-l)"
+            [mv]="move/change issue state: _(todo) (in-)_(progress) _(testing) _(review) _(done) _(backlog)"
+            [new]="create a new issue"
+            [open]="open issue in the browser"
+            [show]="show issue details"
+        ) &&
+        ARGMS+=(
+            [com]="ISSUE  [-m COMMENT]"
+            [edit]=ISSUE
+            [link]="-l | SOURCE  ACTION  RECEIVER"
+            [mv]="NEW-STATE  ISSUE"
+            [open]=ISSUE
+            [show]=ISSUE
+        )
+
+    CMDLIST[misc]="fields fls urls" &&
+        NOTES+=(
+            [fields]="show all available jira fields"
+            [fls]="open issues interactively with _(fzf)"
+            [urls]="print URLs for given issues"
+        ) &&
+        ARGMS+=(
+            [urls]="ISSUE ..."
+        )
+
+    printf '\n  %s\n\n' "${B}jira$R"
+    for heading in "${HEADINGS[@]}"; do
+        printf '\n%s\n' "${heading@U}"
+        max_len_cmd=0
+        max_len_both=0
+        for cmd in ${CMDLIST[$heading]}; do
+            len_cmd=${#cmd}
+            max_len_cmd=$(( len_cmd > max_len_cmd ? len_cmd : max_len_cmd ))
+            cmdflags=$cmd${ARGMS[$cmd]}
+            len_both=${#cmdflags}
+            max_len_both=$(( len_both > max_len_both ? len_both : max_len_both ))
+        done
+        for cmd in ${CMDLIST[$heading]}; do
+            cleancmd=${cmd/!}
+            note=("${NOTES[$cleancmd]}")
+            [[ ${#note} -gt $HELP_COMMENT_WIDTH ]] && _fold $HELP_COMMENT_WIDTH
+
+            printf '   %-*s %-*s-- %s\n' $max_len_cmd "$cmd" $max_len_both "${ARGMS[$cleancmd]}" "${note[0]}"
+            if [[ -n ${note[1]} ]]; then
+                for line in "${note[@]:1}"; do
+                    printf '   %-*s %-*s   %s\n' $max_len_cmd "" $max_len_both "" "$line"
+                done
+            fi
+        done
     done
     printf '\n'
     exit 0
@@ -428,7 +497,7 @@ fi
 
 #     text=$(
 #         grep "^[^\"]\|$filt" "$(_cache_file "$1")" \
-#         | xsv search -s Assignee runas \
+#         | xsv search -s Assignee "$ME" \
 #         | if $skipepics; then xsv search -vs Type Epic; else tee /dev/null; fi \
 #         | xsv select $headers \
 #         | tr -d '_' \
