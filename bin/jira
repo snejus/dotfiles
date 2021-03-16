@@ -4,17 +4,36 @@
 # TODO: Use json for normal lists too, not just dependencies
 # TODO: curl calls: curl -s -n '$SITE/rest/api/2/search?jql=assignee=currentuser()+AND+resolution=Unresolved'
 
-ISSUEHEADERS=Issue,Created,Priority,Assignee,Type,Epic,Status,Summary,Updated
-LINKSHEADERS=Assignee,Source,Link,Issue,Type,Priority,Status
+ISSUEFIELDS=Issue,Created,Priority,Assignee,Type,Epic,Status,Summary,Updated
+LINKSFIELDS=Assignee,Source,Link,Issue,Type,Priority,Status
+HISTFIELDS=Date,Author,Field,Previous,Current
 QUERYFIELDS=key,created,priority,assignee,issuetype,customfield_10004,status,summary,updated,issuelinks
-ME=runas
-BATOPTS=(-l yml --style=plain --theme=zenburn --paging=always)
+# BATOPTS=(-l yml --style=plain --theme=zenburn --paging=always --color=always)
+BATOPTS=(-O truecolor -s orion -S yaml)
 HELP_COMMENT_WIDTH=75
+ME=runas
+
+CACHE=$HOME/.cache/jiratool
+ISSUECACHE=$CACHE/issues
+LINKSCACHE=$CACHE/links
+ISSUE_CACHEFILE=
+LINKS_CACHEFILE=
+
+# API URLs
+_PRE=$SUBDOMAIN/rest/api/3
+_BROWSE=$SUBDOMAIN/browse
+_ISSUE=$_PRE/issue
+_ISSUE_TRANSITIONS=$_ISSUE/%s/transitions
+_ISSUE_HISTORY=$_ISSUE/%s/changelog
+# _LABEL=$_PRE/label
+_VERSIONS=$_PRE/project/$RELEASES_PROJECT/versions
+
+shopt -s extglob
 
 #  {{{ Color config
-R=$'\033[m'
-
+R=$'\033[m'   # reset
 B=$'\033[1m'  # bold
+I=$'\033[3m'  # italic
 S=$'\033[9m'  # strikethrough
 
 RED=$'\033[31m'
@@ -35,61 +54,85 @@ CKWD=$GREEN
 CCOM=$GREY
 
 _stderr () { printf >&2 '\n  %s\n\n' "$*"; }
-warning() { _stderr "$B$YELLOW WARNING: $*$R"; }
-error() { _stderr "$B$RED ERROR: $*$R"; }
+warning() { _stderr "$B$YELLOW WARNING:$R $*"; }
+error() { _stderr "$B$RED ERROR:$R $*"; }
 # }}}
 # {{{ Colorfilter
-# TICKETPAT='[A-Z]+-[0-9]+'
+TICKETPAT='[\s"]([A-Z]+-[0-9]+)'
 _colorfilter() {
-    sed -r '
-            # s/^([A-Z])[a-z]+ ([A-Z])[a-z]+ /'"$B\1\2$R"' /
-          # relation type
-            /relates to/s//'"$BOLD&$R"'/
-            /blocks/s//'"$RED&$R"'/
-            /created/s//'"$CYAN&$R"'/
-            /split to/s//'"$YELLOW&$R"'/
-            /  tests/s//'"$GREEN&$R"'/
-            /  fixes/s//'"$B$GREEN&$R"'/
-          # Type
-            /Epic /s//'"$B$MAGENTA&$R"'/
-            /Story/s//'"$GREEN&$R"'/
-            /Question/s//'"$YELLOW&$R"'/
-            /Task/s//'"$B$BLUE&$R"'/
-            /Sub-task /s//'"$BLUE&$R"'/
-            /Bug/s//'"$B$RED&$R"'/
-            /Incident/s//'"$B$RED&$R"'/
-          # Priority
-            /High([^e]|$)/s//'"$RED&$R"'/
-            /Highest/s//'"$B$RED&$R"'/
-            /Medium/s//'"$WHITE&$R"'/
-            /Low(est)?/s//'"$GREY&$R"'/
-            /Backlog/s//'"$WHITE&$R"'/
-          # Status
-            /New/s//'"$RED&$R"'/
-            /Investigating/s//'"$YELLOW&$R"'/
-            /In Progress/s//'"$B$CYAN&$R"'/
-            /(In )?Review/s//'"$GREEN&$R"'/
-            /(Done|Testing|UAT|Backlog|To Do)/{
-                s/[^ a-zA-Z]+[0-9[]m//g
-                /(Done|Testing|Ready for )/s/.*/'"$S$GREEN&$R"'/
-                /(Backlog|To Do)/s/.*/'"$DARKGREY&$R"'/
-            }'
+    pattern="
+    # Relation type
+        /relates to/    s//$BOLD&$R/
+        /block(s|ed)/   s//$B$RED&$R/
+        /created/       s//$CYAN&$R/
+        /split to/      s//$YELLOW&$R/
+        /  tests/       s//$GREEN&$R/
+        /  fixes/       s//$B$GREEN&$R/
+    # Type
+        /Epic (Link)/   s//$B$MAGENTA&$R/
+        /Story/         s//$GREEN&$R/
+        /Question/      s//$YELLOW&$R/
+        /Task/          s//$B$BLUE&$R/
+        /Sub-task /     s//$BLUE&$R/
+        /Bug/           s//$B$RED&$R/
+        /Incident/      s//$B$RED&$R/
+    # Priority
+        /High([^e]|$)/  s//$RED&$R/
+        /Highest/       s//$B$RED&$R/
+        /Medium/        s//$WHITE&$R/
+        /Low(est)?/     s//$GREY&$R/
+    # Status
+        /New/           s//$RED&$R/
+        /Investigating/ s//$YELLOW&$R/
+        /In Progress/   s//$B$CYAN&$R/
+        /(In )?Review/  s//$GREEN&$R/
+    # History
+        /duedate/       s//$I$RED&$R/
+        "
+    if [[ ! $1 == --simple ]]; then
+        pattern+="
+        /(Done|Testing|UAT|Backlog|To Do)/{
+                                        s/[^ a-zA-Z]+[0-9[]m//g
+            /(Done|Testing|Ready for )/ s/.*/$S$GREEN&$R/
+            /(Backlog|To Do)/           s/.*/$DARKGREY&$R/
+        }"
+    else
+        pattern+="
+        /(Testing|Ready for )/  s//$GREEN&$R/
+        /(Backlog|To Do)/       s//$DARKGREY&$R/
+        /Done/                  s/.*/$S&$R/
+        "
+    fi
+    sed -r "$pattern"
 }
 # }}}
-# {{{ Caching
-CACHE=$HOME/.cache/jiratool/issues
-LINKSCACHE=$HOME/.cache/jiratool/links
+# {{{ Cache
+_existing_cache_files () {
+    issues=("$ISSUECACHE"/*.csv)
+    links=("$LINKSCACHE"/*.csv)
+    printf -v ISSUE_CACHEFILE %s "${issues[-1]}"
+    printf -v LINKS_CACHEFILE %s "${links[-1]}"
+}
+
+_prepare_cache_filenames () {
+    [[ ! -d $ISSUECACHE ]] && mkdir -p "$ISSUECACHE"
+    [[ ! -d $LINKSCACHE ]] && mkdir -p "$LINKSCACHE"
+    printf -v ISSUE_CACHEFILE '%s/%(%Y-%m-%d.csv)T' "$ISSUECACHE"
+    printf -v LINKS_CACHEFILE '%s/%(%Y-%m-%d.csv)T' "$LINKSCACHE"
+    if [[ ! -r $ISSUE_CACHEFILE ]] || [[ ! -r $LINKS_CACHEFILE ]]; then
+        warning "Today's data hasn't been synchronised yet"
+        [[ $1 != --sync ]] && _existing_cache_files
+    fi
+}
 
 _to_table() { jq -r '.[] | ({ assignee, key }) + { nature: (.links | keys)} + .links[] | flatten | @csv'; }
 
 _fetch_issues () {
-    issuefile=$CACHE/$1
-    linksfile=$LINKSCACHE/$1
-    filter='project IN ("COR", "YONO") AND resolution=unresolved'
-    printf '%s\n' "$ISSUEHEADERS" > "$issuefile"
-    printf '%s\n' "$LINKSHEADERS" > "$linksfile"
+    printf '%s\n' $ISSUEFIELDS > "$ISSUE_CACHEFILE"
+    printf '%s\n' $LINKSFIELDS > "$LINKS_CACHEFILE"
     output=/tmp/jira_output
-    command -p jira list --queryfields="$QUERYFIELDS" -t json --query "$filter" > "$output"
+    filter='project IN ("COR", "YONO") AND resolution=unresolved'
+    _jira list --queryfields="$QUERYFIELDS" -t json --query "$filter" > "$output"
     jq -r '.issues[] |
         [
             .key,
@@ -101,7 +144,7 @@ _fetch_issues () {
             .fields.status.name,
             .fields.summary[:60],
             .fields.updated
-        ] | @csv' "$output" >> "$issuefile"
+        ] | @csv' "$output" >> "$ISSUE_CACHEFILE"
     jq '[
         .issues[] |
             {
@@ -118,42 +161,31 @@ _fetch_issues () {
                     )
                 }
             }
-        ]' "$output" | _to_table >> "$linksfile"
+        ]' "$output" | _to_table >> "$LINKS_CACHEFILE"
     rm "$output"
-    xsv index "$issuefile"
-    xsv index "$linksfile"
-}
-
-_filename () { printf '%(%Y-%m-%d.csv)T'; }
-_cache_file () {
-    filenames=(~/.cache/jiratool/issues/*.csv)
-    printf %s "${filenames[-1]}"
+    xsv index "$ISSUE_CACHEFILE"
+    xsv index "$LINKS_CACHEFILE"
 }
 
 _sync () {
-    [[ ! -d $CACHE ]] && mkdir -p "$CACHE"
-    [[ ! -d $LINKSCACHE ]] && mkdir -p "$LINKSCACHE"
-    filename=$(_filename)
-    cache=$CACHE/$filename
-    linkscache=$LINKSCACHE/$filename
-    if [[ -a $cache ]]; then
-        printf -v time '%(~%H:%M:%S)T'
-        mv "$cache" "$cache$time.old"
-        mv "$cache.idx" "$cache$time.old.idx" 2> /dev/null
-        mv "$linkscache" "$linkscache$time.old"
-        mv "$linkscache.idx" "$linkscache$time.old.idx" 2> /dev/null
+    _prepare_cache_filenames --sync
+    if [[ -a $ISSUE_CACHEFILE ]]; then
+        printf -v time '%(_%H:%M:%S)T'
+        mv "$ISSUE_CACHEFILE" "$ISSUE_CACHEFILE$time.old"
+        mv "$LINKS_CACHEFILE" "$LINKS_CACHEFILE$time.old"
+        rm "$ISSUE_CACHEFILE.idx" "$LINKS_CACHEFILE.idx"
     fi
-    _fetch_issues "$filename"
-    echo "$cache"
+    _fetch_issues
+    echo "$ISSUE_CACHEFILE"
 }
 
 _diff () {
-    filenames=("$CACHE"/*)
+    filenames=("$ISSUECACHE"/*)
     for ((i = 1; i < ${#filenames}; i++)); do
         file=${filenames[-$i]}
         [[ $file == *.idx ]] && continue
         if [[ $file == *.old ]]; then
-            [[ -z $new ]] && new=${file%~*}
+            [[ -z $new ]] && new=${file%_*}
             old=$file
         else
             new=$file
@@ -161,36 +193,145 @@ _diff () {
         [[ -n $new ]] && [[ -n $old ]] && break
     done
     diffopts=(diff --unified=0 --no-index --word-diff=color --word-diff-regex='([^",+-]+)')
-    git "${diffopts[@]}" "$old" "$new" | tail -n+3
-    git "${diffopts[@]}" "${old/$CACHE/$LINKSCACHE}" "${new/$CACHE/$LINKSCACHE}" | tail -n+3
+    {
+        git "${diffopts[@]}" "$old" "$new"
+        git "${diffopts[@]}" "${old/$ISSUECACHE/$LINKSCACHE}" "${new/$ISSUECACHE/$LINKSCACHE}"
+    } | tail -n+3 | less -XR
+}
+# }}}
+# {{{ Validation
+_validate_issue () {
+    if [[ -z $1 ]]; then
+        error "ISSUE argument is required, e.g.$B IN-123$R or$B 123$R"
+        exit 101
+    fi
 }
 # }}}
 # {{{ Short
-_ticket () { printf %s "${1/#[0-9]*/COR-$1}"; }
-_open () { xdg-open "$SUBDOMAIN/browse/$(_ticket "$1")"; }
-_show() { command -p jira view "$1" | sed 's/{noformat}/\n&\n/' | LESS=-XR bat "${BATOPTS[@]}"; }
-_fields () { command -p jira fields | jq ".[] | [ .key, .name ] | @csv" --raw-output | tr -d '"' | sort | column -ts,; }
-_mv () { command -p jira transition --noedit "${1/todo/To\ Do}" "$(_ticket "$2")"; }
-_new () { command -p jira create; }
-_link () {
-    if [[ $1 == -l ]]; then
-        command -p jira issuelinktypes | jq '.[].outward' --raw-output
+_jira () {
+    command -p jira \
+        --login "$EMAIL" \
+        --endpoint "$SUBDOMAIN" \
+        "$@"
+}
+
+_get_url () {
+    curl --silent \
+         --request GET \
+         --user "$EMAIL:$JIRA_API_TOKEN" \
+         --header "Accept: application/json" \
+         --url "$1"
+}
+
+_format() {
+    sedpat=$'s/^/\t&/'
+    if [[ $1 == --withheaders ]]; then
+        sedpat="1s/.*/$B&$R\n/; $sedpat"
     else
-        command -p jira issuelink "$3" "${2@u}" "$1"
+        sedpat="1d; $sedpat"
+    fi
+    xsv table -c 50 | sed "$sedpat"
+}
+__format () {
+    echo
+    for arg in "$@"; do
+        case $arg in
+            -h)         formatargs=--withheaders ;;
+            --simple)   colorargs=--simple       ;;
+        esac
+    done
+    _format $formatargs | _colorfilter $colorargs
+    echo
+}
+
+_ticket () { printf -v TICKET %s "${1/#[0-9]*/COR-$1}"; }
+_open () { _ticket "$1" && xdg-open "$_BROWSE/$TICKET"; }
+_fields () { _jira fields | jq ".[] | [ .key, .name ] | @csv" --raw-output | xsv table -w 50; }
+_show() { _jira view "$1" | {
+    # _get_url "$SUBDOMAIN/$_ISSUE/$1"
+        while read -r line; do
+            printf '\n%s' "${line//'{noformat}'/$'\n{noformat}\n'}"
+        done
+    } | sed -r '
+        \/^$/d
+        s/'\''+/'\'''\''/g
+        s/: /: \t/
+        s/^(  )?[*]([A-Z][[:alpha:]\ ]*)\*/\n### \2\n/g
+        s/^(  )?([^#].* .*):$/\n# \2 :\n/
+        s/^(  )?- \| (#.*), (.*)/\n#\2\n   # \3/
+        s/comments:/\n&/
+        s/(\[.*)\|https.*\|smart-link\]/'\''\1]'\''/' | expand -t15 | highlight "${BATOPTS[@]}" \
+            | sed -r '\/#.*ago/s/.*/'"$BLUE&$R"'/
+                    /(##+)( [^#$]+)/s//'"$B$BLUE\1\2 $B$BLUE\1$R"'/' | LESS=-XR less
+}
+
+_mv () {
+    issue=$2
+    if [[ $1 == -l ]]; then
+        _validate_issue "$issue" && _ticket "$issue"
+        printf -v url "$_ISSUE_TRANSITIONS" "$TICKET"
+        _get_url "$url" | jq '[.transitions[].name] | sort | .[] | ascii_downcase | sub(" \\(2\\)"; "")' --raw-output
+    else
+        _jira transition --noedit "${1/todo/To\ Do}" "$issue"
     fi
 }
-_edit () { command -p jira edit "$(_ticket "$1")"; }
-_eadd () { command -p jira epic add "$1" "$2"; }
-_eadd () { command -p jira epic remove "$1"; }
-_urls () { for id in "$@"; do printf '%s\n' "$SUBDOMAIN/browse/$(_ticket "$id")"; done; }
-_com () { command -p jira comment "$1"; }
+_link () {
+    if [[ $1 == -l ]]; then
+        _jira issuelinktypes | jq '.[].outward' --raw-output
+    else
+        _jira issuelink "$3" "${2@u}" "$1"
+    fi
+}
+_new () { _jira create; }
+_edit () { _jira edit "$1"; }
+_eadd () { _jira epic add "$1" "$2"; }
+_eadd () { _jira epic remove "$1"; }
+_urls () { for id in "$@"; do _ticket "$id" && printf '%s\n' "$_BROWSE/$TICKET"; done; }
+_com () { _jira comment "$1"; }
+# }}}
+# {{{ Issue history
+_hist () {
+    _ticket "$1"
+    printf -v url "$_ISSUE_HISTORY" "$TICKET"
+    _get_url "$url" | jq '.values[] | .created |= sub("T"; " ") |
+        [
+            .created[0:16],
+            .author.displayName,
+            .items[0].field,
+            .items[0].fromString[0:40],
+            .items[0].toString[0:40]
+        ] | @csv' --raw-output | {
+        mapfile -t lines < /dev/stdin
+        lookup=()
+        for line in "${lines[@]}"; do
+            if [[ $line =~ (Epic\ Child|Link).*$TICKETPAT.* ]]; then
+                [[ -n ${BASH_REMATCH[3]} ]] && lookup+=("${BASH_REMATCH[3]}")
+            fi
+        done
+        lines=("${lines[@]/\"202/$'\n"'202}")
+        lines=("${lines[@]/This issue ?(is )}")
+        lookup_pat=${lookup[*]}
+        lookup_pat="(${lookup_pat//\ /\|})"
+
+        _prepare_cache_filenames
+        xsv search -s Issue "$lookup_pat" "$ISSUE_CACHEFILE" \
+            | xsv select 1,8 | {
+            # skip headers
+            read -r line < /dev/stdin
+            while read -r line; do
+                issue=${line%,*}
+                descr=${line#*,}
+                lines=("${lines[@]//$issue/$issue (${descr:0:25})}")
+            done < /dev/stdin
+            printf '%s\n%s\n' "$HISTFIELDS" "${lines[*]}" | __format -h --simple
+        }
+    }
+}
 # }}}
 # {{{ Cached lists
-_format() { xsv table -c 60 | sed '1d; s/^/\t&/'; }
-__format () { _format | _colorfilter; }
-
 _grp () {  # group issues by header
-    cache=$(_cache_file)
+    _prepare_cache_filenames
+    cache=$ISSUE_CACHEFILE
     if [[ $1 == -l ]]; then
         xsv headers "$cache"
         return
@@ -202,20 +343,21 @@ _grp () {  # group issues by header
     else
         field=${1@u} && shift
     fi
+    fields=1,5,3,7,8
     {
         while read -r param; do
             printf '\n  %s: %s\n\n' "$B$field$R" "$param"
             xsv search -s 4 "$ME" "$cache" \
                 | if [[ -n $1 ]]; then xsv search "$1" /dev/stdin; else tee /dev/null; fi \
                 | xsv search -s "$field" "$param" \
-                | xsv select 1,5,3,7,8 \
+                | xsv select "$fields" \
                 | _format
             echo
         done < <(xsv search -s 4 "$ME" "$cache" | xsv select "$field" | sed 1d | sort -u)
         if [[ $field == Epic ]]; then
             echo "$BOLD  Sub-tasks$R"
             xsv search -s 4 "$ME" "$cache" \
-                | xsv select 1,5,3,7,8 \
+                | xsv select "$fields" \
                 | xsv search -s 1 Sub-task \
                 | _format
         fi
@@ -223,10 +365,11 @@ _grp () {  # group issues by header
     echo
 }
 
-FILE=
+CACHETYPE=
 COLS=
 FILTER=
 _get () {
+    _prepare_cache_filenames
     sortby=issue
     sortargs=()
     for arg in "$@"; do
@@ -241,35 +384,32 @@ _get () {
     [[ $sortby =~ (issue|epic) ]] && sortargs+=(-N)
     sortargs+=(-s "${sortby@u}")
 
-    echo
-    xsv sort "${sortargs[@]}" "$FILE" \
+    case $CACHETYPE in
+        issues) cache=$ISSUE_CACHEFILE  ;;
+        links)  cache=$LINKS_CACHEFILE  ;;
+    esac
+
+    xsv sort "${sortargs[@]}" "$cache" \
         | if [[ -n $FILTER ]]; then xsv search -s "${FILTER[@]}" /dev/stdin; else tee /dev/null; fi \
         | if [[ -z $all ]]; then xsv search -s Assignee $ME /dev/stdin; else tee /dev/null; fi \
         | if [[ -n $pattern ]]; then xsv search "$pattern" /dev/stdin; else tee /dev/null; fi \
         | xsv select "$COLS" \
         | __format
-    echo
 }
 
 _ls () {  # list issues
-    # echo ${var/$'\n'*}
-    # $(( ${${${va#* }// /+}:0:-1} ))
-    # ${va#* }
-    # readarray colors < <(xsv select 6 "$cache" | sed -r 's/.*-(.*)/\1 % 255/p' | sort -u | bc)
-    # echo "${colors[@]}"
-    # | xsv select 6,5,1,3,7,8 \
-    FILE=$CACHE/$(_filename)
+    CACHETYPE=issues
     COLS=1,5,3,7,8
     _get "$@"
 }
 _lse () {  # list epics
-    FILE=$CACHE/$(_filename)
+    CACHETYPE=issues
     COLS=1,3,4,7,8
     FILTER=(Type Epic)
     _get "$@"
 }
 _lsl () {  # list issue links
-    FILE=$LINKSCACHE/$(_filename)
+    CACHETYPE=links
     COLS=4,3,2,7
     _get "$@"
 }
@@ -282,20 +422,17 @@ _els () {  # list issues in epic
     else
         epic=$1 && shift
     fi
-    cache=$CACHE/$(_filename)
-    echo
+    _prepare_cache_filenames
     xsv search -s Issue "$epic" "$cache" \
         | xsv select 1,4,7,8 \
         | xsv flatten \
         | grep -o '  [A-Z].*' --color=no \
         | sed "s/.*/$BOLD&$R/"
-    echo
     xsv search -s Epic "$epic" "$cache" \
         | xsv select 4,5,1,3,7,8 \
         | if [[ -n $1 ]]; then xsv search "$1" /dev/stdin; else tee /dev/null; fi \
         | xsv sort -s Issue -N \
         | __format
-    echo
 }
 # }}}
 _lsrel () {
@@ -304,20 +441,41 @@ _lsrel () {
     else
         opts=(reverse --color-output)
     fi
-    curl -s --request GET --user "$EMAIL:$JIRA_API_TOKEN" --header "Accept: application/json" \
-        --url "$SUBDOMAIN/rest/api/3/project/$RELEASES_PROJECT/versions" \
-        | jq "${opts[@]}" \
-        | less
+    _get_url "$_VERSIONS" | jq "${opts[@]}" | less
 }
 # {{{ fzf
 _fls () {
-    preview="jira jira view {1} | sed 's/{noformat}/\\n&\\n/' | LESS=-XR bat ${BATOPTS[*]}"
-    xsv select Issue,Epic,Status,Assignee,Summary "$(_cache_file)" \
+    _prepare_cache_filenames
+    preview="jira show {1}"
+    xsv select Issue,Epic,Status,Assignee,Summary "$ISSUE_CACHEFILE" \
         | xsv sort -Ns 1 \
         | column -ts, \
-        | fzf --layout=reverse --preview "$preview" --bind "\
+        | tail -n+2 \
+        | fzf \
+        --margin 2% \
+        --padding 2% \
+        --border \
+        --black \
+        --border sharp \
+        --preview "$preview" \
+        --preview-window '~3:+3/2' \
+        --bind "\
 enter:execute($preview),\
-ctrl-e:execute(jira jira edit {1})"
+ctrl-e:execute(jira edit {1})" \
+        --color="\
+bg:#4B4B4B,\
+bg+:#3f3f3f,\
+info:#80CCE6,\
+border:#80CCE6,\
+spinner:#80CCE6,\
+hl:bold:#000000,\
+fg:#D9D9D9,\
+header:#719872,\
+fg+:#D9D9D9,\
+pointer:#E12672,\
+marker:#E17899,\
+prompt:#98BEDE,\
+hl+:#98BC99"
 }
 
 # }}}
@@ -392,21 +550,23 @@ show_help () {
             [erm]=ISSUE
         )
 
-    CMDLIST[action]="com edit link new open show mv" &&
+    CMDLIST[action]="com edit hist link new open show mv" &&
         NOTES+=(
-            [com]="add a comment under an issue"
+            [com]="add a comment"
+            [hist]="show issue history / changelog"
             [edit]="edit an issue"
             [link]="link two issues, e.g. _(12 fixes 34). List possible links with _(-l)"
-            [mv]="move/change issue state: _(todo) (in-)_(progress) _(testing) _(review) _(done) _(backlog)"
+            [mv]="change issue status: _(todo) (in-)_(progress) _(testing) ... List possible options for an issue with _(-l ISSUE)"
             [new]="create a new issue"
             [open]="open issue in the browser"
             [show]="show issue details"
         ) &&
         ARGMS+=(
+            [hist]=ISSUE
             [com]="ISSUE  [-m COMMENT]"
             [edit]=ISSUE
             [link]="-l | SOURCE  ACTION  RECEIVER"
-            [mv]="NEW-STATE  ISSUE"
+            [mv]="-l  ISSUE | STATUS  ISSUE"
             [open]=ISSUE
             [show]=ISSUE
         )
@@ -454,20 +614,19 @@ if test $# -eq 0; then
     show_help | colorize
 else
     cmd=$1 && shift
-    if [[ $cmd == jira ]]; then
-        cmd=/usr/bin/jira
-    else
-        if [[ ! $cmd =~ ${CMDLIST[*]} ]]; then
-            error "Command $cmd does not exist" && exit 100
-        else
-            cmd=_$cmd
-        fi
-    fi
+    case $cmd in
+        jira)   cmd=_jira ;;
+        _test)  cmd=$2            ;;
+        *)      if [[ ! $cmd =~ ${CMDLIST[*]} ]]; then
+                    error "Command $cmd does not exist" && exit 100
+                else
+                    cmd=_$cmd
+                fi ;;
+    esac
     if [[ -n $1 ]]; then $cmd "$@"; else $cmd; fi
     exit $?
 fi
 # }}}
-
 # TODO
 # {{{ tree
 # declare -A PRIORITY
@@ -496,7 +655,7 @@ fi
 #     fi
 
 #     text=$(
-#         grep "^[^\"]\|$filt" "$(_cache_file "$1")" \
+#         grep "^[^\"]\|$filt" "$ISSUE_CACHEFILE" \
 #         | xsv search -s Assignee "$ME" \
 #         | if $skipepics; then xsv search -vs Type Epic; else tee /dev/null; fi \
 #         | xsv select $headers \
