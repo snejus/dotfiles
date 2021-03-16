@@ -58,7 +58,7 @@ warning() { _stderr "$B$YELLOW WARNING:$R $*"; }
 error() { _stderr "$B$RED ERROR:$R $*"; }
 # }}}
 # {{{ Colorfilter
-TICKETPAT='[\s"]([A-Z]+-[0-9]+)'
+TICKETPAT='[\t "]([A-Z]+-[0-9]+)'
 _colorfilter() {
     pattern="
     # Relation type
@@ -304,8 +304,8 @@ _hist () {
         mapfile -t lines < /dev/stdin
         lookup=()
         for line in "${lines[@]}"; do
-            if [[ $line =~ (Epic\ Child|Link).*$TICKETPAT.* ]]; then
-                [[ -n ${BASH_REMATCH[3]} ]] && lookup+=("${BASH_REMATCH[3]}")
+            if [[ $line =~ (Epic\ Child|Link)[^A-Z]+$TICKETPAT ]]; then
+                [[ -n ${BASH_REMATCH[2]} ]] && lookup+=("${BASH_REMATCH[2]}")
             fi
         done
         lines=("${lines[@]/\"202/$'\n"'202}")
@@ -314,7 +314,7 @@ _hist () {
         lookup_pat="(${lookup_pat//\ /\|})"
 
         _prepare_cache_filenames
-        xsv search -s Issue "$lookup_pat" "$ISSUE_CACHEFILE" \
+        xsv search -s1 "$lookup_pat" "$ISSUE_CACHEFILE" \
             | xsv select 1,8 | {
             # skip headers
             read -r line < /dev/stdin
